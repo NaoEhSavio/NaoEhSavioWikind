@@ -1,0 +1,196 @@
+// 3.0.1. Exercise: 1 star (nandb). Fill in the hole ?nandb_rhs and complete the
+// following function; then make sure that the assertions below can each be verified
+// by Idris. (Fill in each of the holes, following the model of the orb tests above.) The
+// function should return True if either or both of its inputs are False.
+
+// Nandb ( Bool.false ) ( Bool.false ) -> Bool.true
+Nandb (b1 : Bool) (b2 : Bool) : Bool
+Nandb Bool.true Bool.true = Bool.false 
+Nandb a b = Bool.true 
+
+Test_nandb1 : (Equal Bool (Nandb Bool.true Bool.false) Bool.true)
+Test_nandb1 = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+Test_nandb2 : (Equal Bool (Nandb Bool.false Bool.false) Bool.true)
+Test_nandb2 = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+Test_nandb3 : (Equal Bool (Nandb Bool.false Bool.true) Bool.true)
+Test_nandb3 = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+Test_nandb4 : (Equal Bool (Nandb Bool.true Bool.true) Bool.false)
+Test_nandb4 = Equal.refl
+// - Goal: (Equal Bool Bool.false Bool.false)
+
+// 3.0.2. Exercise: 1 star (andb3). Do the same for the andb3 function below. This
+// function should return True when all of its inputs are True, and False otherwise.
+
+Andb3 (b1: Bool) (b2: Bool) (b3: Bool) : Bool
+Andb3 b1 b2 b3 = (Bool.and b1 (Bool.and b2 b3))
+
+Test_andb31 : (Equal Bool (Andb3 Bool.true Bool.true Bool.true) Bool.true)
+Test_andb31 = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+Test_andb32 : (Equal Bool (Andb3 Bool.false Bool.true Bool.true) Bool.false)
+Test_andb32 = Equal.refl
+// - Goal: (Equal Bool Bool.false Bool.false)
+Test_andb33 : (Equal Bool (Andb3 Bool.true Bool.false Bool.true) Bool.false)
+Test_andb33 = Equal.refl
+// - Goal: (Equal Bool Bool.false Bool.false)
+Test_andb34 : (Equal Bool (Andb3 Bool.true Bool.true Bool.false) Bool.false)
+Test_andb34 = Equal.refl
+// - Goal: (Equal Bool Bool.false Bool.false)
+
+// 6.0.1. Exercise: 1 star (factorial). Recall the standard mathematical factorial
+// function:
+// 𝑓𝑎𝑐𝑡𝑜𝑟𝑖𝑎𝑙(𝑛) = {1, if 𝑛 = 0
+// 𝑛 × 𝑓𝑎𝑐𝑡𝑜𝑟𝑖𝑎𝑙(𝑛 − 1), otherwise
+
+
+Factorial (n: Nat) : Nat
+Factorial  Nat.zero    = (Nat.succ (Nat.zero))
+Factorial (Nat.succ n) = (Nat.mul (Factorial n) (Nat.succ n))
+
+TestFactorial1 : (Equal Nat (Factorial (U60.to_nat 3)) (U60.to_nat 6))
+TestFactorial1 = Equal.refl
+// - Goal: (Equal  Nat (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))))) 
+//                     (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))))))
+TestFactorial2 : (Equal Nat (Factorial (U60.to_nat 5)) (U60.to_nat (* 10 12)))
+TestFactorial2 = Equal.refl
+// - Goal: Só Odin sabe !!!!
+
+// 6.0.2. Exercise: 1 star (blt_nat). The blt_nat function tests Natural numbers
+// for less-than, yielding a boolean. Instead of making up a new recursive function
+// for this one, define it in terms of a previously defined function.
+
+Blt_nat (n: Nat) (m: Nat) : Bool
+Blt_nat Nat.zero Nat.zero = Bool.false
+Blt_nat n        Nat.zero = Bool.false
+Blt_nat Nat.zero m        = Bool.true
+Blt_nat (Nat.succ n) (Nat.succ m) = (Blt_nat n m)
+
+Test_blt_nat_1 : Equal Bool (Blt_nat (U60.to_nat 2) (U60.to_nat 2)) Bool.false
+Test_blt_nat_1 = Equal.refl
+// - Goal: (Equal Bool Bool.false Bool.false)
+Test_blt_nat_2 : Equal Bool (Blt_nat (U60.to_nat 2) (U60.to_nat 4)) Bool.true
+Test_blt_nat_2 = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+Test_blt_nat_3 : Equal Bool (Blt_nat (U60.to_nat 4) (U60.to_nat 2)) Bool.false
+Test_blt_nat_3 = Equal.refl
+// - Goal: (Equal Bool Bool.false Bool.false)
+
+// 8.0.1. Exercise: 1 star (plus_id_exercise). Fill in the proof.
+Plus_id_exercise (n: Nat) (m: Nat) (o: Nat) (e: Equal Nat n m)  (p: Equal Nat m o) : (Equal Nat (Nat.add n m) (Nat.add m o)) 
+Plus_id_exercise n m o e p = 
+                        let app = Equal.apply (x => Nat.add n x) p
+                        let rrt = Equal.rewrite e (x => (Equal Nat (Nat.add n m) (Nat.add x o))) app
+                        rrt
+ 
+// - e : (Equal Nat n m)
+// - p : (Equal Nat m o)
+// - app : (Equal Nat (Nat.add n m) (Nat.add n o))
+// - rrt : (Equal Nat (Nat.add n m) (Nat.add m o))
+// - Goal: (Equal Nat (Nat.add n m) (Nat.add m o))
+
+// 8.0.2. Exercise: 2 starts (mult_S_1).
+Mult_S_1 (n: Nat) (m: Nat) (e: Equal Nat m (Nat.succ n)) : (Equal Nat (Nat.mul m (Nat.succ n)) (Nat.mul m m))
+Mult_S_1 n m e = 
+            let app = Equal.apply (x => Nat.mul m x) e
+            let mir = Equal.mirror app
+            mir
+
+// - e : (Equal Nat m (Nat.succ n))
+// - app : (Equal Nat (Nat.mul m m) (Nat.mul m (Nat.succ n)))
+// - mir : (Equal Nat (Nat.mul m (Nat.succ n)) (Nat.mul m m))
+// - Goal: (Equal Nat (Nat.mul m (Nat.succ n)) (Nat.mul m m))
+
+// 9.0.1. Exercise: 2 stars (andb_true_elim2). Prove the following claim, lift
+// cases (and subcases) to lemmas when case split.
+Andb_true_elim_2 (b: Bool) (c: Bool) (e: Equal Bool (Bool.and b c) Bool.true) : (Equal Bool c Bool.true)
+Andb_true_elim_2 Bool.true Bool.true prf = Equal.refl
+// - prf : (Equal Bool Bool.true Bool.true)
+// - Goal: (Equal Bool Bool.true Bool.true)
+Andb_true_elim_2 Bool.true Bool.false prf = ?
+// - prf : (Equal Bool Bool.false Bool.true)
+// - Goal: (Equal Bool Bool.false Bool.true)
+Andb_true_elim_2 Bool.false Bool.true prf = Equal.refl
+// - prf : (Equal Bool Bool.false Bool.true)
+// - Goal: (Equal Bool Bool.true Bool.true)
+Andb_true_elim_2 Bool.false Bool.false prf = ?
+// - prf : (Equal Bool Bool.false Bool.true)
+// - Goal: (Equal Bool Bool.false Bool.true)
+
+// 9.0.2. Exercise: 1 star (zero_nbeq_plus_1).
+Zero_nbeq_plus_1 (n : Nat) :(Equal Bool (Nat.equal Nat.zero (Nat.succ n)) Bool.false)
+Zero_nbeq_plus_1 n  = Equal.refl
+
+// - Goal: (Equal Bool Bool.false Bool.false)
+
+// 11.0.1. Exercise: 2 stars (boolean_functions). Use the tactics you have learned
+// so far to prove the following theorem about boolean functions.
+Identity_fn_applied_twice (f: Bool ->  Bool) (e: (x: Bool) -> Equal Bool (f x) x) (b: Bool) : (Equal Bool (f (f b)) b)
+Identity_fn_applied_twice f g b =
+                            let g_b = (g b) 
+                            let mir = Equal.mirror g_b
+                            let rrt = Equal.rewrite mir (x => (Equal Bool (f x) b)) g_b
+                            rrt
+
+// - f   : (Bool -> Bool)
+// - g   : ((x: Bool) -> (Equal Bool (f x) x))
+// - g_b : (Equal Bool (f b) b)
+// - mir : (Equal Bool b (f b))
+// - rrt : (Equal Bool (f (f b)) b)
+// - Goal: (Equal Bool (f (f b)) b)
+
+// 11.0.2. Exercise: 2 start (andb_eq_orb). Prove the following theorem. (You
+// may want to first prove a subsidiary lemma or two. Alternatively, remember that
+// you do not have to introduce all hypotheses at the same time.)
+Andb_eq_orb (b: Bool) (c: Bool) (e: Equal Bool (Bool.and b c) (Bool.or b c)) : (Equal Bool b c)
+Andb_eq_orb Bool.true Bool.true prf = Equal.refl // prf
+// - prf : (Equal Bool Bool.true Bool.true)
+// - Goal: (Equal Bool Bool.true Bool.true)
+Andb_eq_orb Bool.true Bool.false prf = ? // prf
+// - prf : (Equal Bool Bool.false Bool.true)
+// - Goal: (Equal Bool Bool.true Bool.false)
+Andb_eq_orb Bool.false Bool.true prf =  ?// prf
+// - prf : (Equal Bool Bool.false Bool.true)
+// - Goal: (Equal Bool Bool.false Bool.true)
+Andb_eq_orb Bool.false Bool.false prf = Equal.refl // prf
+// - prf : (Equal Bool Bool.false Bool.false)
+// - Goal: (Equal Bool Bool.false Bool.false)
+
+// 11.0.3. Exercise: 3 stars (binary). Consider a different, more efficient representation of 
+// natural numbers using a binary rather than unary system. That is,
+// instead of saying that each natural number is either zero or the successor of a
+// natural number, we can say that each binary number is either
+        // • zero,
+        // • twice a binary number, or
+        // • one more than twice a binary number.
+
+    // (a) First, write an inductive definition of the type Bin corresponding to this
+    // description of binary numbers.
+
+    // (Hint: Recall that the definition of Nat from class,
+    // Nat : Type
+    // Nat.zero : Nat
+    // Nat.succ (pred: Nat) : Nat 
+    // says nothing about what Z and S “mean.” It just says “Z is in the set called Nat, and if
+    // n is in the set then so is S n.” The interpretation of Z as zero and S as successor/plus
+    // one comes from the way that we use Nat values, by writing functions to do things
+    // with them, proving things about them, and so on. Your definition of Bin should
+    // be correspondingly simple; it is the functions you will write next that will give it
+    // mathematical meaning.)
+
+    // (b) Next, write an increment function incr for binary numbers, and a function
+    // bin_to_nat to convert binary numbers to unary numbers.
+
+    // (c) Write five unit tests test_bin_incr_1, test_bin_incr_2, etc. for your increment and binary-to-unary functions. 
+    // Notice that incrementing a binary number and then converting it to unary should yield the same result as 
+    // first converting it to unary and then incrementing.
+
+
+
+// Main {
+//     let a = Bool.nand Bool.false Bool.false
+//     let b = Nandb Bool.false Bool.false
+//     (* 10 10) 
+// }

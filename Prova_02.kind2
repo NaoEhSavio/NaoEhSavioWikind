@@ -1,0 +1,92 @@
+Rev <a: Type>(l: List a) : List a
+Rev a (List.nil l) = List.nil a
+Rev a (List.cons l head tail) = List.concat (Rev tail) [head]
+
+Plus_n_Z (n: Nat) : (Equal Nat n (Nat.add n Nat.zero))
+Plus_n_Z Nat.zero = Equal.refl
+// - Goal: (Equal Nat Nat.zero Nat.zero)
+Plus_n_Z (Nat.succ n.pred) =
+                        let ind = Plus_n_Z n.pred
+                        let app = Equal.apply (x => Nat.succ x) ind 
+                        app
+
+Plus_n_Sm (n: Nat) (m: Nat) : (Equal Nat (Nat.succ (Nat.add n m)) (Nat.add n (Nat.succ m)))
+Plus_n_Sm Nat.zero m = Equal.refl
+Plus_n_Sm (Nat.succ n) m =
+                      let ind = Plus_n_Sm n m
+                      let app = Equal.apply (x => Nat.succ x) ind
+                      app
+// - ind : (Equal Nat (Nat.succ (Nat.add n m)) (Nat.add n (Nat.succ m)))
+// - app : (Equal Nat (Nat.succ (Nat.succ (Nat.add n m))) (Nat.succ (Nat.add n (Nat.succ m))))
+// - Goal: (Equal Nat (Nat.succ (Nat.succ (Nat.add n m))) (Nat.succ (Nat.add n (Nat.succ m))))
+Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
+Plus_comm Nat.zero m = 
+                  let ind = Plus_n_Z m
+                  ind
+// - ind : (Equal Nat m (Nat.add m Nat.zero))
+// - Goal: (Equal Nat m (Nat.add m Nat.zero))
+Plus_comm (Nat.succ n.pred) m = 
+                          let ind = Plus_comm n.pred m 
+                          let app = Equal.apply (x => Nat.succ x) ind 
+                          let aux = Plus_n_Sm m n.pred
+                          let chn = Equal.chain app aux
+                          chn
+// - ind : (Equal Nat (Nat.add n.pred m) (Nat.add m n.pred))
+// - app : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.succ (Nat.add m n.pred)))
+// - aux : (Equal Nat (Nat.succ (Nat.add m n.pred)) (Nat.add m (Nat.succ n.pred)))
+// - chn : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
+// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
+App_length <a: Type> (l1: List a) (l2: List a) : (Equal Nat (List.length (List.concat l1 l2)) (Nat.add (List.length l1) (List.length l2)))
+App_length a (List.nil l) l2 = Equal.refl
+// - Goal: (Equal Nat (List.length _ l2) (List.length _ l2))
+App_length a (List.cons l head tail) l2 = 
+																		let ind = App_length l tail l2
+																		let app = Equal.apply (x => Nat.succ x) ind 
+																		app
+// - ind : (Equal Nat (List.length _ (List.concat _ tail l2)) (Nat.add (List.length _ tail) (List.length _ l2)))
+// - app : (Equal Nat (Nat.succ (List.length _ (List.concat _ tail l2))) (Nat.succ (Nat.add (List.length _ tail) (List.length _ l2))))
+// - Goal: (Equal Nat (Nat.succ (List.length _ (List.concat _ tail l2))) (Nat.succ (Nat.add (List.length _ tail) (List.length _ l2))))
+
+Rev_length (l: List Nat) : (Equal (List.length (Rev l)) (List.length l)) //meu video
+Rev_length (List.nil Nat) = Equal.refl
+// - Goal: (Equal _ Nat.zero Nat.zero)
+Rev_length (List.cons Nat head tail) = // livro 
+																let ind = Rev_length tail 
+																let aux1 = App_length (Rev tail) [head]
+																let aux2 = Plus_comm (List.length (Rev tail)) (Nat.succ Nat.zero)
+																let rrt1 = Equal.rewrite ind (x => (Equal Nat (Nat.add (List.length Nat (Rev tail)) (Nat.succ Nat.zero)) (Nat.succ x))) aux2			
+																let rrt2 = Equal.rewrite rrt1 (x => (Equal _ (List.length _ (List.concat _ (Rev tail) (List.cons _ head (List.nil _)))) x )) aux1				
+																rrt2
+
+
+
+
+
+
+
+
+
+
+
+
+App_length <a: Type> (l1: List a) (l2: List a) : (Equal Nat (List.length (List.concat l1 l2)) (Nat.add (List.length l1) (List.length l2)))
+Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
+
+
+// Theorem: For all lists l, List.length (rev l) = List.length l
+Theorem <a: Type> (xs: List a): Equal Nat (List.length (Rev xs)) (List.length xs)
+Theorem a (List.nil at) = Equal.refl 
+// - Goal: (Equal Nat Nat.zero Nat.zero)
+Theorem a (List.cons l head tail) = 
+		let ind = Theorem a tail
+		let aux1 = App_length (Rev tail) [head]
+		let aux2 = Plus_comm (List.length (Rev l tail)) (Nat.succ Nat.zero)
+		let chn = Equal.chain aux1 aux2
+		let rrt = Equal.rewrite ind (x => (Equal Nat (List.length _ (List.concat _ (Rev l tail) (List.cons l head (List.nil l)))) (Nat.succ x))) chn
+		rrt
+// - ind : (Equal Nat (List.length _ (Rev _ tail)) (List.length _ tail))                              (x + 1) = (sucesor x) 
+// - aux1: (Equal Nat (List.length _ (List.concat _ (Rev l tail) (List.cons l head (List.nil l)))) (Nat.add (List.length _ (Rev l tail)) (Nat.succ Nat.zero)))
+// - aux2: (Equal Nat (Nat.add (List.length l (Rev l tail)) (Nat.succ Nat.zero)) (Nat.succ (List.length l (Rev l tail))))
+// - chn : (Equal Nat (List.length _ (List.concat _ (Rev l tail) (List.cons l head (List.nil l)))) (Nat.succ (List.length l (Rev l tail))))
+// - rrt : (Equal Nat (List.length l (List.concat l (Rev l tail) (List.cons l head (List.nil l)))) (Nat.succ (List.length _ tail)))
+// - Goal: (Equal Nat (List.length _ (List.concat _ (Rev _ tail) (List.cons _ head (List.nil _)))) (Nat.succ (List.length _ tail)))
