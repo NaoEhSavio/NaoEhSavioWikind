@@ -1,2 +1,3 @@
-// Automatically derived from KDL/KGT/Response/_.type
+// Automatically derived from response.type
+#kdl_name = KgtRSend
 KDL.KGT.Response.send (success: Bool) : (KDL.KGT.Response)
