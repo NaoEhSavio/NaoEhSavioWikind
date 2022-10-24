@@ -164,8 +164,8 @@ Bag = NatList
 // 2.6.1. Exercise: 3 stars, recommended (bag_functions). Complete the following definitions for the functions count, sum, add, and member for bags.
 
 Count (v: Nat) (s: Bag) : Nat
-Count v (List.nil Nat) = Nat.zero
-Count v ((List.cons Nat head tail)) = if (Nat.equal head v) {Nat.succ (Count v tail)} else {Count v tail}
+Count v (List.nil ) = Nat.zero
+Count v (List.cons Nat head tail) = if (Nat.equal head v) {Nat.succ (Count v tail)} else {Count v tail}
 
 MapOne_to_Tri_One_Qua_One : NatList
 MapOne_to_Tri_One_Qua_One = (List.cons Nat (U60.to_nat 1)
@@ -193,8 +193,8 @@ Test_count2 = Equal.refl
 // already been defined.
 
 Sum (x: Bag) (y: Bag) : Bag
-Sum (List.nil Nat) (List.nil Nat) = (List.nil Nat)
-Sum (List.nil Nat) ((List.cons Nat head tail)) = (List.cons Nat head (Sum (List.nil Nat) tail))
+Sum (List.nil ) (List.nil ) = (List.nil )
+Sum (List.nil ) ((List.cons Nat head tail)) = (List.cons Nat head (Sum (List.nil Nat) tail))
 Sum ((List.cons Nat head tail)) y = (List.cons Nat head (Sum tail y))
 
 MapOne_Qua_One : NatList
@@ -206,7 +206,7 @@ Test_sum1 : (Equal Nat (Count (U60.to_nat 1) (Sum MapTri MapOne_Qua_One)) (U60.t
 Test_sum1 = Equal.refl
 
 Add (v: Nat) (s: Bag) : Bag
-Add v (List.nil Nat) =  List.cons Nat v (List.nil Nat)
+Add v (List.nil ) =  List.cons Nat v (List.nil Nat)
 Add v ((List.cons Nat head tail)) = List.cons Nat v ((List.cons Nat head tail))
 
 Test_add1 : (Equal Nat (Count (U60.to_nat 1) (Add (U60.to_nat 1) MapOne_Qua_One)) (U60.to_nat 3))
@@ -216,7 +216,7 @@ Test_add2 : (Equal Nat (Count (U60.to_nat 5) (Add (U60.to_nat 1) MapOne_Qua_One)
 Test_add2 = Equal.refl
 
 Member (v: Nat) (s: Bag) : Bool
-Member v (List.nil Nat) = Bool.false
+Member v (List.nil ) = Bool.false
 Member v ((List.cons Nat head tail)) = if (Nat.equal head v) {Bool.true} else {(Member v tail)}
 
 // Test_member1 : member 1 [1,4,1] = True
@@ -233,7 +233,7 @@ Test_member2 = Equal.refl
 // // the same bag unchanged.
 
 Remove_one (v: Nat) (s: Bag) : Bag
-Remove_one v ((List.nil Nat)) = (List.nil Nat)
+Remove_one v ((List.nil )) = (List.nil )
 Remove_one v ((List.cons Nat head tail)) = if (Nat.equal v head) {tail} else {(List.cons Nat head (Remove_one v tail))}
 
 MapTwo_One_Fiv_Qua_One : NatList
@@ -311,8 +311,8 @@ Test_remove_all4 = Equal.refl
 
 Subset (s1: Bag) (s2: Bag) : Bool
 Subset (List.cons Nat s1.head s1.tail) (List.nil Nat) = Bool.false
-Subset (List.nil Nat) (List.cons Nat s2.head s2.tail) = Bool.true
-Subset (List.nil Nat) (List.nil Nat) = Bool.true
+Subset (List.nil ) (List.cons Nat s2.head s2.tail) = Bool.true
+Subset (List.nil ) (List.nil ) = Bool.true
 Subset (List.cons Nat s1.head s1.tail) s2 = if (Member s1.head s2) {(Subset s1.tail (Remove_one s1.head s2))} else {Bool.false}
 		 
 
@@ -341,15 +341,15 @@ Test_subset2 = Equal.refl
 // List.length ((List.nil Nat))            = Nat.zero
 // List.length ((List.cons Nat head tail)) = (Nat.succ (List.length tail))
 
-// List.concat (xs: NatList) (ys: NatList) : NatList 
+List.concat (xs: NatList) (ys: NatList) : NatList 
 // List.concat (xs)            (List.nil Nat) = xs
-// List.concat ((List.nil Nat))            ys = ys
-// List.concat ((List.cons Nat head tail)) ys = (List.cons Nat head (List.concat tail ys))
+List.concat (List.nil )            ys = ys
+List.concat (List.cons Nat head tail) ys = (List.cons Nat head (List.concat tail ys))
 
 
 
 Rev (l: List Nat) : List Nat
-Rev (List.nil Nat) = List.nil Nat
+Rev (List.nil ) = List.nil 
 Rev (List.cons Nat head tail) = List.concat (Rev tail) [head]
 
 
@@ -414,27 +414,26 @@ Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
 //                           let chn = Equal.chain app aux
                           // chn 
 													  
-Rev_length (l: NatList) : (Equal (List.length (Rev l)) (List.length l)) //meu video
+Rev_length (l: NatList) : (Equal Nat (List.length (Rev l)) (List.length l)) //meu video
 Rev_length (List.nil Nat) = Equal.refl
 // - Goal: (Equal _ Nat.zero Nat.zero)
 Rev_length (List.cons Nat head tail) = // livro 
 																let ind = Rev_length tail 
 																let aux1 = App_length (Rev tail) [head]
 																let aux2 = Plus_comm (List.length (Rev tail)) (Nat.succ Nat.zero)
-																let rrt1 = Equal.rewrite ind (x => (Equal Nat (Nat.add (List.length Nat (Rev tail)) (Nat.succ Nat.zero)) (Nat.succ x))) aux2			
-																let rrt2 = Equal.rewrite rrt1 (x => (Equal _ (List.length _ (List.concat _ (Rev tail) (List.cons _ head (List.nil _)))) x )) aux1				
-																rrt2
+																let chn = Equal.chain aux1 aux2
+																let rrt = Equal.rewrite ind (x => (Equal _ (List.length _ (List.concat (Rev tail) (List.cons _ head (List.nil _)))) (Nat.succ (x)))) chn
+																rrt
 															
-// - ind : (Equal _ (List.length _ (Rev tail)) (List.length _ tail))	
-// - aux1: (Equal Nat (List.length Nat (List.concat Nat (Rev tail) (List.cons Nat head (List.nil Nat)))) (Nat.add (List.length Nat (Rev tail)) (Nat.succ Nat.zero)))
-// - aux2: (Equal Nat (Nat.add (List.length Nat (Rev tail)) (Nat.succ Nat.zero)) (Nat.succ (List.length Nat (Rev tail))))		
-// - rrt1: (Equal Nat (Nat.add (List.length Nat (Rev tail)) (Nat.succ Nat.zero)) (Nat.succ (List.length _ tail)))
-// - rrt2: (Equal Nat (List.length Nat (List.concat Nat (Rev tail) (List.cons Nat head (List.nil Nat)))) (Nat.succ (List.length _ tail)))
-// - Goal: (Equal nat (List.length nat (List.concat nat (Rev tail) (List.cons nat head (List.nil nat)))) (Nat.succ (List.length Nat tail)))
+// - ind : (Equal _ (List.length _ (Rev tail)) (List.length _ tail))
+// - aux1: (Equal Nat (List.length _ (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (Nat.add (List.length _ (Rev tail)) (Nat.succ Nat.zero)))
+// - aux2: (Equal Nat (Nat.add (List.length Nat (Rev tail)) (Nat.succ Nat.zero)) (Nat.succ (List.length Nat (Rev tail))))
+// - rrt : (Equal Nat (List.length Nat (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (Nat.succ (List.length _ tail)))
+// - Goal: (Equal _ (List.length _ (List.concat (Rev tail) (List.cons _ head (List.nil _)))) (Nat.succ (List.length _ tail)))
 
 App_assoc (l1: NatList) (l2: NatList) (l3: NatList) : (Equal (List Nat) (List.concat (List.concat l1 l2) l3) (List.concat l1 (List.concat l2 l3))) 
 App_assoc List.nil l2 l3  = Equal.refl
-// - Goal: (Equal _ (List.concat _ l2 l3) (List.concat _ l2 l3))
+// - Goal: (Equal (List Nat) (List.concat l2 l3) (List.concat l2 l3))
 App_assoc (List.cons Nat head tail) l2 l3  = 
 																			let ind = App_assoc tail l2 l3
 																			let app = Equal.apply (x => List.cons _ head x) ind
@@ -443,6 +442,7 @@ App_assoc (List.cons Nat head tail) l2 l3  =
 // - ind : (Equal _ (List.concat _ (List.concat _ tail l2) l3) (List.concat _ tail (List.concat _ l2 l3)))
 // - app : (Equal (List Nat) (List.cons Nat head (List.concat _ (List.concat _ tail l2) l3)) (List.cons Nat head (List.concat _ tail (List.concat _ l2 l3))))
 // - Goal: (Equal (List Nat) (List.cons _ head (List.concat _ (List.concat _ tail l2) l3)) (List.cons _ head (List.concat _ tail (List.concat _ l2 l3))))
+// Rev_app_distr <x: Type> (l1: List x) (l2: List x) : (Equal (List x) (List.rev (List.concat l1 l2)) (List.concat (List.rev l2) (List.rev l1)))
 Rev_app_distr (l1: NatList) (l2: NatList) : (Equal NatList (Rev (List.concat l1 l2)) (List.concat (Rev l2) (Rev l1)))
 Rev_app_distr (List.nil Nat) l2 = 
 														let aux = App_nil_r (Rev l2)
@@ -452,32 +452,30 @@ Rev_app_distr (List.nil Nat) l2 =
 // - aux : (Equal (List Nat) (List.concat _ (Rev l2) (List.nil Nat)) (Rev l2))
 // - mir : (Equal (List Nat) (Rev l2) (List.concat _ (Rev l2) (List.nil Nat)))
 // - Goal: (Equal (List Nat) (Rev l2) (List.concat _ (Rev l2) (List.nil Nat)))
-// Rev_app_distr (List.cons Nat head tail) l2 = 
-// 																						let ind = Rev_app_distr tail l2
-// 																						let app1 = Equal.apply (x => List.concat x [head]) ind
-// 																						let aux1 = App_assoc (Rev l2) (Rev tail) [head] 
-// 																						// let aux2 = (App_nil_r (Rev (List.concat Nat tail l2)))
-// 																						// let aux2 = App_nil_r (Rev (List.cons _ head (List.concat _ tail l2)))
-// 																						?
+Rev_app_distr (List.cons Nat head tail) l2 = 
+																						let ind = Rev_app_distr tail l2
+																						let app1 = Equal.apply (x => List.concat x [head]) ind
+																						let aux1 = App_assoc (Rev l2) (Rev tail) [head] 
+																						let chn = Equal.chain app1 aux1 
+																						chn
 
 // - ind : (Equal (List Nat) (Rev (List.concat _ tail l2)) (List.concat _ (Rev l2) (Rev tail)))
-// - aux1: (Equal (List Nat) (List.concat _ (List.concat _ (Rev l2) (Rev tail)) (List.cons _ head (List.nil _))) (List.concat _ (Rev l2) (List.concat _ (Rev tail) (List.cons _ head (List.nil _)))))
-// 
-// 
-// - app1: (Equal (List Nat) (List.concat _ (Rev (List.concat _ tail l2)) (List.cons _ head (List.nil _))) (List.concat _ (List.concat _ (Rev l2) (Rev tail)) (List.cons _ head (List.nil _))))
-// - Goal: (Equal (List Nat) (Rev (List.cons _ head (List.concat _ tail l2))) (List.concat _ (Rev l2) (List.concat _ (Rev tail) (List.cons _ head (List.nil _)))))
+// - app1: (Equal (List Nat) (List.concat (Rev (List.concat tail l2)) (List.cons Nat head (List.nil Nat))) (List.concat (List.concat (Rev l2) (Rev tail)) (List.cons Nat head (List.nil Nat)))) 
+// - aux1: (Equal (List Nat) (List.concat (List.concat (Rev l2) (Rev tail)) (List.cons Nat head (List.nil Nat))) (List.concat (Rev l2) (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))))
+// - chn : (Equal (List Nat) (List.concat (Rev (List.concat tail l2)) (List.cons Nat head (List.nil Nat))) (List.concat (Rev l2) (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))))
+// - Goal: (Equal (List Nat) (List.concat (Rev (List.concat tail l2)) (List.cons _ head (List.nil _))) (List.concat (Rev l2) (List.concat (Rev tail) (List.cons _ head (List.nil _)))
 
 Rev_involutive (l: NatList) : (Equal NatList (Rev (Rev l)) l)
 Rev_involutive (List.nil Nat) = Equal.refl
 Rev_involutive (List.cons Nat head tail) = 
 																		let ind = Rev_involutive tail 
 																		let aux = Rev_app_distr (Rev tail) [head]
-																		let rrt = Equal.rewrite ind (x => (Equal (Rev (List.concat _ (Rev tail) (List.cons Nat head (List.nil Nat)))) (List.cons _ head (x)))) aux
-																		rrt
+																		let rrt = Equal.rewrite ind (x => (Equal (List Nat) (Rev (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (List.concat (List.cons _ head (List.nil _)) (x)))) aux
+												  					rrt
 // - ind : (Equal (List Nat) (Rev (Rev tail)) tail)
-// - aux : (Equal (List Nat) (Rev (List.concat _ (Rev tail) (List.cons Nat head (List.nil Nat)))) (List.cons _ head (Rev (Rev tail))))
-// - rrt : (Equal (List Nat) (Rev (List.concat Nat (Rev tail) (List.cons Nat head (List.nil Nat)))) (List.cons Nat head tail))
-// - Goal: (Equal (List Nat) (Rev (List.concat _ (Rev tail) (List.cons _ head (List.nil _)))) (List.cons Nat head tail))
+// - aux : (Equal (List Nat) (Rev (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (List.concat (List.cons _ head (List.nil _)) (Rev (Rev tail))))
+// - rrt : (Equal (List Nat) (Rev (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (List.cons Nat head tail))
+// - Goal: (Equal (List Nat) (Rev (List.concat (Rev tail) (List.cons _ head (List.nil _)))) (List.cons Nat head tail))
 
 // There is a short solution to the next one. If you find yourself getting tangled up,
 // step back and try to look for a simpler way.
@@ -504,12 +502,11 @@ App_assoc4 (List.cons Nat head tail) l2 l3 l4 =
 Nonzeros_app (l1: NatList) (l2: NatList) : (Equal NatList (Nonzeros (List.concat l1 l2)) (List.concat (Nonzeros l1) (Nonzeros l2)))
 Nonzeros_app (List.nil Nat) l2 = Equal.refl
 // - Goal: (Equal (List Nat) (Nonzeros l2) (Nonzeros l2))
-// Nonzeros_app (List.cons Nat head tail) l2 = 
-// 																			let ind = Nonzeros_app tail l2
-
-// 																			?
-// - ind : (Equal (List Nat) (Nonzeros (List.concat _ tail l2)) (List.concat _ (Nonzeros tail) (Nonzeros l2)))																			
-// - Goal: (Equal (List Nat) (Nonzeros (List.cons _ head (List.concat _ tail l2))) (List.concat _ (Nonzeros (List.cons Nat head tail)) (Nonzeros l2)))
+Nonzeros_app (List.cons Nat head tail) l2 = 
+																			let ind = Nonzeros_app tail l2
+																			?
+// - ind : (Equal (List Nat) (Nonzeros (List.concat tail l2)) (List.concat (Nonzeros tail) (Nonzeros l2))																		
+// - Goal: (Equal (List Nat) (Nonzeros (List.cons Nat head (List.concat tail l2))) (List.concat (Nonzeros (List.cons Nat head tail)) (Nonzeros l2)))
 // 3.3.2. Exercise: 2 stars (beq_NatList). Fill in the definition of beq_NatList,
 // which compares lists of numbers for equality. Prove that beq_NatList l l yields True
 // for every list l.
@@ -533,13 +530,18 @@ Test_beq_NatList3 = Equal.refl
 Beq_NatList_refl (l: NatList) : (Equal Bool Bool.true (Beq_NatList l l))
 Beq_NatList_refl (List.nil Nat) = Equal.refl
 // - Goal: (Equal Bool Bool.true Bool.true)
-// Beq_NatList_refl (List.cons Nat head tail) = 
-// 																			let ind = Beq_NatList_refl tail
-// 																			?
+Beq_NatList_refl (List.cons Nat head tail) = 
+																			let ind = Beq_NatList_refl tail
+																			let prf = Nat.equal.refl head // 
+																			let app = Equal.apply (x => (Bool.and (Nat.equal head head) x)) ind
+																			let rrt = Equal.rewrite prf (x =>  (Equal Bool (Bool.and (x) Bool.true) (Bool.and (Nat.equal head head) (Beq_NatList tail tail)))) app
+																			rrt
 // - ind : (Equal Bool Bool.true (Beq_NatList tail tail))
+// - prf : (Equal _ (Nat.equal head head) Bool.true)
+// - app : (Equal Bool (Bool.and (Nat.equal head head) Bool.true) (Bool.and (Nat.equal head head) (Beq_NatList tail tail)))
+// - rrt : (Equal Bool Bool.true (Bool.and (Nat.equal head head) (Beq_NatList tail tail)))
 // - Goal: (Equal Bool Bool.true (Bool.and (Nat.equal head head) (Beq_NatList tail tail)))
-// □
-// 3.4. List Exercises, Part 2.
+
 // 3.4.1. Exercise: 3 stars, advanced (bag_proofs). Here are a couple of little
 // theorems to prove about your definitions about bags above.
 Lte (n: Nat) (m: Nat) : Bool
@@ -547,21 +549,39 @@ Lte Nat.zero m = Bool.true
 Lte n Nat.zero = Bool.false
 Lte (Nat.succ k) (Nat.succ j) = Lte k j
 
-// Count_member_nonzero (s: Bag) : lte 1 (Count 1 (1 ௝௞ s)) = True
-Count_member_nonzero (s: Bag) : (Equal Bool (Lte (Nat.succ Nat.zero) (Count (Nat.succ Nat.zero) (List.cons (Nat.succ Nat.zero) s))) Bool.true)
-Count_member_nonzero (List.nil Nat)= ?
-Count_member_nonzero (List.cons Nat head tail) = ?
 
-// ble_n_Sn : (n : Nat) ౏> lte n (S n) = True
-// ble_n_Sn Z = Refl
-// ble_n_Sn (S k) =
-// let inductiveHypothesis = ble_n_Sn k in
-// rewrite inductiveHypothesis in Refl
+
+Lte_z_n (n: Nat) : Equal Bool (Lte Nat.zero n) Bool.true
+Lte_z_n Nat.zero = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+Lte_z_n (Nat.succ n.pred) = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+
+// Count_member_nonzero (s: Bag) : lte 1 (Count 1 (1 ௝௞ s)) = True
+Count_member_nonzero (s: Bag) : (Equal Bool (Lte (Nat.succ Nat.zero) (Count (Nat.succ Nat.zero) (List.cons Nat (Nat.succ Nat.zero) s))) Bool.true)
+Count_member_nonzero s = 
+									let aux = Lte_z_n (Count (Nat.succ Nat.zero) s)
+									aux
+// - Goal: (Equal Bool (Lte Nat.zero (Count (Nat.succ Nat.zero) s)) Bool.true)
+// - Goal: (Equal Bool (Lte Nat.zero (Count (Nat.succ Nat.zero) s)) Bool.true)
+
+Ble_n_Sn (n: Nat) : Equal Bool (Lte n (Nat.succ n)) Bool.true
+Ble_n_Sn Nat.zero = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+Ble_n_Sn (Nat.succ n.pred) = 
+											let ind = Ble_n_Sn n.pred
+											ind
+// - ind : (Equal Bool (Lte n.pred (Nat.succ n.pred)) Bool.true)
+// - Goal: (Equal Bool (Lte n.pred (Nat.succ n.pred)) Bool.true)
 
 // Remove_decreases_count : (s : Bag) ౏> lte (Count 0 (Remove_one 0 s)) (Count 0 s) = True
 Remove_decreases_count (s: Bag) : (Equal Bool (Lte (Count Nat.zero (Remove_one Nat.zero s)) (Count Nat.zero s)) Bool.true) 
-Remove_decreases_count s = ?
-
+Remove_decreases_count s = 
+										let aux1 = Ble_n_Sn (Count Nat.zero (Remove_one Nat.zero s))
+										let aux2 = Lte_z_n (Count Nat.zero (Remove_one Nat.zero s))
+										?
+// - aux : (Equal Bool (Lte (Count Nat.zero (Remove_one Nat.zero s)) (Nat.succ (Count Nat.zero (Remove_one Nat.zero s)))) Bool.true)
+// - Goal: (Equal Bool (Lte (Count Nat.zero (Remove_one Nat.zero s)) (Count Nat.zero s)) Bool.true)
 // 3.4.2. Exercise: 3 stars, optional (bag_count_sum). Write down an interesting theorem bag_count_sum about bags involving the functions count and sum, and
 // prove it. (You may find that the difficulty of the proof depends on how you defined count!)
 // bag_count_sum : ?bag_count_su
@@ -570,7 +590,24 @@ Remove_decreases_count s = ?
 // is injective – that is,
 // rev_injective:(l1, l2 : NatList) ౏> rev l1 = rev l2 ౏> l1 = l2
 Rev_injective (l1: NatList) (l2: NatList) (e: Equal NatList (Rev l1) (Rev l2)) : (Equal NatList l1 l2)
-Rev_injective l1 l2 prf = ?
+Rev_injective l1 l2 prf = 
+                    let aux1 = Rev_involutive l1
+                    let aux2 = Rev_involutive l2
+										let app = Equal.apply (x => Rev x) prf
+										let chn1 = Equal.chain app aux2
+										let mir1 = Equal.mirror chn1
+										let chn2 = Equal.chain mir1 aux1
+										let mir2 = Equal.mirror chn2 
+										mir2
+// - prf : (Equal (List Nat) (Rev l1) (Rev l2))
+// - aux1: (Equal (List Nat) (Rev (Rev l1)) l1)
+// - aux2: (Equal (List Nat) (Rev (Rev l2)) l2)
+// - app : (Equal (List Nat) (Rev (Rev l1)) (Rev (Rev l2)))
+// - chn1: (Equal (List Nat) (Rev (Rev l1)) l2)
+// - mir1: (Equal (List Nat) l2 (Rev (Rev l1)))
+// - chn2: (Equal (List Nat) l2 l1)
+// - mir2: (Equal (List Nat) l1 l2)
+// - Goal: (Equal (List Nat) l1 l2)
 
 // 4.0.1. Exercise: 2 stars (hd_error). Using the same idea, fix the hd function
 // from earlier so we don’t have to pass a default element for the Nil case.
@@ -583,30 +620,38 @@ Option_elim (d: Nat) (o: NatOption) : Nat
 Option_elim d (Maybe.some k)   = k
 Option_elim d (Maybe.none Nat) = d
 
-Hd_error (l : NatList) : NatOption
-Hd_error (List.nil Nat) = (Maybe.none Nat)
-Hd_error (List.cons Nat head tail) = (Maybe.some head)
+Hd_error <x> (l: List Nat) : NatOption
+Hd_error x (List.nil ) = (Maybe.none )
+Hd_error x (List.cons  head tail) = (Maybe.some  head)
 
 // Test_hd_error1 : Hd_error [] = None
 Test_hd_error1 : (Equal NatOption (Hd_error []) (Maybe.none Nat)) 
-Test_hd_error1 = ?
+Test_hd_error1 = Equal.refl
 
 // Test_hd_error2 : Hd_error [1] = Some 1
 Test_hd_error2 : (Equal NatOption (Hd_error [(U60.to_nat 1)]) (Maybe.some (U60.to_nat 1))) 
-Test_hd_error2 = ?
+Test_hd_error2 = Equal.refl
 
 // Test_hd_error3 : Hd_error [5,6] = Some 5
 Test_hd_error3 : (Equal NatOption (Hd_error [(U60.to_nat 5),(U60.to_nat 6)]) (Maybe.some (U60.to_nat 5))) 
-Test_hd_error3 = ?
+Test_hd_error3 = Equal.refl
 
 // 4.0.2. Exercise: 1 star, optional (option_elim_hd). This exercise relates your
 // new hd_error to the old hd.
+// Hd <a: Type> (v: Nat) (m: NatOption): Nat
+// Hd a v (Maybe.none ) = v
+// Hd a v (Maybe.some  value) = value
+
+Hd_list (v: Nat) (l: List Nat): Nat
+Hd_list  v (List.nil ) = v
+Hd_list  v (List.cons head tail) = head
+
 // Option_elim_hd : (l : NatList) ౏> (default : Nat) ౏> hd default l = option_elim default (hd_error l)
-Option_elim_hd (l: NatList) (default: Nat) : (Equal (Hd_error l) (Maybe.some (Option_elim default (Hd_error l))))
+Option_elim_hd (l: NatList) (default: Nat) : (Equal (Hd_list default l) (Option_elim default (Hd_error l)))
 Option_elim_hd l default = ?
 
 Id : Type 
-MkId (key: Nat): Id
+MkId (key: Nat) : Id
 
 // beq_id : (x1, x2 : Id) ౏> Bool
 // beq_id (MkId n1) (MkId n2) = n1 తథ n2
