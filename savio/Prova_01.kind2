@@ -1,0 +1,88 @@
+Plus_n_Z (n: Nat) : (Equal Nat n (Nat.add n Nat.zero))
+Plus_n_Z Nat.zero = Equal.refl
+// - Goal: (Equal Nat Nat.zero Nat.zero)
+Plus_n_Z (Nat.succ n.pred) =
+                        let ind = Plus_n_Z n.pred
+                        let app = Equal.apply (x => Nat.succ x) ind 
+                        app
+// - ind : (Equal Nat n.pred (Nat.add n.pred Nat.zero))
+// - app : (Equal Nat (Nat.succ n.pred) (Nat.succ (Nat.add n.pred Nat.zero)))
+// - Goal: (Equal Nat (Nat.succ n.pred) (Nat.succ (Nat.add n.pred Nat.zero)))
+
+Plus_n_Sm (n: Nat) (m: Nat) : (Equal Nat (Nat.succ (Nat.add n m)) (Nat.add n (Nat.succ m)))
+Plus_n_Sm Nat.zero m = Equal.refl
+Plus_n_Sm (Nat.succ n) m =
+                      let ind = Plus_n_Sm n m
+                      let app = Equal.apply (x => Nat.succ x) ind
+                      app
+// - ind : (Equal Nat (Nat.succ (Nat.add n m)) (Nat.add n (Nat.succ m)))
+// - app : (Equal Nat (Nat.succ (Nat.succ (Nat.add n m))) (Nat.succ (Nat.add n (Nat.succ m))))
+// - Goal: (Equal Nat (Nat.succ (Nat.succ (Nat.add n m))) (Nat.succ (Nat.add n (Nat.succ m))))
+
+Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
+Plus_comm Nat.zero m = 
+                  let ind = Plus_n_Z m
+                  ind
+// - ind : (Equal Nat m (Nat.add m Nat.zero))
+// - Goal: (Equal Nat m (Nat.add m Nat.zero))
+Plus_comm (Nat.succ n.pred) m = 
+                          let ind = Plus_comm n.pred m 
+                          let app = Equal.apply (x => Nat.succ x) ind 
+                          let aux = Plus_n_Sm m n.pred
+                          let chn = Equal.chain app aux
+                          chn
+// - ind : (Equal Nat (Nat.add n.pred m) (Nat.add m n.pred))
+// - app : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.succ (Nat.add m n.pred)))
+// - aux : (Equal Nat (Nat.succ (Nat.add m n.pred)) (Nat.add m (Nat.succ n.pred)))
+// - chn : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
+// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
+
+Plus_assoc (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.add n (Nat.add m p)) (Nat.add (Nat.add n m) p))
+Plus_assoc Nat.zero m p = Equal.refl
+// - Goal: (Equal Nat (Nat.add m p) (Nat.add m p))
+Plus_assoc (Nat.succ n.pred) m p = 
+                              let ind = Plus_assoc n.pred m p
+                              let app = Equal.apply (x => Nat.succ x) ind
+                              app
+// - ind : (Equal Nat (Nat.add n.pred (Nat.add m p)) (Nat.add (Nat.add n.pred m) p))
+// - app : (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.succ (Nat.add (Nat.add n.pred m) p)))
+// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.succ (Nat.add (Nat.add n.pred m) p)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Theorem (a: Nat) (b: Nat) (c: Nat) : (Equal Nat (Nat.mul (Nat.add a b) c) (Nat.add (Nat.mul a c) (Nat.mul b c)))
+Theorem Nat.zero b c = Equal.refl
+// - Goal: (Equal Nat (Nat.mul b c) (Nat.mul b c))
+Theorem (Nat.succ a) b c = 
+										let ind = Theorem a b c 
+										let app = Equal.apply (x => Nat.add x c) ind
+										let asc = Plus_assoc (Nat.mul a c) c (Nat.mul b c)
+										let com = Plus_comm c (Nat.mul b c)
+										let rrt = Equal.rewrite com (x => (Equal Nat (Nat.add (Nat.mul a c) (x)) (Nat.add (Nat.add (Nat.mul a c) c) (Nat.mul b c)))) asc
+										let asc = Plus_assoc (Nat.mul a c) (Nat.mul b c) c
+										let mir = Equal.mirror asc
+										let chn = Equal.chain mir rrt
+										let chn = Equal.chain app chn
+										chn
+// - ind : (Equal Nat (Nat.mul (Nat.add a b) c) (Nat.add (Nat.mul a c) (Nat.mul b c)))
+// - app : (Equal Nat (Nat.add (Nat.mul (Nat.add a b) c) c) (Nat.add (Nat.add (Nat.mul a c) (Nat.mul b c)) c))
+// - asc : (Equal Nat (Nat.add (Nat.mul a c) (Nat.add c (Nat.mul b c))) (Nat.add (Nat.add (Nat.mul a c) c) (Nat.mul b c)))
+// - com : (Equal Nat (Nat.add c (Nat.mul b c)) (Nat.add (Nat.mul b c) c))
+// - rrt : (Equal Nat (Nat.add (Nat.mul a c) (Nat.add (Nat.mul b c) c)) (Nat.add (Nat.add (Nat.mul a c) c) (Nat.mul b c)))
+// - asc : (Equal Nat (Nat.add (Nat.mul a c) (Nat.add (Nat.mul b c) c)) (Nat.add (Nat.add (Nat.mul a c) (Nat.mul b c)) c))
+// - mir : (Equal Nat (Nat.add (Nat.add (Nat.mul a c) (Nat.mul b c)) c) (Nat.add (Nat.mul a c) (Nat.add (Nat.mul b c) c)))
+// - chn : (Equal Nat (Nat.add (Nat.add (Nat.mul a c) (Nat.mul b c)) c) (Nat.add (Nat.add (Nat.mul a c) c) (Nat.mul b c)))
+// - chn : (Equal Nat (Nat.add (Nat.mul (Nat.add a b) c) c) (Nat.add (Nat.add (Nat.mul a c) c) (Nat.mul b c)))
+// - Goal: (Equal Nat (Nat.add (Nat.mul (Nat.add a b) c) c) (Nat.add (Nat.add (Nat.mul a c) c) (Nat.mul b c)))

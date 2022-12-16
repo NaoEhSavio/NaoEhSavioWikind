@@ -48,7 +48,7 @@ Problems.t10 a b (Pair.new x y ) = Equal.refl
 // Nat.same  Nat.zero    = Nat.zero
 // Nat.same (Nat.succ n) = Nat.succ (Nat.same n)
 
-Problems.t11 (n: Nat) : (Equal Nat (Nat.same n) n)
+Problems.t11 (n: Nat) : Equal Nat (Nat.same n) n
 Problems.t11 Nat.zero = Equal.refl
 Problems.t11 (Nat.succ n.pred) = 
                             let ind = Problems.t11 n.pred

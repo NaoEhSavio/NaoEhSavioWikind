@@ -1,0 +1,4 @@
+Nat.mod.go (n: Nat) (m: Nat) (r: Nat) : Nat
+Nat.mod.go n Nat.zero                          r = Nat.mod.go n r Nat.zero
+Nat.mod.go Nat.zero (Nat.succ m.pred)          r = r
+Nat.mod.go (Nat.succ n.pred) (Nat.succ m.pred) r = Nat.mod.go n.pred m.pred (Nat.succ r)

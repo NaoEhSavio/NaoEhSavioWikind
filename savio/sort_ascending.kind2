@@ -1,0 +1,33 @@
+// Returns the smallest element of a List
+List.smallest (xs: (List U60)) : (Maybe U60)
+List.smallest (List.nil xs) = Maybe.none
+List.smallest (List.cons xs head (List.nil)) = Maybe.some head
+List.smallest (List.cons xs head (List.cons tail.xs tail.head tail.tail)) = List.smallest( List.cons (U60.min head tail.head) tail.tail)
+
+// Returns the value inside the Maybe.
+// If there is no value contained, returns v instead
+Maybe.extract <a: Type> (m: Maybe a) (v: a) : a
+Maybe.extract a (Maybe.none m)  v = v
+Maybe.extract a (Maybe.some m value) v = value
+
+// // Returns the same list without the smallest element
+List.delete_smallest (xs: (List U60)) : (List U60)
+List.delete_smallest xs = List.delete_smallest.go (xs) (xs)
+
+List.delete_smallest.go (xs: (List U60)) (ys: (List U60)): (List U60)
+List.delete_smallest.go (List.nil) ys = List.nil
+List.delete_smallest.go (List.cons xs head tail) ys = 
+    if (U60.equal head (Maybe.extract (List.smallest ys) (0))) {tail}
+        else {List.cons head (List.delete_smallest tail)}
+
+// // Returns the same list, in ascending order
+List.sort_ascending (xs: (List U60)): (List U60)
+List.sort_ascending (List.nil xs) = List.nil 
+List.sort_ascending xs = List.cons ((Maybe.extract (List.smallest xs) (0))) (List.sort_ascending( List.delete_smallest xs))
+
+
+
+
+Main{
+    List.smallest [6,5,4,3,2,1]
+}

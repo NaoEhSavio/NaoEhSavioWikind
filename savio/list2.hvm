@@ -1,0 +1,18 @@
+(Gen 0) = List.nil
+(Gen n) = (List.cons n (Gen (- n 1)))
+
+(Sum List.nil) = 0
+(Sum (List.cons x xs)) = (+ x (Sum xs))
+
+(Tails List.nil) = List.nil
+(Tails (List.cons x xs)) = (List.cons xs (Tails xs))
+
+(Map f List.nil) = List.nil
+(Map f (List.cons x xs)) = (List.cons (f x) (Map f xs))
+
+(Head List.nil) = 0
+(Head (List.cons x xs)) = x
+
+(Main n) =
+    let lists = (Tails (Gen 1000))
+    (+ (Sum (Map @l(Head l) lists)) (Sum (Map @l(Head l) lists)))

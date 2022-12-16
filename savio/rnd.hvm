@@ -1,0 +1,31 @@
+(Rnd 0 s) = (List.nil)
+(Rnd n s) = (List.cons s (Rnd (- n 1) (% (+ (* s 1664525) 1013904223) 4294967296)))
+(Main n) = (Rnd (<< 1 n) 1)
+
+
+// Index (List.cons v vs) Zero = v
+// Index (List.cons v vs) (Succ n) = Index vs n
+
+// Eval env (Var n) = Index env n
+// Eval env (Lam e) = λv (Eval (List.cons v env) e)
+// Eval env (App e1 e2) = (Eval env e1) (Eval env e2)
+
+// One = Lam (Lam (App (Var (Succ Zero)) (Var Zero)))
+// Two = Lam (Lam (App (Var (Succ Zero)) (App (Var (Succ Zero)) (Var Zero))))
+// Unchurch f = f λx(+ x 1) 0
+
+// Main = Unchurch (Eval List.nil (App One Two))
+
+// (Index (List.cons v vs) (Zero)) = v
+// (Index (List.cons v vs) (Succ n)) = (Index vs n)
+
+// (Eval env (Var n)) = (Index env n)
+// (Eval env (Lam e)) = (@v (Eval (List.cons v env) e))
+// (Eval env (App e1 e2)) = ((Eval env e1) (Eval env e2))
+
+// (One) = (Lam (Lam (App (Var (Succ (Zero))) (Var (Zero))))) 
+// (Two) = (Lam (Lam (Lam (App (Var (Succ (Zero))) (App (Var (Succ (Zero))) (Var (Zero)))))))
+
+// (Unchurch f) = (f @x(+ x 1) 0)
+
+// Main = (Unchurch (Eval (List.nil) (App (One) (Two))))

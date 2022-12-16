@@ -532,7 +532,7 @@ Beq_NatList_refl (List.nil Nat) = Equal.refl
 // - Goal: (Equal Bool Bool.true Bool.true)
 Beq_NatList_refl (List.cons Nat head tail) = 
 																			let ind = Beq_NatList_refl tail
-																			let prf = Nat.equal.refl head // 
+																			let prf = Nat.equal.refl head 
 																			let app = Equal.apply (x => (Bool.and (Nat.equal head head) x)) ind
 																			let rrt = Equal.rewrite prf (x =>  (Equal Bool (Bool.and (x) Bool.true) (Bool.and (Nat.equal head head) (Beq_NatList tail tail)))) app
 																			rrt

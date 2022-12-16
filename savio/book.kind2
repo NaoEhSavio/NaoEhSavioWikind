@@ -1,0 +1,181 @@
+TestU60 : Equal 6n (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero))))))
+TestU60 = Equal.refl
+
+Evenb (n : Nat) : Bool
+Evenb  Nat.zero               = Bool.true
+Evenb (Nat.succ  Nat.zero)    = Bool.false
+Evenb (Nat.succ (Nat.succ k)) = Evenb k
+
+Oddb (n : Nat) : Bool
+Oddb n = Bool.not (Evenb n)
+
+TestOddb1 : Equal (Oddb 1n) Bool.true
+TestOddb1 = Equal.refl
+
+TestOddb2 : Equal (Oddb 4n) Bool.false
+TestOddb2 = Equal.refl
+
+Plus (n : Nat) (m : Nat) : Nat
+Plus  Nat.zero    m = m
+Plus (Nat.succ k) m = Nat.succ (Plus k m)
+
+Mult (n : Nat) (m : Nat) : Nat
+Mult  Nat.zero    m = 0n
+Mult (Nat.succ k) m = Plus m (Mult k m)
+
+TestMult1 : Equal (Mult 3n 3n) 9n
+TestMult1 = Equal.refl
+
+Lte (n: Nat) (m: Nat) : Bool
+Lte  Nat.zero     m           = Bool.true
+Lte (Nat.succ k)  Nat.zero    = Bool.false
+Lte (Nat.succ k) (Nat.succ j) = Lte k j
+
+TestLte1 : Equal (Lte 2n 2n) Bool.true
+TestLte1 = Equal.refl
+
+TestLte2 : Equal (Lte 2n 4n) Bool.true
+TestLte2 = Equal.refl
+
+TestLte3 : Equal (Lte 4n 2n) Bool.false
+TestLte3 = Equal.refl
+
+Plus_id_example (n: Nat) (m: Nat) (e: Equal Nat n m) : Equal Nat (Plus n n) (Plus m m)
+
+Plus_id_example n m e =
+  let app = Equal.apply (k => Plus k n) e
+	let rrt = Equal.rewrite e (x => Equal (Plus n n) (Plus m x)) app
+  rrt
+
+Example_mirror (a : Nat) (b : Nat) (e : Equal Nat a b) : Equal Nat b a
+Example_mirror a b e = 
+   let mir = Equal.mirror e
+  mir
+// Plus_n_Z (n: Nat) : Equal Nat n (Plus n Nat.zero)
+// Plus_n_Z n = Equal.refl
+
+Example_apply (n: Nat) (m: Nat) (e: Equal m n) : Equal (Nat.succ m) (Nat.succ n)
+Example_apply n m e =
+  let e_apply = Equal.apply (x => Nat.succ x) e
+  e_apply
+Example_chain (a: Nat) (b: Nat) (c: Nat) (e1: Equal Nat b (Plus a a)) (e2 : Equal Nat c (Plus a a)) : Equal Nat b c
+Example_chain a b c e1 e2 =
+  let e3 = Equal.mirror e2
+  let chn = Equal.chain e1 e3
+	chn
+Identity_fn_applied_twice (f: Bool -> Bool) (e: (x: Bool) -> (Equal Bool (f x) x)) (b : Bool) : Equal Bool (f (f b)) b
+// Identity_fn_applied_twice f e b = ?
+
+// Test_head1 (xs: List Nat) : (Equal (Maybe Nat)  (List.head [1n, 2n, 3n]) (Maybe.some Nat 1n))
+List.head (xs: List Nat)        : Maybe Nat
+List.head (List.nil)            = Maybe.none Nat
+List.head (List.cons head tail) = Maybe.some Nat head
+
+// Exemplo: (List.tail Nat [1,2,3]) -> [2,3]
+List.tail (xs: List Nat)        : List Nat
+List.tail (List.nil)            = List.nil Nat
+List.tail (List.cons head tail) = tail
+
+// List.repeat (times: Nat) (val: Nat) : List Nat
+// List.repeat Nat.zero         val    = List.nil Nat 
+// List.repeat (Nat.succ times) val    = List.cons Nat val (List.repeat times val)
+
+// Exemplo: (List.length [1,2,3]) -> 3
+List.length (xs: List Nat) : Nat
+List.length (List.nil)            = Nat.zero
+List.length (List.cons head tail) = (Nat.succ (List.length tail))
+
+List.append (xs: List Nat) (ys: List Nat) : List Nat
+List.append (List.nil)            ys = ys
+List.append (List.cons head tail) ys = List.cons Nat head (List.append tail ys)
+
+Test_head1 : (Equal (Maybe Nat) (List.head [1n, 2n, 3n]) (Maybe.some Nat 1n))
+
+
+Test_head2 : (Equal (Maybe Nat) (List.head (List.nil)) (Maybe.none Nat))
+
+
+Test_head3 : (Equal (List Nat) (List.tail [1n, 2n, 3n]) [2n, 3n])
+
+
+Tl_length_pred (xs: List Nat) : Equal Nat (Nat.pred (List.length xs)) (List.length (List.tail xs))
+
+App_assoc (xs: List Nat) (ys: List Nat) (zs: List Nat) : Equal (List.append (List.append xs ys) zs) (List.append xs (List.append ys zs))
+
+App_length (xs: List Nat) (ys: List Nat)  : (Equal Nat (List.length (List.append xs ys)) (Plus (List.length xs) (List.length ys)))
+
+Rev (xs: List Nat)        : List Nat
+Rev List.nil              = List.nil Nat
+Rev (List.cons head tail) = List.append (Rev tail) [head]
+
+Rev_length_firsttry (xs: List Nat) : (Equal Nat (List.length (Rev xs)) (List.length xs))
+
+Plus_n_z (n: Nat)     : Equal Nat n (Plus n Nat.zero)
+Plus_n_sn (n: Nat) (m: Nat) : Equal Nat (Nat.succ (Plus n m)) (Plus n (Nat.succ m))
+Plus_comm (n: Nat) (m: Nat) : Equal Nat (Plus n m) (Plus m n)
+
+Rev_length (xs: List Nat)               : Equal Nat (List.length (Rev xs)) (List.length xs)
+Rev_length List.nil                     = Equal.refl
+Rev_length (List.cons Nat head tail)  =
+   let ind = Rev_length tail
+   let aux1 = App_length (Rev tail) [head]
+   let aux2 = Plus_comm (List.length (Rev tail)) (1n)
+   let chn = Equal.chain aux1 aux2
+   let rrt = Equal.rewrite ind (x => (Equal Nat (List.length (List.append (Rev tail) (List.cons head (List.nil)))) (Nat.succ x ))) chn
+   rrt
+// Nth_error (n: Nat) (xs: List Nat) : Maybe Nat
+// Nth_error n List.nil              = Maybe.none
+// Nth_error n (List.cons head tail) = 
+//   let ind = Nth_error (Nat.pred n) tail
+//   Bool.if (Nat.equal n 0n) (Maybe.some Nat head) (ind)
+
+// Test_nth_error1 : Equal (Nth_error 0n [4n,5n,6n,7n]) (Maybe.some 4n)
+// Test_nth_error1 = Equal.refl
+
+// Test_nth_error2 : Equal (Nth_error 3n [4n,5n,6n,7n]) (Maybe.some 7n)
+// Test_nth_error2 = Equal.refl
+
+// Test_nth_error3 : Equal (Nth_error 9n [4n,5n,6n,7n]) Maybe.none
+// Test_nth_error3 = Equal.refl
+
+Nth_error <a> (n: Nat) (xs: List a) : Maybe a
+Nth_error a n List.nil              = Maybe.none
+Nth_error a n (List.cons head tail) =
+  let ind = Nth_error (Nat.pred n) tail
+  Bool.if (Nat.equal n 0n) (Maybe.some head) (ind)
+
+
+Test_nth_error1 : Equal (Nth_error 0n [4n,5n,5n,7n]) (Maybe.some 4n)
+Test_nth_error1 = Equal.refl
+
+Test_nth_error2 : Equal (Nth_error 2n [Bool.true]) Maybe.none
+Test_nth_error2 = Equal.refl
+
+Test_nth_error3 : Equal (Nth_error 1n [[1n],[2n]]) (Maybe.some [2n])
+Test_nth_error3 = Equal.refl
+
+MinusTwo (n: Nat) : Nat
+MinusTwo  Nat.zero               = Nat.zero
+MinusTwo (Nat.succ  Nat.zero)    = Nat.zero
+MinusTwo (Nat.succ (Nat.succ k)) = k
+
+Doit3times <x> (f: x -> x) (n: x) : x
+Doit3times f x = (f (f (f x)))
+
+Test_doit3times1 : Equal (Doit3times (x => MinusTwo x) 9n) 3n
+Test_doit3times1 = Equal.refl
+
+Test_doit3times2 : Equal (Doit3times (x => Bool.not x) Bool.true) (Bool.false)
+Test_doit3times2 = Equal.refl
+
+
+
+Equal <x> (a: x) (b: x) : Type
+Equal.refl <x> <a: x> : Equal a a 
+Equal.mirror <x> <a: x> <b: x> (c: Equal x a b) : Equal x b a
+Equal.apply <x> <y> <a: x> <b: x> (f: x -> y) (c: Equal x a b) : Equal y (f a) (f b)
+Equal.chain <x> <a: x> <b: x> <c: x> (e: Equal x a b) (f: Equal x b c) : Equal x a c
+
+Main {
+  Nat.show 10n 
+}

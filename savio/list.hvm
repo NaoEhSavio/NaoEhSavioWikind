@@ -1,0 +1,16 @@
+(Gen 0) = Nil
+(Gen n) = (Cons n (Gen (- n 1)))
+
+(Foldr f z Nil) = z
+(Foldr f z (Cons x xs)) = (f x (Foldr f z xs))
+
+(Tails Nil) = (Cons Nil Nil)
+(Tails (Cons x xs)) = (Cons xs (Tails xs))
+
+(Map f Nil) = Nil
+(Map f (Cons x xs)) = (Cons (f x) (Map f xs))
+
+(Head Nil) = 0
+(Head (Cons x xs)) = x
+
+(Main n) = (Foldr @a@b(+ a b) 0 (Map @l(Head l) (Tails (Gen 10000))))

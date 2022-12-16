@@ -1,0 +1,4 @@
+(Fib 0 x0 x1) = x0
+// (Fib i x0 x1) = (Fib (- i 1) x1 (+ x0 x1))
+
+// (Main) = (Fib 1024 0 1)
