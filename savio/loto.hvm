@@ -24,8 +24,8 @@
 
 // List.u60.filter.go (cond: (_: U60) U60) (eql: U60) (xs: (List U60)) : (List U60)
 (List.u60.filter.go cond eql (List.nil)) = (List.nil)
-(List.u60.filter.go cond 0 (List.cons head tail)) = (List.u60.filter cond tail)
-(List.u60.filter.go cond 1 (List.cons head tail)) = (List.cons head (List.u60.filter cond tail))
+(List.u60.filter.go cond 0 (List.cons head tail)) = (List.u60.filter.go cond (cond head) tail)
+(List.u60.filter.go cond 1 (List.cons head tail)) = (List.cons head (List.u60.filter.go cond (cond head) tail))
 
 // List.u60.filter (cond: (_: U60) U60) (xs: (List U60)) : (List U60)
 (List.u60.filter cond (List.nil)) = (List.nil)
@@ -2754,6 +2754,6 @@ let max = (Quick.sort (List.u60.filter @n (> n x) xs));
 [01,04,05,06,07,09,11,12,13,15,16,19,20,23,24],
 [02,03,05,06,09,10,11,13,14,16,18,20,23,24,25]]
   let b = (Loto a)
-	let c = (Bubble.sort b)
+	let c = (Quick.sort b)
   let d = (Porcent c)
 	d

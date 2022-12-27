@@ -1,0 +1,5 @@
+(Main x) =
+      let bases = (Cons 2 (Cons 3 (Cons 5 (Cons 7 Nil))))
+      let error = λx(FOO bases x)
+      let weird = (Zero bases)
+      (error NIL NIL)

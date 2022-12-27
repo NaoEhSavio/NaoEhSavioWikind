@@ -1,6 +1,6 @@
 (Rnd 0 s) = (List.nil)
 (Rnd n s) = (List.cons s (Rnd (- n 1) (% (+ (* s 1664525) 1013904223) 4294967296)))
-(Main n) = (Rnd (<< 1 n) 1)
+(Main n) = (Rnd (<< 1 14) 1)
 
 
 // Index (List.cons v vs) Zero = v

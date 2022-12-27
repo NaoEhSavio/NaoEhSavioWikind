@@ -1,4 +1,6 @@
-(Fib 0 x0 x1) = x0
-// (Fib i x0 x1) = (Fib (- i 1) x1 (+ x0 x1))
+(Fib 0) = 0
+(Fib 1) = 1
+(Fib 2) = 1
+(Fib n) = (+ (Fib (- n 1)) (Fib (- n 2)))
 
-// (Main) = (Fib 1024 0 1)
+(Main) = (Fib 42)

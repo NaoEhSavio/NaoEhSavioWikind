@@ -1,59 +1,23 @@
-// List.fold -(x: Type) -(y: Type) (func: (_: x) (_: y) y) (l: (List x)) (b: y) : y
-(List.fold func (List.nil) b) = b
-(List.fold func (List.cons head tail) b) = ((func head) (List.fold func tail b))
-
-// List.length -(a: Type) (xs: (List a)) : U60
-(List.length (List.nil)) = 0
-(List.length (List.cons head tail)) = (+ (List.length tail) 1)
-
-// Bool.if -(a: Type) (b: (Bool)) (t: a) (f: a) : a
-(Bool.if (Bool.true) t f) = t
-(Bool.if (Bool.false) t f) = f
-
-// U60.equal (a: U60) (b: U60) : (Bool)
-(U60.equal a b) = (U60.to_bool (== a b))
-
-// U60.to_bool (n: U60) : (Bool)
-(U60.to_bool 0) = (Bool.false)
-(U60.to_bool n) = (Bool.true)
-
-// List.delete_all (v: U60) (s: (List U60)) : (List U60)
-(List.delete_all v (List.nil)) = (List.nil)
-(List.delete_all v (List.cons head tail)) = 
-  (Bool.if (U60.equal v head) (List.delete_all v tail) 
-    (List.cons head (List.delete_all v tail)))
-
-// Loto.soma (xs: (List U60)) : U60
-(Loto.soma xs) = (List.fold @a @b (+ a b) xs 0)
-
-// Loto (xs: (List (List U60))) : (List U60)
-(Loto (List.nil)) = (List.nil)
-(Loto (List.cons head tail)) = 
-  let h = (Loto.soma head); 
-  let t = (Loto tail); 
-  (List.cons h t)
-
-// List.filter -(a: Type) (xs: (List a)) (cond: (_: a) (Bool)) : (List a)
-(List.filter (List.nil) cond) = (List.nil)
-(List.filter (List.cons head tail) cond) = 
-  (Bool.if (cond head) (List.cons head (List.filter tail cond)) 
-    (List.filter tail cond))
-
-// Porcent (xs: (List U60)) : (List (List U60))
-(Porcent xs) = (Porcent.go xs (List.length xs))
-
-// Porcent.go (xs: (List U60)) (len: U60) : (List (List U60))
-(Porcent.go (List.nil) len) = (List.nil)
-(Porcent.go (List.cons head tail) len) = 
-  let eql = (* 1000000 (List.length (List.filter (List.cons head tail) @a (U60.equal head a)))); 
-  let por = (/ eql len); 
-  let par = (List.cons head (List.cons por (List.nil))); 
-  let del = (List.delete_all head (List.cons head tail)); 
-  let res = (Porcent.go del len); 
-  (List.cons par res)
-
 // Main : _
-(Main) =
+(Main) = (HVM.log @arg1 @arg5 arg1 @arg1 @arg2 (L.VarTable.get (L.VarTable.set (L.VarTable.set (L.VarTable.new) 1 arg1) 2 arg2) 1))
 
+// L.VarTable : Type
+(L.VarTable) = (List (L.VarTable.Entry))
 
+// L.VarTable.new : (L.VarTable)
+(L.VarTable.new) = (List.nil)
 
+// L.VarTable.get (table: (L.VarTable)) (name: U60) : (L.Term)
+(L.VarTable.get (List.cons (Pair.new v.key v.term) tail) key) = (U60.if (== v.key key) v.term (L.VarTable.get tail key))
+(L.VarTable.get (List.nil) name) = L.Term.default
+
+// L.VarTable.set (table: (L.VarTable)) (name: U60) (value: (L.Term)) : (L.VarTable)
+(L.VarTable.set (List.cons (Pair.new v.key v.term) tail) name value) = (U60.if (== v.key name) (List.cons (Pair.new v.key value) (L.VarTable.set tail name value)) (List.cons (Pair.new v.key v.term) (L.VarTable.set tail name value)))
+(L.VarTable.set (List.nil) name value) = (List.cons (Pair.new name value) (List.nil))
+
+// L.VarTable.Entry : Type
+(L.VarTable.Entry) = (Pair 0 (L.Term))
+
+// U60.if -(r: Type) (n: U60) (t: r) (f: r) : r
+(U60.if 0 t f) = f
+(U60.if n t f) = t

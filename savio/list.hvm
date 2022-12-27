@@ -13,4 +13,4 @@
 (Head Nil) = 0
 (Head (Cons x xs)) = x
 
-(Main n) = (Foldr @a@b(+ a b) 0 (Map @l(Head l) (Tails (Gen 10000))))
+(Main n) = (Foldr @a@b(+ a b) 0 (Map @l(Head l) (Tails (Gen 1000))))

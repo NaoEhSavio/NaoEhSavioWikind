@@ -543,14 +543,19 @@ Nth_error_informal (List.cons head tail) (Nat.succ n) =  Nth_error tail n
 // an alternative way of defining natural numbers, using the so-called Church numerals, named after mathematician Alonzo Church. We can represent a natural
 // number n as a function that takes a function f as a parameter and returns f iterated
 // n times.
-// namespace Church
+// namespace Church^
+// Nat : Type
+// Nat = ~(nat : Type) -> (succ : nat -> nat) -> (zero : nat) -> nat
+
 Num <x> : Type
-Num x = (x -> x) -> x -> x 
+Num x = (x -> x) -> x -> x
+// Num : Type 
+// Num = ~(x: Type) -> (succ: x -> x) -> (zero: x) -> x
 // Nat' : {x : Type} ౏> Type
 // Nat' {x} = (x ౏> x) ౏> x ౏> x
 
 One : Num 
-One = f => x => (f x) 
+One = f => x => (f x)
 
 // one f x = f x
 // Similarly, two should apply f twice to its argument:
@@ -573,6 +578,17 @@ Three = f => x => (f (f (f x)))
 
 // succ' : (n : Nat' {x}) ౏> Nat' {x}
 // succ' n = ?succ__rhs
+Pred (n: Num ) : Num
+Pred n = s => z => pred => num => 
+
+Pred_1 : Equal (Pred Zero) (Zero)
+Pred_1 = ?
+
+Pred_2 : Equal (Pred Two) (One)
+Pred_2 = ?
+
+Pred_3 : Equal (Pred Three) (Two)
+Pred_3 = ?
 
 // Successor of a natural number:
 Succ (n: Num) : Num //?
@@ -587,12 +603,20 @@ Succ_2 = Equal.refl
 Succ_3 : Equal (Succ Two) (Three)
 Succ_3 = Equal.refl
 
-// Addition of two natural numbers:
+// Addition of two natural numbers: // adicionar o tipos do lambda
+Plus (n: Num) (m: Num) : Num
+Plus n m = (s: Num) => (z: Num) => n s (m s z)
+ 
 // plus' : (n, m : Nat' {x}) ౏> Nat' {x}
 // plus' n m = ?plus__rhs
 
+Plus_1 : Equal (Plus One Zero) (One)
+Plus_1 = Equal.refl
 // plus'_1 : plus' zero one = one
 // plus'_1 = ?plus__1_rhs
+
+Plus_2 : Equal (Plus Two One) (Plus One Two)
+Plus_2 = Equal.refl
 
 // plus'_2 : plus' two three = plus' three two
 // plus'_2 = ?plus__2_rhs
@@ -600,16 +624,27 @@ Succ_3 = Equal.refl
 // plus'_3 : plus' (plus' two two) three = plus' one (plus' three three)
 // plus'_3 = ?plus__3_rhs
 
+Plus_3 : Equal (Plus (Plus Two Two) Three) (Plus One (Plus Three Three))
+Plus_3 = Equal.refl
+
 // Multiplication:
+Mult (n: Num) (m: Num) : Num
+Mult n m = s => z => n (m s) z
 // mult' : (n, m : Nat' {x}) ౏> Nat' {x}
 // mult' n m = ?mult__rhs
 
+Mult_1 : Equal (Mult One One) One
+Mult_1 = Equal.refl
 // mult'_1 : mult' one one = one
 // mult'_1 = ?mult__1_rhs
 
+Mult_2 : Equal (Mult Zero (Plus Three Three)) Zero
+Mult_2 = Equal.refl
 // mult'_2 : mult' zero (plus' three three) = zero
 // mult'_2 = ?mult__2_rhs
 
+Mult_3 : Equal (Mult Two Three) (Plus Three Three)
+Mult_3 = Equal.refl
 // mult'_3 : mult' two three = plus' three three
 // mult'_3 = ?mult__3_rhs
 
@@ -618,17 +653,22 @@ Succ_3 = Equal.refl
 // (Hint: Polymorphism plays a crucial role here. However, choosing the right type to
 // iterate over can be tricky. If you hit a “Universe inconsistency” error, try iterating
 // over a different type: Nat' itself is usually problematic.)
-
+Exp (n: Num) (m: Num -> Num) : Num
+Exp n m = s => z =>  m n s z
 // exp' : (n : Nat' {x}) ౏> (m : Nat' {x=x౏>x}) ౏> Nat' {x}
 // exp' n m = ?exp__rhs
 
 // This won’t typecheck under this signature of exp because of 2 instances of two
+Exp_1 : Equal (Exp Two Two) (Plus Two Two)
+Exp_1 = Equal.refl
 // -- exp'_1 : exp' two two = plus' two two
 // -- exp'_1 = ?exp__1_rhs
-
+Exp_2 : Equal (Exp Three Two) (Plus (Mult Two (Mult Two Two)) One)
+Exp_2 = Equal.refl
 // exp'_2 : exp' three two = plus' (mult' two (mult' two two)) one
 // exp'_2 = ?exp__2_rhs
-
+Exp_3 : Equal (Exp Three Zero) One
+Exp_3 = Equal.refl
 // exp'_3 : exp' three zero = one
 // exp'_3 = ?exp__3_rhs
 
