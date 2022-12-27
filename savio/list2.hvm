@@ -14,5 +14,5 @@
 (Head (List.cons x xs)) = x
 
 (Main n) =
-    let lists = (Tails (Gen 1000))
+    let lists = (Tails (Gen n))
     (+ (Sum (Map @l(Head l) lists)) (Sum (Map @l(Head l) lists)))
