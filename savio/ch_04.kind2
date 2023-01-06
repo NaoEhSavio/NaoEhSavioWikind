@@ -1,9 +1,15 @@
 // data NatProd : Type where
 // Pair : Nat ౏> Nat ౏> NatProd
-NatProd : Type
-NatProd.new (fst: Nat) (snd: Nat) : (NatProd)
+// NatProd : Type
+// NatProd.new (fst: Nat) (snd: Nat) : (NatProd)
+
+
+type NatProd {
+	new (fst: Nat) (snd: Nat)
+}
 // NatProd : Type
 // NatProd = (Pair Nat Nat)
+
 // Ok (b: NatProd): NatProd
 // Ok b = b
 // Main {

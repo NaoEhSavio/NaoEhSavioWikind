@@ -578,22 +578,31 @@ Three = f => x => (f (f (f x)))
 
 // succ' : (n : Nat' {x}) ౏> Nat' {x}
 // succ' n = ?succ__rhs
-Pred (n: Num ) : Num
-Pred n = s => z => pred => num => 
-
+Pred (n: Num -> Num) : Num
+Pred n = s => z => n ((g: Num) => (h: Num) => (h (g s))) ((u: Num) => z) ((u: Num) => u)
+// λn.λf.λx. n (λg.λh. h (g f)) (λu. x) (λu. u)
 Pred_1 : Equal (Pred Zero) (Zero)
-Pred_1 = ?
+Pred_1 = Equal.refl
 
 Pred_2 : Equal (Pred Two) (One)
-Pred_2 = ?
+Pred_2 = Equal.refl
 
 Pred_3 : Equal (Pred Three) (Two)
-Pred_3 = ?
+Pred_3 = Equal.refl
+
+Sub (n: Num) (m: Num) : Num
+Sub n m = (m (x => Pred x)) n 
+
+Sub_1 : Equal (Sub One Zero) (One)
+Sub_1 = Equal.refl
+
+Sub_2 : Equal (Sub Two Two) (Sub One One)
+Sub_2 = Equal.refl
 
 // Successor of a natural number:
 Succ (n: Num) : Num //?
-Succ n = f => x => f (n f x) // ????
-
+Succ n = s => z => s (n s z) // ????
+// λn.λf.λx. f (n f x).
 Succ_1 : Equal (Succ Zero) (One)
 Succ_1 = Equal.refl
 
@@ -606,7 +615,7 @@ Succ_3 = Equal.refl
 // Addition of two natural numbers: // adicionar o tipos do lambda
 Plus (n: Num) (m: Num) : Num
 Plus n m = (s: Num) => (z: Num) => n s (m s z)
- 
+// λm.λn.λf.λx. m f (n f x)
 // plus' : (n, m : Nat' {x}) ౏> Nat' {x}
 // plus' n m = ?plus__rhs
 

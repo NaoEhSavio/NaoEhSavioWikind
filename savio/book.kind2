@@ -170,11 +170,11 @@ Test_doit3times2 = Equal.refl
 
 
 
-Equal <x> (a: x) (b: x) : Type
-Equal.refl <x> <a: x> : Equal a a 
-Equal.mirror <x> <a: x> <b: x> (c: Equal x a b) : Equal x b a
-Equal.apply <x> <y> <a: x> <b: x> (f: x -> y) (c: Equal x a b) : Equal y (f a) (f b)
-Equal.chain <x> <a: x> <b: x> <c: x> (e: Equal x a b) (f: Equal x b c) : Equal x a c
+// Equal <x> (a: x) (b: x) : Type
+// Equal.refl <x> <a: x> : Equal a a 
+// Equal.mirror <x> <a: x> <b: x> (c: Equal x a b) : Equal x b a
+// Equal.apply <x> <y> <a: x> <b: x> (f: x -> y) (c: Equal x a b) : Equal y (f a) (f b)
+// Equal.chain <x> <a: x> <b: x> <c: x> (e: Equal x a b) (f: Equal x b c) : Equal x a c
 
 Main {
   Nat.show 10n 

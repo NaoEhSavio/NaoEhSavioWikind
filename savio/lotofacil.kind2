@@ -59,6 +59,7 @@ Insert v List.nil            = (List.cons v List.nil)
 Insert v (List.cons t x xs)  = (GoDown (> v x) v x xs)
 
 // GoDown : U60 -> U60 -> U60 -> List -> List
+#partial
 GoDown (b: U60) (v: U60) (x: U60) (xs: List U60) : List U60
 GoDown 0 v x xs = (List.cons v (List.cons x xs))
 GoDown 1 v x xs = (List.cons x (Insert v xs))
@@ -103,6 +104,7 @@ U60.if <r: Type> (n: U60) (t: r) (f: r) : r
 U60.if r 0 t f = f
 U60.if r n t f = t
 
+#partial
 U60.combination (n: U60) (p: U60) : U60
 U60.combination n 0 = 1
 U60.combination n 1 = n

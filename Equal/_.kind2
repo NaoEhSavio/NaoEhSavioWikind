@@ -1,4 +1,7 @@
-Equal <t> (a: t) (b: t) : Type
+#kdl_name = Equal
+type Equal <t> (a: t) ~ (b: t) {
+    refl : Equal t a a
+}
 
 // ??? see User.Taelin.hott_study.kind2
 //Equal (Pair a b) p0 p1 =

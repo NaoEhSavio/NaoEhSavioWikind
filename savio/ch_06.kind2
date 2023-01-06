@@ -1,0 +1,7 @@
+// And (n: Nat) (m: Nat) (e: Pair (Equal Nat n 0n) (Equal Nat m 0n)) : Equal Nat (Nat.add m n) 0n
+// And Nat.zero Nat.zero e = Equal.refl
+// And (Nat.succ n.pred) Nat.zero e = emp => Equal.rewrite emp (x => if x {Nat} else {Empty}) Nat.zero 
+
+
+
+
