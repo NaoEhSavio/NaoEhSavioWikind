@@ -1,0 +1,41 @@
+// (Loto.list_result) = 
+// 	(List.bind [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] 
+// 	λa (List.bind [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] 
+// 	λb (List.bind [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] 
+// 	λc (List.bind [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] 
+// 	λd (List.bind [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]  
+// 	λo [(List.delete (| (| (| (| (== o a) (== o b)) (| (== o c) (== o d))) (| (| (== a b) (== a c)) (| (== a d) (== b c)))) (| (== b d) (== c d))) [o,a,b,c,d])])))))
+
+(Loto.list_result) = 
+	(List.bind [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] 
+	λa (List.bind [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+	λo (List.bind (List.delete (== a o) [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
+	λu [[u, a ,o]])))
+
+
+
+
+(List.bind xs f) = (List.flatten (List.map xs f))
+
+(List.flatten []) = []
+(List.flatten (List.cons head tail)) = (List.concat head (List.flatten tail))
+
+(U60.if 0 t f) = f
+(U60.if n t f) = t
+
+(List.delete f []) = []
+(List.delete f (List.cons head tail)) = (U60.if f [] (List.cons head (List.delete f tail)))
+
+(List.concat [] ys) = ys
+(List.concat (List.cons head tail) ys) = (List.cons head (List.concat tail ys))
+
+(List.map [] f) = []
+(List.map (List.cons head tail) f) = (List.cons (f head) (List.map tail f))
+
+(List.length []) = 0
+(List.length (List.cons head tail)) = (+ (List.length tail) 1)
+
+(Main) = 
+	let f = (List.length (Loto.list_result)); 
+	f
+	// Loto.list_result

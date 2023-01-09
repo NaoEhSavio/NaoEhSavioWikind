@@ -1,5 +1,6 @@
 #kdl_name = Char_dec
 Char.dec_value (chr: Char) : Nat
+Char.dec_value a  = U60.to_nat 0
 Char.dec_value 48 = U60.to_nat 0
 Char.dec_value 49 = U60.to_nat 1
 Char.dec_value 50 = U60.to_nat 2
@@ -10,4 +11,4 @@ Char.dec_value 54 = U60.to_nat 6
 Char.dec_value 55 = U60.to_nat 7
 Char.dec_value 56 = U60.to_nat 8
 Char.dec_value 57 = U60.to_nat 9
-Char.dec_value a  = U60.to_nat 0
+// Char.dec_value a  = U60.to_nat 0

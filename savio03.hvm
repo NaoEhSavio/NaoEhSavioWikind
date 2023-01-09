@@ -47,7 +47,7 @@
 //((S (S ((S (S ((S (S Z)))))))))
 
 
-(Concat String.nil         ys) = String.nil
+(Concat String.nil         ys) = ys
 (Concat (String.cons x xs) ys) = (String.cons x (Concat xs ys))
 
 // From Nat to U60
@@ -118,7 +118,6 @@ SId = λn (n
   SZero
 )
 
-
 // CId = @n (n
 // 	@pred_all ((CSucc) pred_all)
 // 	CZero
@@ -188,6 +187,31 @@ CTriple = @n @s @z (n
 	z
 )
 
+CShow = @n (n
+  @pred_all (Concat "S" pred_all)
+  "Z"
+)
+
+COnes = @n (n
+  @pred_all (List.cons 1 pred_all)
+  List.nil
+)
+
+
+
+(Half Zero)               = Zero
+(Half (Succ  Zero))       = Zero
+(Half (Succ (Succ pred))) = (Succ (Nat.half pred))
+
+CHalf.TD = λn ((n
+  // fold succ
+  λrec_pred λb
+    ((If b λx(x) (CSucc))
+     (rec_pred False))
+  // fold zero
+  CZero
+) True)
+
 // Estudar:
 // 1. CPred.BU
 // 2. CPred.TD
@@ -203,6 +227,25 @@ CTriple = @n @s @z (n
 // 8. Equal.BU : U60 -> CNat -> Bool
 // 9. Equal.TD : U60 -> CNat -> Bool
 
+
+
+
+CEqual = @n @m (n (
+  @rec 
+    (If ((CIsZero) m) 
+      False
+      (rec ((CPred.S) m)))
+  @m (If ((CIsZero) m) 
+    True
+    False
+    )
+))
+
+(NatToChurch 0) = (λf λx (x))
+(NatToChurch n) =
+    let next = (NatToChurch (- n 1))
+    (λf λx (f (next f x)))
+
 (Main) = 
   let s3 = (SGen 3)
   let c3 = (CGen 4)
@@ -216,9 +259,10 @@ CTriple = @n @s @z (n
  	// ((CId) ((CId) ((CId) ((CId) c20))))
 	// ((CPred.BU) ((CPred.BU) ((CPred.BU) ((CPred.BU) c20))))
 	// ((CPred.TD) ((CPred.TD) ((CPred.TD) ((CPred.TD) c20))))
-	((CPred.S) ((CPred.S) ((CPred.S) ((CPred.S) c20))))
+	// ((COnes) ((CPred.S) ((CPred.S) ((CPred.S) ((CPred.S) c20)))))
+	// ((CPred.S) ((CPred.S) ((CPred.S) ((CPred.S) c20))))
 	// ((CTriple) ((CTriple) ((CTriple) ((CTriple) c20))))
-	// ((CTriple) ((CTriple) ((CTriple) ((CTriple) c20))))
+	(NatToChurch 2)
 
 	// (CView
   //   ((CDouble) ((CDouble) ((CDouble) ((CDouble) ((CDouble) ((CDouble) ((CDouble) ((CDouble)
