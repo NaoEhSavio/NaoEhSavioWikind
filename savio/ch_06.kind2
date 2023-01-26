@@ -1,7 +1,34 @@
-// And (n: Nat) (m: Nat) (e: Pair (Equal Nat n 0n) (Equal Nat m 0n)) : Equal Nat (Nat.add m n) 0n
-// And Nat.zero Nat.zero e = Equal.refl
-// And (Nat.succ n.pred) Nat.zero e = emp => Equal.rewrite emp (x => if x {Nat} else {Empty}) Nat.zero 
+#partial
+And (n: Nat) (m: Nat) (e: Pair (Equal Nat n 0n) (Equal Nat m 0n)) : Equal Nat (Nat.add m n) 0n
+And Nat.zero Nat.zero e = Equal.refl
+And (Nat.succ n.pred) Nat.zero e = 
+		let p = (Equal.rewrite 
+			(Pair.fst e) 
+			(x => match Nat x {
+				zero => Empty
+				succ => Unit
+		 	}) 
+		 	(Unit.new)) 
+		Empty.absurd p
 
 
+// Empty.absurd (emp => (x => if x {Empty} else {Nat}) emp)
+// (emp => ())
+
+// or_example : (n, m : Nat) ౏> ((n = 0) `Either` (m = 0)) ౏> n * m = 0
+// or_example Z _ (Left Refl) = Refl
+// or_example (S _) _ (Left Refl) impossible
+// or_example n Z (Right Refl) = multZeroRightZero n
+// or_example _ (S _) (Right Refl) impossible
+Or_example (n: Nat) (m: Nat) (e: (Either (Equal Nat n 0n) (Equal Nat m 0n))) : Equal Nat (Nat.mul n m) 0n
+Or_example Nat.zero m (Either.left l r val) = Equal.refl
+Or_example (Nat.succ n.pred) m (Either.left l r val) = ?g
+Or_example n Nat.zero (Either.right l r val) = ?b
+Or_example n (Nat.succ m.pred) (Either.right l r val) = ?n
+	// let l = (Either.lft e) 
+	// let r = (Either.rgt e) 
+	// ?
 
 
+Assoc <p> <q> <r> (pair: Pair p (Pair q r)) : Pair (Pair p q) r
+Assoc p q r (Pair.new pair.p (Pair pair.q pair.r) fst (Pair.new snd trd)) = (Pair.new (Pair.new fst snd) trd) 

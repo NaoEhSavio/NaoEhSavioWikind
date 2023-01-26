@@ -108,45 +108,34 @@ let aux = U60.if (> (- n p) p) (- n p) p
 U60.if (>= n p) (/ (List.fold (a => b => (* a b)) (U60.interval aux n 1) 1) (U60.fac (- n aux))) (0)
 
 
-Comb (c: U60) (r: U60) : List (List U60) {
-	Comb.go (U60.combination c r) r 1 (- c 1) 0 []
+// Comb (c: U60) (r: U60) : List (List U60) {
+// 	Comb.go (U60.combination c r) r 1 c 0 []
+// }
+// Comb.go (c: U60) (r: U60) (start: U60) (end: U60) (idx: U60) (acum: List U60) : List (List U60) 
+// Comb.go 0 r start end idx acum = List.nil
+// Comb.go c r start end idx acum = 
+//   let const = (& (<=start end) (>= (- end (+ start 1)) (- r idx)))
+//   U60.if (== idx r) (List.cons acum (Comb.go (- c 1) r 0 end idx acum)) ((U60.if const (Comb.go c r (+ start 1) end (+ idx 1) (List.concat acum [start]))  (Comb.go c r (+ 1 start) end idx acum)))
+
+Comb (n: U60) (r: U60) : List (List U60) {
+	Comb.go (U60.combination n r) 0 n 0 r [] 
 }
-Comb.go (c: U60) (r: U60) (start: U60) (end: U60) (idx: U60) (acum: List U60) : List (List U60) 
-Comb.go 0 r start end idx acum = [acum]
-Comb.go c r start end idx acum = 
-	U60.if (& (<=start end) (>= (- end (+ start 1)) (- r idx))) (Comb.go c r (+ start 1) end (+ idx 1) (List.concat acum [idx]))  (List.cons acum (Comb.go (- c 1) r start end  (+ 1 idx) acum))
-
-
-
-Loto.list_result : List (List U60) {
-  do List {
-    ask a = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask b = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask c = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask d = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask e = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask f = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask g = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask h = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask i = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask j = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask k = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask l = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask m = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask n = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    ask o = [ 1,  2,  3, 4, 5, 6, 7, 8, 9 , 10 , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    return [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o]
-  }
-}
-
+Comb.go (c: U60) (start: U60) (end: U60) (idx: U60) (r: U60) (acum: List U60) : List (List U60) 
+Comb.go 0 start end idx r acum = List.nil
+Comb.go c start end idx r acum = 
+  let fun = (& (<=start end) (>= (- end (+ start 1)) (- r idx)))
+  let v =  (Comb.go c (+ start 1) end (+ idx 1) r (List.concat acum [idx]))
+  let f =  (Comb.go c (+ start 1) end idx r acum)
+  (U60.if (== idx r) (List.cons acum (Comb.go (- c 1) start end idx r [])) (U60.if fun v f))
 
 Main {
-	let a = Loto.list_result
-	let b = Loto a
-	let c = Quick.sort b
- 	let d = Porcent c 
-	let e = U60.combination 3 2
-	let f = List.length Loto.list_result
-	let g = List.length (Comb 5 2)
-  g
+// 	let a = Loto.list_result
+// 	let b = Loto a
+// 	let c = Quick.sort b
+//  	let d = Porcent c 
+	let e = U60.combination 5 3
+	// let f = List.length Loto.list_result
+	let g = List.length (Comb 25 15)
+	let h = (Comb 5 3)
+ g
 }

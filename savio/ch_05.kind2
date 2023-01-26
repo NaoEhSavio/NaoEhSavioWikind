@@ -112,8 +112,8 @@ Rev_involutive <x> (l: List x) : (Equal (Rev (Rev l)) l)
 // Prod +<x> +<y> : Type
 // Prod = Pair x y
 // // Pair x y 
-Pair (x) (y) : Type
-Pair.new <x> <y> (fst: x) (snd: y) : (Pair x y)
+// Pair (x) (y) : Type
+// Pair.new <x> <y> (fst: x) (snd: y) : (Pair x y)
 
 Fst <x> <y> (pair: Pair x y) : x
 Fst (Pair.new pair.x pair.y fst snd) = fst
@@ -537,7 +537,6 @@ Nth_error_informal List.nil n = Maybe.none
 Nth_error_informal (List.cons head tail) Nat.zero =  Maybe.some head 
 Nth_error_informal (List.cons head tail) (Nat.succ n) =  Nth_error tail n
 
-// n ౏> l ౏> length l = n ౏> nth_error l n = None
 
 // 3.0.5. Exercise: 4 stars, advanced (church_numerals). This exercise explores
 // an alternative way of defining natural numbers, using the so-called Church numerals, named after mathematician Alonzo Church. We can represent a natural
@@ -599,6 +598,8 @@ Sub_1 = Equal.refl
 Sub_2 : Equal (Sub Two Two) (Sub One One)
 Sub_2 = Equal.refl
 
+Sub_3 : Equal (Sub Three One) Two
+Sub_3 = Equal.refl
 // Successor of a natural number:
 Succ (n: Num) : Num //?
 Succ n = s => z => s (n s z) // ????
@@ -662,7 +663,7 @@ Mult_3 = Equal.refl
 // (Hint: Polymorphism plays a crucial role here. However, choosing the right type to
 // iterate over can be tricky. If you hit a “Universe inconsistency” error, try iterating
 // over a different type: Nat' itself is usually problematic.)
-Exp (n: Num) (m: Num -> Num) : Num
+Exp (n: Num) (m: Num) : Num
 Exp n m = s => z =>  m n s z
 // exp' : (n : Nat' {x}) ౏> (m : Nat' {x=x౏>x}) ౏> Nat' {x}
 // exp' n m = ?exp__rhs

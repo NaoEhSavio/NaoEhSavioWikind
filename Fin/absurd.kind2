@@ -1,2 +1,2 @@
 #kdl_name = Fin_absurd
-Fin.absurd <a: Type> (n: Fin Nat.zero) : a
+// Fin.absurd <a: Type> (n: Fin Nat.zero) : a

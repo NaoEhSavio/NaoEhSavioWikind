@@ -1,0 +1,4 @@
+#kdl_name = Either_lft
+#partial
+Either.lft <l> <r> (e: Either l r) : l
+Either.lft l r (Either.left  l_ r_ val) =  val

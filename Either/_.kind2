@@ -1,7 +1,7 @@
 #derive[match]
 type Either (l: Type) (r: Type) {
-  #kdl_name = Either_lft
+  #kdl_name = Either_left
   left  (val: l)
-  #kdl_name = Either_rgt
+  #kdl_name = Either_right
   right (val: r)
 }

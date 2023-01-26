@@ -2,6 +2,6 @@
 type List (t) {
   #kdl_name = List_nil
   nil
-  #kdl_name = List.cons
+  #kdl_name = List_cons
   cons (head: t) (tail: List t)
 }

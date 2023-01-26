@@ -15,4 +15,4 @@
 
 (Fib n) = (Head (Iter λxs (Cons (SumFirstTwo xs) xs) (Cons 0 (Cons 1 Nil)) n))
 
-(Main n) = (Fib 200000)
+(Main) = (Fib 200000)

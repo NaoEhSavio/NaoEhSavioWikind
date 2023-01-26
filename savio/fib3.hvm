@@ -15,7 +15,7 @@
 
 (Fib n) = (Head (Iter λxs (Cons (SumFirstTwo xs) xs) (Cons 0 (Cons 1 Nil)) n))
 
-(Main n) = (Tuple
+(Main) = (Tuple
   (Fib 20000)
   (Fib 20000)
   (Fib 20000)
