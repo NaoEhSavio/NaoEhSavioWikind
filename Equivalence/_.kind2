@@ -1,0 +1,4 @@
+record Equivalence (p) (q) {
+	lft: p -> q 
+	rgt: q -> p
+}

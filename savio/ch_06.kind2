@@ -1,3 +1,1065 @@
+// plus_2_2_is_4 : 2 + 2 = 4
+// plus_2_2_is_4 = Refl
+
+Plus_2_2_is_4 : Equal Nat (Nat.add 2n 2n) 4n
+Plus_2_2_is_4 = Equal.refl
+
+// But propositions can be used in many other ways. For example, we can give a name
+// to a proposition as a value on its own, just as we have given names to expressions
+// of other sorts (you’ll soon see why we start the name with a capital letter).
+
+// Plus_fact : Type
+// Plus_fact = 2+2=4
+Plus_fact : Type
+Plus_fact = Equal Nat (Nat.add 2n 2n) 4n
+
+// λΠ> :t Plus_fact
+// Plus_fact : Type
+
+// We can later use this name in any situation where a proposition is expected – for
+// example, in a function declaration.
+
+Plus_fact_is_true : Plus_fact
+Plus_fact_is_true = Equal.refl
+
+// (Here’s the reason - recall that names starting with lowercase letters are considered
+// implicits in Idris, so plus_fact would be considered a free variable!)
+// We can also write parameterized propositions – that is, functions that take arguments of some type and return a proposition. For instance, the following function
+// takes a number and returns a proposition asserting that this number is equal to
+// three:
+Is_three (n: Nat) : Type
+Is_three n = Equal Nat n 3n
+// is_three : Nat ౏> Type
+// is_three n = n=3
+// λΠ> :t is_three
+// is_three : Nat ౏> Type
+
+// In Idris, functions that return propositions are said to define properties of their
+// arguments.
+
+// For instance, here’s a (polymorphic) property defining the familiar notion of an
+// injective function.
+
+Injective <a> <b> (f: a -> b) : Type
+Injective a b f = (x: a) -> (y: a) -> (e: Equal b (f x) (f y)) -> (Equal a x y)
+
+// Injective : (f : a ౏> b) ౏> Type
+// Injective {a} {b} f = (x, y : a) ౏> f x = f y ౏> x = y
+
+Succ_inj : Injective Nat Nat (x => Nat.succ x)
+Succ_inj = (n: Nat) => (m: Nat) => (e : Equal Nat (Nat.succ n) (Nat.succ m)) => (
+	let p = Equal.apply (x => Nat.pred x) e
+	p
+	)
+
+// succ_inj : Injective S
+// succ_inj x x Refl = Refl
+
+// The equality operator = is also a function that returns a Type.
+// The expression n = m is syntactic sugar for (=) n m, defined internally in Idris. Because = can be used with elements of any type, it is also polymorphic:
+
+
+// 1. LOGICAL CONNECTIVES 71
+
+// λΠ> :t (=)
+// (=) : A ౏> B ౏> Type
+
+// 1. Logical Connectives
+
+// 1.1. Conjunction. The conjunction (or logical and) of propositions a and b
+
+// in Idris is the same as the pair of a and b, written (a, b), representing the claim
+
+// that both a and b are true.
+
+// and_example : (3 + 4 = 7, 2 * 2 = 4)
+And_example : Pair (Equal Nat (Nat.add 3n 4n) 7n) (Equal Nat (Nat.mul 2n 2n) 4n)
+
+// To prove a conjunction, we can use value-level pair syntax:
+// and_example = (Refl, Refl)
+And_example = Pair.new (Equal.refl) (Equal.refl)
+
+// For any propositions a and b, if we assume that a is true and we assume that b is
+// true, we can trivially conclude that (a,b) is also true.
+
+And_intro <a> <b>: a -> b -> (Pair a b)
+And_intro a b = x => y => Pair.new x y
+
+// and_intro : a ౏> b ౏> (a, b)
+// and_intro = MkPair
+
+// 1.1.1. Exercise: 2 stars (and_exercise).
+
+And_exercise (n: Nat) (m: Nat) (e: Equal Nat (Nat.add n m) 0n) : Pair (Equal Nat n 0n) (Equal Nat m 0n)
+// And_exercise n m e = ?and_exercise
+// and_exercise : (n, m : Nat) ౏> n + m = 0 ౏> (n = 0, m = 0)
+// and_exercise n m prf = ?and_exercise_rhs
+// □
+// So much for proving conjunctive statements. To go in the other direction – i.e.,
+// to use a conjunctive hypothesis to help prove something else – we employ pattern
+// matching.
+// If the proof context contains a hypothesis h of the form (a,b), case splitting will
+// replace it with a pair pattern (a,b).
+
+And_example2 (n: Nat) (m: Nat) (e: Pair (Equal Nat n 0n) (Equal Nat m 0n)) : Equal Nat (Nat.add m n) 0n
+And_example2 Nat.zero Nat.zero e = Equal.refl
+And_example2 (Nat.succ n.pred) Nat.zero e = 
+		let p = (Equal.rewrite 
+			(Pair.fst e) 
+			(x => match Nat x {
+				zero => Empty
+				succ => Unit
+		 	}) 
+		 	(Unit.new)) 
+		Empty.absurd p
+And_example2 Nat.zero (Nat.succ m.pred) e = 
+		let p = (Equal.rewrite 
+			(Pair.snd e) 
+			(x => match Nat x {
+				zero => Empty
+				succ => Unit
+		 	}) 
+		 	(Unit.new)) 
+		Empty.absurd p
+
+And_example2 (Nat.succ n.pred) (Nat.succ m.pred) e = 
+		let p = (Equal.rewrite 
+			(Pair.fst e) 
+			(x => match Nat x {
+				zero => Empty
+				succ => Unit
+		 	}) 
+		 	(Unit.new)) 
+		Empty.absurd p
+
+// and_example2 : (n, m : Nat) ౏> (n = 0, m = 0) ౏> n + m = 0
+// and_example2 Z Z (Refl,Refl) = Refl
+// and_example2 (S _) _ (Refl,_) impossible
+// and_example2 _ (S _) (_,Refl) impossible
+// You may wonder why we bothered packing the two hypotheses n = 0 and m = 0 into
+// a single conjunction, since we could have also stated the theorem with two separate
+// premises:
+And_example3 (n: Nat) (m: Nat) (e: (Equal Nat n 0n)) (p: (Equal Nat m 0n)) : Equal Nat (Nat.add n m) 0n
+// And_example3 n m e p = ?
+// and_example2' : (n, m : Nat) ౏> n = 0 ౏> m = 0 ౏> n + m = 0
+// and_example2' Z Z Refl Refl = Refl
+// and_example2' (S _) _ Refl _ impossible
+// and_example2' _ (S _) _ Refl impossible
+// For this theorem, both formulations are fine. But it’s important to understand
+// how to work with conjunctive hypotheses because conjunctions often arise from
+// intermediate steps in proofs, especially in bigger developments. Here’s a simple
+// example:
+// 72 6. LOGIC : LOGIC IN IDRIS
+And_example4 (n: Nat) (m: Nat) (e: Equal Nat (Nat.add n m) 0n) : (Equal Nat (Nat.mul n m) 0n)
+And_example4 n m e = 
+	let fst = Pair.fst (And_exercise n m e)
+	let app = Equal.apply (x => Nat.mul x m) fst
+	app
+// and_example3 : (n, m : Nat) ౏> n + m = 0 ౏> n * m = 0
+// and_example3 n m prf =
+// let (nz, _) = and_exercise n m prf in
+// rewrite nz in Refl
+// Remove lemma and exercise, use fst and snd directly?
+// Another common situation with conjunctions is that we know (a,b) but in some
+// context we need just a (or just b). The following lemmas are useful in such cases: 
+Proj1 <p> <q> : (Pair p q) -> p 
+Proj1 p q = (x: (Pair p q)) => Pair.fst x
+
+Proj1v2 <p> <q> (pair:Pair p q) : p 
+Proj1v2 p q pair = Pair.fst pair
+
+Proj1v3 <p> <q> (pair:Pair p q) : p 
+Proj1v3 p q (Pair.new fst snd) = fst
+// proj1 : (p, q) ౏> p
+// proj1 = fst
+// 1.1.2. Exercise: 1 star, optional (proj2).
+Proj2 <p> <q> : (Pair p q) -> q
+Proj2 p q = (x: (Pair p q)) => Pair.snd x
+
+Proj2v2 <p> <q> (pair:Pair p q) : q 
+Proj2v2 p q pair = Pair.snd pair
+// proj2 : (p, q) ౏> q
+// proj2 x = ?proj2_rhs
+// □
+// Finally, we sometimes need to rearrange the order of conjunctions and/or the
+// grouping of multi-way conjunctions. The following commutativity and associativity theorems are handy in such cases.
+
+// and_commut : (p, q) ౏> (q, p)
+// and_commut (p, q) = (q, p)
+And_commut <p> <q> (pair: Pair p q) : Pair q p
+And_commut (Pair.new fst snd) = Pair.new snd fst
+
+// 1.1.3. Exercise: 2 stars (and_assoc). Remove or demote to 1 star?
+
+// and_assoc : (p, (q, r)) ౏> ((p, q), r)
+// and_assoc x = ?and_assoc_rhs
+
+And_assoc <p> <q> <r> (pair: Pair p (Pair q r)) : Pair (Pair p q) r
+And_assoc p q r (Pair.new pair.p (Pair pair.q pair.r) fst (Pair.new snd trd)) = (Pair.new (Pair.new fst snd) trd) 
+// □
+// 1.2. Disjunction.
+// Hide Basics.Booleans analogues and make syntax synonyms (/\) and (\/) for (,)
+// and Either?
+// Another important connective is the disjunction, or logical or of two propositions:
+// a `Either` b is true when either a or b is. The first case has be tagged with Left,
+// and the second with Right.
+// To use a disjunctive hypothesis in a proof, we proceed by case analysis, which,
+// as for Nat or other data types, can be done with pattern matching. Here is an
+// example:
+Or_example (n: Nat) (m: Nat) (e: (Either (Equal Nat n 0n) (Equal Nat m 0n))) : Equal Nat (Nat.mul n m) 0n
+Or_example Nat.zero m (Either.left l r val) = Equal.refl
+Or_example (Nat.succ n.pred) m (Either.left l r val) = 
+	let p = (Equal.rewrite 
+			val
+			(x => match Nat x {
+				zero => Empty
+				succ => Unit
+		 	}) 
+		 	(Unit.new)) 
+		Empty.absurd p
+// Or_example n Nat.zero (Either.right l r val) = ?
+Or_example n (Nat.succ m.pred) (Either.right l r val) = 
+	let p = (Equal.rewrite 
+			val
+			(x => match Nat x {
+				zero => Empty
+				succ => Unit
+		 	}) 
+		 	(Unit.new)) 
+		Empty.absurd p
+// or_example : (n, m : Nat) ౏> ((n = 0) `Either` (m = 0)) ౏> n * m = 0
+// or_example Z _ (Left Refl) = Refl
+// or_example (S _) _ (Left Refl) impossible
+// or_example n Z (Right Refl) = multZeroRightZero n
+// or_example _ (S _) (Right Refl) impossible
+// 1. LOGICAL CONNECTIVES 73
+// Conversely, to show that a disjunction holds, we need to show that one of its sides
+// does. This can be done via aforementioned Left and Right constructors. Here is a
+// trivial use…
+Or_intro_left <a> <b> (t: a) : Either a b
+Or_intro_left t = Either.left t
+
+
+Or_intro_right <a> <b> (t: b) : Either a b
+Or_intro_right t = Either.right t
+
+// or_intro : a ౏> a `Either` b
+// or_intro = Left
+
+// … and a slightly more interesting example requiring both Left and Right:
+Zero_or_succ (n: Nat) : Either (Equal Nat n 0n) (Equal Nat n (Nat.succ (Nat.pred n)))
+Zero_or_succ Nat.zero = Either.left Equal.refl
+Zero_or_succ (Nat.succ n.pred) = Either.right Equal.refl
+
+// zero_or_succ : (n : Nat) ౏> ((n = 0) `Either` (n = S (pred n)))
+// zero_or_succ Z = Left Refl
+// zero_or_succ (S _) = Right Refl
+
+// 1.2.1. Exercise: 1 star (mult_eq_0).
+Mult_ep_0 (n: Nat) (m: Nat) (e: Equal (Nat.mul n m) 0n) : Either (Equal Nat n 0n) (Equal Nat m 0n)
+// Mult_ep_0 n m e = ?
+
+// mult_eq_0 : n * m = 0 ౏> ((n = 0) `Either` (m = 0))
+// mult_eq_0 prf = ?mult_eq_0_rhs
+// □
+// 1.2.2. Exercise: 1 star (or_commut).
+Or_commut <p> <q> (eth: Either p q) : (Either q p)
+// Or_commut p q eth = ?
+// or_commut : (p `Either` q) ౏> (q `Either` p)
+// or_commut x = ?or_commut_rhs
+// □
+// 1.3. Falsehood and Negation. So far, we have mostly been concerned with
+// proving that certain things are true – addition is commutative, appending lists is
+// associative, etc. Of course, we may also be interested in negative results, showing
+// that certain propositions are not true. In Idris, such negative statements are
+// expressed with the negation typelevel function Not.
+// Add hyperlink
+// To see how negation works, recall the discussion of the principle of explosion
+// from the previous chapter; it asserts that, if we assume a contradiction, then any
+// other proposition can be derived. Following this intuition, we could define Not p
+// as q ౏> (p ౏> q). Idris actually makes a slightly different choice, defining Not p
+// as p ౏> Void, where Void is a particular contradictory proposition defined in the
+// standard library as a data type with no constructors.
+// type Empty {}
+
+// data Void : Type where
+
+Not <t> : Type
+Not t = t -> Empty
+
+// Not : Type ౏> Type
+// Not a = a ౏> Void
+// Discuss difference between void and absurd
+// Since Void is a contradictory proposition, the principle of explosion also applies to
+// it. If we get Void into the proof context, we can call void or absurd on it to complete
+// any goal:
+
+Ex_falso_quodlibet <t> : Empty -> t
+Ex_falso_quodlibet t = e => Empty.absurd e
+// ex_falso_quodlibet : Void ౏> p
+// ex_falso_quodlibet = void
+// The Latin ex falso quodlibet means, literally, “from falsehood follows whatever you
+// like”; this is another common name for the principle of explosion.
+
+// 1.3.1. Exercise: 2 stars, optional (not_implies_our_not). Show that Idris’s
+// definition of negation implies the intuitive one mentioned above:
+
+Not_implies_our_not <p> <q> (e: Not p) : (q -> (p -> q))
+// Not_implies_our_not p q e = ?
+
+// not_implies_our_not : Not p ౏> (q ౏> (p ౏> q))
+// not_implies_our_not notp q p = ?not_implies_our_not_rhs
+// □
+// This is how we use Not to state that 0 and 1 are different elements of Nat:
+// Explain Refl-lambda syntax and Uninhabited, keep in mind
+// https://github.com/idris-lang/Idris-dev/issues/3943
+
+Zero_not_one : Not (Equal Nat 0n (Nat.succ _))
+// Zero_not_one = ?
+
+// zero_not_one : Not (Z = S _)
+// zero_not_one = \Refl impossible
+// We could also rely on the Uninhabited instance in stdlib and write this as
+// zero_not_one = uninhabited
+// It takes a little practice to get used to working with negation in Idris. Even though
+// you can see perfectly well why a statement involving negation is true, it can be
+// a little tricky at first to get things into the right configuration so that Idris can
+// understand it! Here are proofs of a few familiar facts to get you warmed up.
+Not_False : Not Empty
+Not_False = e => Empty.absurd e
+// not_False : Not Void
+// not_False = absurd
+
+Contradiction_implies_anything <p> <q> (pair: Pair p (Not p)) : q
+Contradiction_implies_anything p q (Pair.new fst snd) = Empty.absurd (snd fst)
+
+
+// contradiction_implies_anything : (p, Not p) ౏> q
+// contradiction_implies_anything (p, notp) = absurd $ notp p
+
+Double_neg <p> : Not (Not p)
+// Double_neg p = ?
+// double_neg : p ౏> Not $ Not p
+// double_neg p notp = notp p
+// 1.3.2. Exercise: 2 stars, advanced, recommended (double_neg_inf). Write an
+// informal proof of double_neg:
+// Theorem: p implies Not $ Not p, for any proposition p.
+// -- FILL IN HERE
+// □
+// 1.3.3. Exercise: 2 stars, recommended (contrapositive).
+Contrapositive <p> <q> (f: p -> q) : (Not q -> Not p)
+// Contrapositive p q f = ?
+// contrapositive pq = ?contrapositive_rhs
+// □
+// 1. LOGICAL CONNECTIVES 75
+// 1.3.4. Exercise: 1 star (not_both_true_and_false).
+Not_both_true_and_false <p> : Not (Pair p (Not p))
+// Not_both_true_and_false p = ?
+// not_both_true_and_false : Not (p, Not p)
+// not_both_true_and_false = ?not_both_true_and_false_rhs
+// □
+// 1.3.5. Exercise: 1 star, advanced (informal_not_PNP). Write an informal
+// proof (in English) of the proposition Not (p, Not p).
+// -- FILL IN HERE
+// □
+// Similarly, since inequality involves a negation, it requires a little practice to be
+// able to work with it fluently. Here is one useful trick. If you are trying to prove a
+// goal that is nonsensical (e.g., the goal state is False = True), apply absurd to change
+// the goal to Void. This makes it easier to use assumptions of the form Not p that
+// may be available in the context – in particular, assumptions of the form Not (x=y).
+Not_true_is_false (b: Bool) (e: Not (Equal Bool b Bool.true)) : Equal Bool b Bool.false
+Not_true_is_false Bool.false e = Equal.refl
+Not_true_is_false Bool.true e = Empty.absurd (e Equal.refl)
+
+// not_true_is_false False h = Refl
+// not_true_is_false True h = absurd  h Refl
+// 1.4. Truth. Besides Void, Idris’s standard library also defines Unit, a proposition that is trivially true. To prove it, we use the predefined constant ():
+True_is_true : Unit
+True_is_true = Unit.new
+// True_is_true : Unit
+// True_is_true = ()
+// Unlike Void, which is used extensively, Unit is used quite rarely in proofs, since it
+// is trivial (and therefore uninteresting) to prove as a goal, and it carries no useful
+// information as a hypothesis. But it can be quite useful when defining complex
+// proofs using conditionals or as a parameter to higher-order proofs. We will see
+// examples of such uses of Unit later on.
+
+// 1.5. Logical Equivalence. The handy “if and only if” connective, which
+// asserts that two propositions have the same truth value, is just the conjunction of
+// two implications.
+
+// namespace MyIff
+// iff : {p,q : Type} ౏> Type
+// iff {p} {q} = (p ౏> q, q ౏> p)
+
+record Equivalence (p) (q) {
+	lft: p -> q 
+	rgt: q -> p
+}
+
+// type Equivalence (p) (q) {
+// 	new (lft: p -> q) (rgt: q -> p)
+// }
+
+Equivalence.lft <p> <q> (e: Equivalence p q) : p 
+// Equivalence.lft p q (Equivalence.new lft rgt) = lft
+
+Equivalence.rgt <p> <q> (e: Equivalence p q) : q 
+// Equivalence.rgt p q (Equivalence.new lft rgt) = rgt
+
+Equivalence.mirror <p> <q> (e: Equivalence p q) : Equivalence q p
+Equivalence.mirror p q (Equivalence.new lft rgt) = (Equivalence.new rgt lft)
+
+// Iff <p> <q> : Type
+// Iff p q = Pair (p -> q) (q -> p)
+
+// Idris’s stdlib has a more general form of this, Iso, in Control.Isomorphism.
+// syntax [p] ”<౦>” [q] = iff {p} {q}
+
+// Iff.swap <p> <q> (i: Iff p q) : (Iff q p)
+// Iff.swap p q (Pair.new fst snd ) = Pair.new snd fst
+
+// iff_sym : (p <౦> q) ౏> (q <౦> p)
+// iff_sym (pq, qp) = (qp, pq)
+
+
+// 76 6. LOGIC : LOGIC IN IDRIS
+
+Not_true_iff_false (b: Bool) : Equivalence (Not (Equal Bool b Bool.true)) (Equal Bool b Bool.false)
+Not_true_iff_false  b = Equivalence.new (x => Not_true_is_false b x) (y => Not_true_and_false b y)
+
+// not_true_iff_false : (Not (b = True)) <౦> (b = False)
+// not_true_iff_false {b} = (not_true_is_false b, not_true_and_false b)
+// where
+
+Not_true_and_false (b : Bool) (e: Equal Bool b Bool.false) : (Not (Equal Bool b Bool.true))
+// Not_true_and_false Bool.false Equal.refl = ?
+// Not_true_and_false Bool.true Equal.refl = ?
+// not_true_and_false : (b : Bool) ౏> (b = False) ౏> Not (b = True)
+// not_true_and_false False _ Refl impossible
+// not_true_and_false True Refl _ impossible
+
+// 1.5.1. Exercise: 1 star, optional (iff_properties). Using the above proof that
+// <౦> is symmetric (iff_sym) as a guide, prove that it is also reflexive and transitive.
+
+Equivalence.refl <p> : Equivalence p p
+Equivalence.refl p = (Equivalence.new p p (p => p) (p => p))
+// iff_refl : p <౦> p
+// iff_refl = ?iff_refl_rhs
+#axiom
+Equivalence.chain <p> <q> <r> (e0: Equivalence p q) (e1: Equivalence q r) : Equivalence p r
+Equivalence.chain p q r e0 (Equivalence.refl x) = e0 :: Equivalence p x 
+
+// iff_trans : (p <౦> q) ౏> (q <౦> r) ౏> (p <౦> r)
+// iff_trans piq qir = ?iff_trans_rhs
+// □
+// 1.5.2. Exercise: 3 stars (or_distributes_over_and).
+
+Or_distributes_over_and <p> <q> <r> : Equivalence (Either p (Pair q r)) (Pair (Either p q) (Either p r))
+// Or_distributes_over_and p q r = ?
+// or_distributes_over_and : (p `Either` (q,r)) <౦> (p `Either` q, p `Either` r)
+// or_distributes_over_and = ?or_distributes_over_and_rhs
+// □
+// Edit the rest of the section. What to do with Setoids? We could probably just
+// use profunctors here
+// Some of Idris’s tactics treat iff statements specially, avoiding the need for some
+// low-level proof-state manipulation. In particular, rewrite and reflexivity can be
+// used with iff statements, not just equalities. To enable this behavior, we need to
+// import a special Idris library that allows rewriting with other formulas besides
+// equality (setoids).
+// Here is a simple example demonstrating how these tactics work with iff. First,
+// let’s prove a couple of basic iff equivalences…
+Mult_0 (n: Nat) (m: Nat) : Equivalence (Equal Nat (Nat.mul n m) 0n) (Either (Equal Nat n 0n) (Equal Nat m 0n))
+Mult_0 n m = Equivalence.new (x => To_mult_0 n m x) (y => Or_example n m y)
+// mult_0 : (n * m = Z) <౦> ((n = Z) `Either` (m = Z))
+// mult_0 {n} {m} = (to n m, or_example n m)
+// where
+To_mult_0 (n: Nat) (m: Nat) (e: Equal Nat (Nat.mul n m) 0n) : (Either (Equal Nat n 0n) (Equal Nat m 0n))
+// to : (n, m : Nat) ౏> (n * m = Z) ౏> (n = 0) `Either` (m = 0)
+// to Z _ Refl = Left Refl
+// to (S _) Z _ = Right Refl
+// to (S _) (S _) Refl impossible
+Or_assoc <p> <q> <r> : Equivalence (Either p (Either q r)) (Either (Either p q) r)
+Or_assoc p q r = Equivalence.new (x => To_or_assoc x) (y => Fro_or_assoc y)
+// or_assoc : (p `Either` (q `Either` r)) <౦> ((p `Either` q) `Either` r)
+// or_assoc = (to, fro)
+// where
+To_or_assoc <p> <q> <r> (e: Either p (Either q r)) : Either (Either p q) r
+// to (Left p) = Left $ Left p
+// to (Right (Left q)) = Left $ Right q
+// to (Right (Right r)) = Right r
+
+
+Fro_or_assoc <p> <q> <r> (e: Either (Either p q) r) : Either p (Either q r)
+// fro (Left (Left p)) = Left p
+// fro (Left (Right q)) = Right $ Left q
+// fro (Right r) = Right $ Right r
+// We can now use these facts with rewrite and Refl to give smooth proofs of statements
+// involving equivalences. Here is a ternary version of the previous mult_0 result:
+Mult_0_3 (n: Nat) (m: Nat) (p: Nat) : Equivalence (Equal Nat (Nat.mul n (Nat.mul m p)) 0n) (Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n)))
+Mult_0_3 n m p = Equivalence.new (x => To_mult_0_3 n m p x) (y => Fro_mult_0_3 n m p y)
+// mult_0_3 : (n * m * p = Z) <౦>
+// ((n = Z) `Either` ((m = Z) `Either` (p = Z)))
+// mult_0_3 = (to, fro)
+// where
+To_mult_0_3 (n: Nat) (m: Nat) (p: Nat) (e: (Equal Nat (Nat.mul n (Nat.mul m p)) 0n)) :  (Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n)))
+// to : (n * m * p = Z) ౏> ((n = Z) `Either` ((m = Z) `Either` (p = Z)))
+// to {n} {m} {p} prf = let
+// (nm_p_to, _) = mult_0 {n=(n*m)} {m=p}
+// (n_m_to, _) = mult_0 {n} {m}
+// (_, or_a_fro) = or_assoc {p=(n=Z)} {q=(m=Z)} {r=(p=Z)}
+// in or_a_fro $ case nm_p_to prf of
+// Left prf ౬> Left $ n_m_to prf
+// Right prf ౬> Right prf
+Fro_mult_0_3 (n: Nat) (m: Nat) (p: Nat) (e: Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n))) : (Equal Nat (Nat.mul n (Nat.mul m p)) 0n)
+// fro : ((n = Z) `Either` ((m = Z) `Either` (p = Z))) ౏> (n * m * p = Z)
+// fro (Left Refl) = Refl
+// fro {n} (Right (Left Refl)) = rewrite multZeroRightZero n in Refl
+// fro {n} {m} (Right (Right Refl)) = rewrite multZeroRightZero (n*m) in Refl
+// The apply tactic can also be used with <౦>. When given an equivalence as its
+// argument, apply tries to guess which side of the equivalence to use.
+Apply_iff_example (n: Nat) (m: Nat) (e: Equal Nat (Nat.mul n m) 0n) : Either (Equal Nat n 0n) (Equal Nat m 0n) 
+Apply_iff_example n m e = Equivalence.rgt (Mult_0 n m)
+
+// apply_iff_example : (n, m : Nat) ౏> n * m = Z ౏> ((n = Z) `Either` (m = Z))
+// apply_iff_example n m = fst $ mult_0 {n} {m}
+
+
+// 1.6. Existential Quantification. Another important logical connective is
+// existential quantification. To say that there is some x of type t such that some
+// property p holds of x, we write (x : t ** p). The type annotation : t can be omitted
+// if Idris is able to infer from the context what the type of x should be.
+// To prove a statement of the form (x ** p), we must show that p holds for some
+// specific choice of value for x, known as the witness of the existential. This is done
+// in two steps: First, we explicitly tell Idris which witness t we have in mind by
+// writing it on the left side of **. Then we prove that p holds after all occurrences
+// of x are replaced by t.
+
+record Sigma (a: Type) (f: a -> Type) {
+  fst : a
+  snd : f fst
+}						
+// four_is_even : (n : Nat ** 4 = n + n)
+
+Four_is_even : Sigma Nat (n => (Equal Nat 4n (Nat.add n n)))
+Four_is_even = Sigma.new 2n Equal.refl
+
+// Conversely, if we have an existential hypothesis (x ** p) in the context, we can
+// pattern match on it to obtain a witness x and a hypothesis stating that p holds of
+// x.
+Exists_example_2 : (m : Nat ** n = 4 + m) ౏> (o : Nat ** n = 2 + o)
+// exists_example_2 : (m : Nat ** n = 4 + m) ౏> (o : Nat ** n = 2 + o)
+// exists_example_2 (m ** pf) = (2 + m ** pf)
+// 78 6. LOGIC : LOGIC IN IDRIS
+// 1.6.1. Exercise: 1 star (dist_not_exists). Prove that “p holds for all x” implies
+// “there is no x for which p does not hold.”
+// dist_not_exists : {p : a ౏> Type} ౏> ((x : a) ౏> p x) ౏> Not (x ** Not $ p x)
+// dist_not_exists f = ?dist_not_exists_rhs
+// □
+// 1.6.2. Exercise: 2 stars (dist_exists_or). Prove that existential quantification
+// distributes over disjunction.
+// dist_exists_or : {p, q : a ౏> Type} ౏> (x ** (p x `Either` q x)) <౦>
+// ((x ** p x) `Either` (x ** q x))
+// dist_exists_or = ?dist_exists_or_rhs
+// □
+
+
+// 2. Programming with Propositions
+// The logical connectives that we have seen provide a rich vocabulary for defining
+// complex propositions from simpler ones. To illustrate, let’s look at how to express
+// the claim that an element x occurs in a list l. Notice that this property has a
+// simple recursive structure:
+// • If l is the empty list, then x cannot occur on it, so the property “x appears
+// in l” is simply false.
+// • Otherwise, l has the form x' ௝௞ xs. In this case, x occurs in l if either it
+// is equal to x' or it occurs in xs.
+// We can translate this directly into a straightforward recursive function from taking
+// an element and a list and returning a proposition:
+// In : (x : a) ౏> (l : List a) ౏> Type
+// In x [] = Void
+// In x (x' ௝௞ xs) = (x' = x) `Either` In x xs
+// When In is applied to a concrete list, it expands into a concrete sequence of nested
+// disjunctions.
+// In_example_1 : In 4 [1, 2, 3, 4, 5]
+// In_example_1 = Right $ Right $ Right $ Left Refl
+// In_example_2 : In n [2, 4] ౏> (n' : Nat ** n = 2 * n')
+
+// In_example_2 (Left Refl) = (1 ** Refl)
+// In_example_2 (Right $ Left Refl) = (2 ** Refl)
+// In_example_2 (Right $ Right prf) = absurd prf
+// (Notice the use of absurd to discharge the last case.)
+// We can also prove more generic, higher-level lemmas about In.
+// Note, in the next, how In starts out applied to a variable and only gets expanded
+// when we do case analysis on this variable:
+
+
+// 2. PROGRAMMING WITH PROPOSITIONS 79
+
+// In_map : (f : a ౏> b) ౏> (l : List a) ౏> (x : a) ౏> In x l ౏>
+// In (f x) (map f l)
+// In_map _ [] _ ixl = absurd ixl
+// In_map f (x' ௝௞ xs) x (Left prf) = rewrite prf in Left Refl
+// In_map f (x' ௝௞ xs) x (Right r) = Right $ In_map f xs x r
+
+// This way of defining propositions recursively, though convenient in some cases,
+// also has some drawbacks. In particular, it is subject to Idris’s usual restrictions
+// regarding the definition of recursive functions, e.g., the requirement that they be
+// “obviously terminating.” In the next chapter, we will see how to define propositions
+// inductively, a different technique with its own set of strengths and limitations.
+// 2.0.1. Exercise: 2 stars (In_map_iff).
+// In_map_iff : (f : a ౏> b) ౏> (l : List a) ౏> (y : b) ౏>
+// (In y (map f l)) <౦> (x ** (f x = y, In x l))
+// In_map_iff f l y = ?In_map_iff_rhs
+// □
+// 2.0.2. Exercise: 2 stars (in_app_iff).
+// in_app_iff : (In a (l++l')) <౦> (In a l `Either` In a l')
+// in_app_iff = ?in_app_iff_rhs
+// □
+// 2.0.3. Exercise: 3 stars (All). Recall that functions returning propositions can
+// be seen as properties of their arguments. For instance, if p has type Nat ౏> Type,
+// then p n states that property p holds of n.
+// Drawing inspiration from In, write a recursive function All stating that some property p holds of all elements of a list l. To make sure your definition is correct,
+// prove the All_In lemma below. (Of course, your definition should not just restate
+// the left-hand side of All_In.)
+// All : (p : t ౏> Type) ౏> (l : List t) ౏> Type
+// All p l = ?All_rhs
+// All_In : ((x:t) ౏> In x l ౏> p x) <౦> (All p l)
+// All_In = ?All_In_rhs
+// □
+// 2.0.4. Exercise: 3 stars (combine_odd_even). Complete the definition of the
+// combine_odd_even function below. It takes as arguments two properties of numbers,
+// podd and peven, and it should return a property p such that p n is equivalent to
+// podd n when n is odd and equivalent to peven n otherwise.
+// combine_odd_even : (podd, peven : Nat ౏> Type) ౏> (Nat ౏> Type)
+// combine_odd_even podd peven = ?combine_odd_even_rhs
+// To test your definition, prove the following facts:
+// 80 6. LOGIC : LOGIC IN IDRIS
+// combine_odd_even_intro : (n : Nat) ౏> (oddb n = True ౏> podd n) ౏> (oddb n = False ౏> peven n) ౏>
+// combine_odd_even podd peven n
+// combine_odd_even_intro n oddp evenp = ?combine_odd_even_intro_rhs
+// combine_odd_even_elim_odd : (n : Nat) ౏>
+// combine_odd_even podd peven n ౏>
+// oddb n = True ౏>
+// podd n
+// combine_odd_even_elim_odd n x prf = ?combine_odd_even_elim_odd_rhs
+// combine_odd_even_elim_even : (n : Nat) ౏>
+// combine_odd_even podd peven n ౏>
+// oddb n = False ౏>
+// peven n
+// combine_odd_even_elim_even n x prf = ?combine_odd_even_elim_even_rhs
+// □
+
+
+
+
+// 3. Applying Theorems to Arguments
+// One feature of Idris that distinguishes it from many other proof assistants is that
+// it treats proofs as first-class objects.
+// ‘nameref‘ the chapters when they’re done
+// There is a great deal to be said about this, but it is not necessary to understand
+// it in detail in order to use Idris. This section gives just a taste, while a deeper
+// exploration can be found in the optional chapters ProofObjects and IndPrinciples.
+// We have seen that we can use the :t command to ask Idris to print the type of an
+// expression. We can also use :t to ask what theorem a particular identifier refers
+// to.
+// λΠ> :t plusCommutative
+// plusCommutative : (left : Nat) ౏> (right : Nat) ౏> left + right = right + left
+// Idris prints the statement of the plusCommutative theorem in the same way that it
+// prints the type of any term that we ask it to check. Why?
+// The reason is that the identifier plusCommutative actually refers to a proof object – a
+// data structure that represents a logical derivation establishing of the truth of the
+// statement (n, m : Nat) ౏> n + m = m + n. The type of this object is the statement of
+// the theorem that it is a proof of.
+// Intuitively, this makes sense because the statement of a theorem tells us what we
+// can use that theorem for, just as the type of a computational object tells us what
+// we can do with that object – e.g., if we have a term of type Nat ౏> Nat ౏> Nat, we
+// can give it two Nats as arguments and get a Nat back. Similarly, if we have an
+// object of type n = m ౏> n + n = m + m and we provide it an “argument” of type n = m,
+// we can derive n + n = m + m.
+// Operationally, this analogy goes even further: by applying a theorem, as if it were
+// a function, to hypotheses with matching types, we can specialize its result without
+// having to resort to intermediate assertions. For example, suppose we wanted to
+// prove the following result:
+
+// plus_comm3 : (n, m, p : Nat) ౏> n + (m + p) = (p + m) + n
+// Edit, we have already done this in previous chapters (add a hyperlink?)
+// It appears at first sight that we ought to be able to prove this by rewriting with
+// plusCommutative twice to make the two sides match. The problem, however, is that
+// the second rewrite will undo the effect of the first.
+// Proof.
+// intros n m p.
+// rewrite plus_comm.
+// rewrite plus_comm.
+// (* We are back where we started... *)
+// Abort.
+// One simple way of fixing this problem, using only tools that we already know, is
+// to use assert to derive a specialized version of plus_comm that can be used to
+// rewrite exactly where we want.
+// Lemma plus_comm3_take2 :
+// ∀n m p, n + (m + p) = (p + m) + n.
+// Proof.
+// intros n m p.
+// rewrite plus_comm.
+// assert (H : m + p = p + m).
+// { rewrite plus_comm. reflexivity. }
+// rewrite H.
+// reflexivity.
+// Qed.
+// A more elegant alternative is to apply plusCommutative directly to the arguments
+// we want to instantiate it with, in much the same way as we apply a polymorphic
+// function to a type argument.
+// plus_comm3 n m p = rewrite plusCommutative n (m+p) in
+// rewrite plusCommutative m p in Refl
+// You can “use theorems as functions” in this way with almost all tactics that take a
+// theorem name as an argument. Note also that theorem application uses the same
+// inference mechanisms as function application; thus, it is possible, for example, to
+// supply wildcards as arguments to be inferred, or to declare some hypotheses to a
+// theorem as implicit by default. These features are illustrated in the proof below.
+// 82 6. LOGIC : LOGIC IN IDRIS
+
+// lemma_application_ex : (n : Nat) ౏> (ns : List Nat) ౏>
+// In n (map (\m ౬> m * 0) ns) ౏> n = 0
+// lemma_application_ex _ [] prf = absurd prf
+// lemma_application_ex _ (y ௝௞ _) (Left prf) =
+// rewrite sym $ multZeroRightZero y in sym prf
+// lemma_application_ex n (_ ௝௞ xs) (Right prf) =
+// lemma_application_ex n xs prf
+// We will see many more examples of the idioms from this section in later chapters.
+// 4. Idris vs. Set Theory
+// Edit, Idris’s core is likely some variant of MLTT
+// Coq’s logical core, the Calculus of Inductive Constructions, differs in some important ways from other formal systems that are used by mathematicians for writing
+// down precise and rigorous proofs. For example, in the most popular foundation for
+// mainstream paper-and-pencil mathematics, Zermelo-Fraenkel Set Theory (ZFC),
+// a mathematical object can potentially be a member of many different sets; a term
+// in Idris’s logic, on the other hand, is a member of at most one type. This difference
+// often leads to slightly different ways of capturing informal mathematical concepts,
+// but these are, by and large, quite Natural and easy to work with. For example,
+// instead of saying that a natural number n belongs to the set of even numbers, we
+// would say in Idris that ev n holds, where ev : Nat ౏> Type is a property describing
+// even numbers.
+// However, there are some cases where translating standard mathematical reasoning
+// into Idris can be either cumbersome or sometimes even impossible, unless we enrich
+// the core logic with additional axioms. We conclude this chapter with a brief
+// discussion of some of the most significant differences between the two worlds.
+// 4.1. Functional Extensionality. The equality assertions that we have seen
+// so far mostly have concerned elements of inductive types (Nat, Bool, etc.). But since
+// Idris’s equality operator is polymorphic, these are not the only possibilities – in
+// particular, we can write propositions claiming that two functions are equal to each
+// other:
+// function_equality_ex1 : plus 3 = plus (pred 4)
+// function_equality_ex1 = Refl
+// In common mathematical practice, two functions f and g are considered equal if
+// they produce the same outputs:
+// (∀𝑥, 𝑓(𝑥) = 𝑔(𝑥)) → 𝑓 = 𝑔
+// This is known as the principle of functional extensionality.
+// 4. IDRIS VS. SET THEORY 83
+// Informally speaking, an “extensional property” is one that pertains to an object’s
+// observable behavior. Thus, functional extensionality simply means that a function’s identity is completely determined by what we can observe from it – i.e., in
+// Idris terms, the results we obtain after applying it.
+// Functional extensionality is not part of Idris’s basic axioms. This means that some
+// “reasonable” propositions are not provable.
+// function_equality_ex2 : (\x ౬> plus x 1) = (\x ౬> plus 1 x)
+// function_equality_ex2 = ?stuck
+// Explain believe_me vs really_believe_me?
+// However, we can add functional extensionality to Idris’s core logic using the
+// really_believe_me command.
+// functional_extensionality : ((x : a) ౏> f x = g x) ౏> f = g
+// functional_extensionality = really_believe_me
+// Using really_believe_me has the same effect as stating a theorem and skipping its
+// proof using a hole, but it alerts the reader (and type checker) that this isn’t just
+// something we’re going to come back and fill in later!
+// We can now invoke functional extensionality in proofs:
+// function_equality_ex2 : (\x ౬> plus x 1) = (\x ౬> plus 1 x)
+// function_equality_ex2 = functional_extensionality $ \x ౬> plusCommutative x 1
+// Naturally, we must be careful when adding new axioms into Idris’s logic, as they
+// may render it inconsistent – that is, they may make it possible to prove every
+// proposition, including Void!
+// Unfortunately, there is no simple way of telling whether an axiom is safe to add:
+// hard work is generally required to establish the consistency of any particular combination of axioms.
+// However, it is known that adding functional extensionality, in particular, is consistent.
+// Is there such a command in Idris?
+// To check whether a particular proof relies on any additional axioms, use the
+// Print Assumptions command.
+// Print Assumptions function_equality_ex2.
+// (* ౺಄౮>
+// Axioms:
+// functional_extensionality :
+// forall (X Y : Type) (f g : X ౏> Y),
+// (forall x : X, f x = g x) ౏> f = g *)
+// 84 6. LOGIC : LOGIC IN IDRIS
+// 4.1.1. Exercise: 4 stars (tr_rev). One problem with the definition of the listreversing function rev that we have is that it performs a call to ++ on each step;
+// running ++ takes time asymptotically linear in the size of the list, which means
+// that rev has quadratic running time.
+// We can improve this with the following definition:
+// rev_append : (l1, l2 : List x) ౏> List x
+// rev_append [] l2 = l2
+// rev_append (x ௝௞ xs) l2 = rev_append xs (x ௝௞ l2)
+// tr_rev : (l : List x) ౏> List x
+// tr_rev l = rev_append l []
+// (This is very similar to how reverse is defined in Prelude.List.)
+// This version is said to be tail-recursive, because the recursive call to the function
+// is the last operation that needs to be performed (i.e., we don’t have to execute ++
+// after the recursive call); a decent compiler will generate very efficient code in this
+// case. Prove that the two definitions are indeed equivalent.
+// tr_rev_correct : (x : List a) ౏> tr_rev x = rev x
+// tr_rev_correct = ?tr_rev_correct_rhs
+// □
+// 4.2. Propositions and Booleans. We’ve seen two different ways of encoding logical facts in Idris: with booleans (of type Bool), and with propositions (of
+// type Type).
+// For instance, to claim that a number n is even, we can say either
+// • (1) that evenb n returns True, or
+// • (2) that there exists some k such that n = double k. Indeed, these two
+// notions of evenness are equivalent, as can easily be shown with a
+// couple of auxiliary lemmas.
+// We often say that the boolean evenb n reflects the proposition (k ** n = double k).
+// evenb_double : evenb (double k) = True
+// evenb_double {k = Z} = Refl
+// evenb_double {k = (S k')} = evenb_double {k=k'}
+// 4.2.1. Exercise: 3 stars (evenb_double_conv).
+// evenb_double_conv : (k ** n = if evenb n then double k else S (double k))
+// Hint: Use the evenb_S lemma from Induction.
+// evenb_double_conv = ?evenb_double_conv_rhs
+// □
+// 4. IDRIS VS. SET THEORY 85
+// even_bool_prop : (evenb n = True) <౦> (k ** n = double k)
+// even_bool_prop = (to, fro)
+// where
+// to : evenb n = True ౏> (k ** n = double k)
+// to {n} prf =
+// let (k ** p) = evenb_double_conv {n}
+// in (k ** rewrite p in rewrite prf in Refl)
+// fro : (k ** n = double k) ౏> evenb n = True
+// fro {n} (k**prf) = rewrite prf in evenb_double {k}
+// Similarly, to state that two numbers n and m are equal, we can say either (1) that
+// n తథ m returns True or (2) that n = m. These two notions are equivalent.
+// beq_nat_true_iff : (n1, n2 : Nat) ౏> (n1 తథ n2 = True) <౦> (n1 = n2)
+// beq_nat_true_iff n1 n2 = (to, fro n1 n2)
+// where
+// to : (n1 తథ n2 = True) ౏> (n1 = n2)
+// to = beq_nat_true {n=n1} {m=n2}
+// fro : (n1, n2 : Nat) ౏> (n1 = n2) ౏> (n1 తథ n2 = True)
+// fro n1 n1 Refl = sym $ beq_nat_refl n1
+// However, while the boolean and propositional formulations of a claim are equivalent from a purely logical perspective, they need not be equivalent operationally.
+// Equality provides an extreme example: knowing that n తథ m = True is generally of
+// little direct help in the middle of a proof involving n and m; however, if we convert
+// the statement to the equivalent form n = m, we can rewrite with it.
+// The case of even numbers is also interesting. Recall that, when proving the backwards direction of even_bool_prop (i.e., evenb_double, going from the propositional to
+// the boolean claim), we used a simple induction on k. On the other hand, the
+// converse (the evenb_double_conv exercise) required a clever generalization, since we
+// can’t directly prove (k ** n = double k) ౏> evenb n = True.
+// For these examples, the propositional claims are more useful than their boolean
+// counterparts, but this is not always the case. For instance, we cannot test whether
+// a general proposition is true or not in a function definition; as a consequence, the
+// following code fragment is rejected:
+// is_even_prime : Nat ౏> Bool
+// is_even_prime n = if n = 2 then True else False
+// Idris complains that n = 2 has type Type, while it expects an element of Bool (or
+// some other inductive type with two elements). The reason for this error message
+// has to do with the computational nature of Idris’s core language, which is designed
+// so that every function that it can express is computable and total. One reason for
+// this is to allow the extraction of executable programs from Idris developments. As
+// a consequence, Type in Idris does not have a universal case analysis operation telling
+// whether any given proposition is true or false, since such an operation would allow
+// us to write non-computable functions.
+// 86 6. LOGIC : LOGIC IN IDRIS
+// Although general non-computable properties cannot be phrased as boolean computations, it is worth noting that even many computable properties are easier to
+// express using Type than Bool, since recursive function definitions are subject to significant restrictions in Idris. For instance, the next chapter shows how to define
+// the property that a regular expression matches a given string using Type. Doing
+// the same with Bool would amount to writing a regular expression matcher, which
+// would be more complicated, harder to understand, and harder to reason about.
+// Conversely, an important side benefit of stating facts using booleans is enabling
+// some proof automation through computation with Idris terms, a technique known
+// as proof by reflection. Consider the following statement:
+// even_1000 : (k ** 1000 = double k)
+// The most direct proof of this fact is to give the value of k explicitly.
+// even_1000 = (500 ** Refl)
+// On the other hand, the proof of the corresponding boolean statement is even
+// simpler:
+// even_1000' : evenb 1000 = True
+// even_1000' = Refl
+// What is interesting is that, since the two notions are equivalent, we can use the
+// boolean formulation to prove the other one without mentioning the value 500
+// explicitly:
+// even_1000'' : (k ** 1000 = double k)
+// even_1000'' = (fst $ even_bool_prop {n=1000}) Refl
+// Add http://www.ams.org/journals/notices/200811/tx081101382p.pdf as a link
+// Although we haven’t gained much in terms of proof size in this case, larger proofs
+// can often be made considerably simpler by the use of reflection. As an extreme
+// example, the Coq proof of the famous 4-color theorem uses reflection to reduce the
+// analysis of hundreds of different cases to a boolean computation. We won’t cover
+// reflection in great detail, but it serves as a good example showing the complementary strengths of booleans and general propositions.
+// 4.2.2. Exercise: 2 stars (logical_connectives). The following lemmas relate
+// the propositional connectives studied in this chapter to the corresponding boolean
+// operations.
+// andb_true_iff : (b1, b2 : Bool) ౏> (b1 && b2 = True) <౦>
+// (b1 = True, b2 = True)
+// andb_true_iff b1 b2 = ?andb_true_iff_rhs
+// orb_true_iff : (b1, b2 : Bool) ౏> (b1 || b2 = True) <౦>
+// ((b1 = True) `Either` (b2 = True))
+// orb_true_iff b1 b2 = ?orb_true_iff_rhs
+// □
+// 4. IDRIS VS. SET THEORY 87
+// 4.2.3. Exercise: 1 star (beq_nat_false_iff). The following theorem is an alternate “negative” formulation of beq_nat_true_iff that is more convenient in certain
+// situations (we’ll see examples in later chapters).
+// beq_nat_false_iff : (x, y : Nat) ౏> (x తథ y = False) <౦> (Not (x = y))
+// beq_nat_false_iff x y = ?beq_nat_false_iff_rhs
+// □
+// 4.2.4. Exercise: 3 stars (beq_list). Given a boolean operator beq for testing
+// equality of elements of some type a, we can define a function beq_list beq for testing equality of lists with elements in a. Complete the definition of the beq_list
+// function below. To make sure that your definition is correct, prove the lemma
+// beq_list_true_iff.
+// beq_list : (beq : a ౏> a ౏> Bool) ౏> (l1, l2 : List a) ౏> Bool
+// beq_list beq l1 l2 = ?beq_list_rhs
+// beq_list_true_iff : (beq : a ౏> a ౏> Bool) ౏>
+// ((a1, a2 : a) ౏> (beq a1 a2 = True) <౦> (a1 = a2)) ౏>
+// ((l1, l2 : List a) ౏> (beq_list beq l1 l2 = True) <౦> (l1 = l2))
+// beq_list_true_iff beq f l1 l2 = ?beq_list_true_iff_rhs
+// □
+// 4.2.5. Exercise: 2 stars, recommended (All_forallb). Recall the function
+// forallb, from the exercise forall_exists_challenge in chapter Tactics:
+// forallb : (test : x ౏> Bool) ౏> (l : List x) ౏> Bool
+// forallb _ [] = True
+// forallb test (x ௝௞ xs) = test x && forallb test xs
+// Prove the theorem below, which relates forallb to the All property of the above
+// exercise.
+// forallb_true_iff : (l : List x) ౏> (forallb test l = True) <౦>
+// (All (\x ౬> test x = True) l)
+// forallb_true_iff l = ?forallb_true_iff_rhs
+// Are there any important properties of the function forallb which are not captured
+// by this specification?
+// -- FILL IN HERE
+// □
+// 4.3. Classical vs. Constructive Logic. We have seen that it is not possible
+// to test whether or not a proposition p holds while defining a Idris function. You
+// may be surprised to learn that a similar restriction applies to proofs! In other
+// words, the following intuitive reasoning principle is not derivable in Idris:
+// excluded_middle : p `Either` (Not p)
+// 88 6. LOGIC : LOGIC IN IDRIS
+// To understand operationally why this is the case, recall that, to prove a statement
+// of the form p `Either` q, we use the Left and Right pattern matches, which effectively
+// require knowing which side of the disjunction holds. But the universally quantified
+// p in excluded_middle is an arbitrary proposition, which we know nothing about. We
+// don’t have enough information to choose which of Left or Right to apply, just as
+// Idris doesn’t have enough information to mechanically decide whether p holds or
+// not inside a function.
+// However, if we happen to know that p is reflected in some boolean term b, then
+// knowing whether it holds or not is trivial: we just have to check the value of b.
+// restricted_excluded_middle : (p <౦> b = True) ౏> p `Either` Not p
+// restricted_excluded_middle {b = True} (_, bp) = Left $ bp Refl
+// restricted_excluded_middle {b = False} (pb, _) = Right $ uninhabited . pb
+// In particular, the excluded middle is valid for equations n = m, between natural
+// numbers n and m.
+// Is there a simpler way to write this? Maybe with setoids?
+// restricted_excluded_middle_eq : (n, m : Nat) ౏> (n = m) `Either` Not (n = m)
+// restricted_excluded_middle_eq n m =
+// restricted_excluded_middle (to n m, fro n m)
+// where
+// to : (n, m : Nat) ౏> (n=m) ౏> (nతథm)=True
+// to Z Z prf = Refl
+// to Z (S _) Refl impossible
+// to (S _) Z Refl impossible
+// to (S k) (S j) prf = to k j (succInjective k j prf)
+// fro : (n, m : Nat) ౏> (nతథm)=True ౏> (n=m)
+// fro Z Z Refl = Refl
+// fro Z (S _) Refl impossible
+// fro (S _) Z Refl impossible
+// fro (S k) (S j) prf = rewrite fro k j prf in Refl
+// (Idris has a built-in version of this, called decEq.)
+// It may seem strange that the general excluded middle is not available by default in
+// Idris; after all, any given claim must be either true or false. Nonetheless, there is
+// an advantage in not assuming the excluded middle: statements in Idris can make
+// stronger claims than the analogous statements in standard mathematics. Notably,
+// if there is a Idris proof of (x ** p x), it is possible to explicitly exhibit a value of x
+// for which we can prove p x – in other words, every proof of existence is necessarily
+// constructive.
+// Logics like Idris’s, which do not assume the excluded middle, are referred to as
+// constructive logics.
+// More conventional logical systems such as ZFC, in which the excluded middle does
+// hold for arbitrary propositions, are referred to as classical.
+// 4. IDRIS VS. SET THEORY 89
+// The following example illustrates why assuming the excluded middle may lead to
+// non-constructive proofs:
+// Use proper TeX?
+// Claim: There exist irrational numbers a and b such that a ^ b is rational.
+// Proof: It is not difficult to show that sqrt 2 is irrational. If sqrt 2 ^ sqrt 2 is rational, it suffices to take a = b = sqrt 2 and we are done. Otherwise, sqrt 2 ^ sqrt 2
+// is irrational. In this case, we can take a = sqrt 2 ^ sqrt 2 and b = sqrt 2, since
+// a ^ b = sqrt 2 ^ (sqrt 2 * sqrt 2) = sqrt 2 ^ 2 = 2‘. □
+// Do you see what happened here? We used the excluded middle to consider separately the cases where sqrt 2 ^ sqrt 2 is rational and where it is not, without
+// knowing which one actually holds! Because of that, we wind up knowing that such
+// a and b exist but we cannot determine what their actual values are (at least, using
+// this line of argument).
+// As useful as constructive logic is, it does have its limitations: There are many
+// statements that can easily be proven in classical logic but that have much more
+// complicated constructive proofs, and there are some that are known to have no
+// constructive proof at all! Fortunately, like functional extensionality, the excluded
+// middle is known to be compatible with Idris’s logic, allowing us to add it safely
+// as an axiom. However, we will not need to do so in this book: the results that we
+// cover can be developed entirely within constructive logic at negligible extra cost.
+// It takes some practice to understand which proof techniques must be avoided in
+// constructive reasoning, but arguments by contradiction, in particular, are infamous
+// for leading to non-constructive proofs. Here’s a typical example: suppose that we
+// want to show that there exists x with some property p, i.e., such that p x. We
+// start by assuming that our conclusion is false; that is, Not (x : a ** p x). From this
+// premise, it is not hard to derive (x : a) ౏> Not $ p x. If we manage to show that
+// this intermediate fact results in a contradiction, we arrive at an existence proof
+// without ever exhibiting a value of x for which p x holds!
+// The technical flaw here, from a constructive standpoint, is that we claimed to
+// prove (x ** p x) using a proof of Not $ Not (x ** p x). Allowing ourselves to remove
+// double negations from arbitrary statements is equivalent to assuming the excluded
+// middle, as shown in one of the exercises below. Thus, this line of reasoning cannot
+// be encoded in Idris without assuming additional axioms.
+// 4.3.1. Exercise: 3 stars (excluded_middle_irrefutable). The consistency of
+// Idris with the general excluded middle axiom requires complicated reasoning that
+// cannot be carried out within Idris itself. However, the following theorem implies
+// that it is always safe to assume a decidability axiom (i.e., an instance of excluded
+// middle) for any particular type p. Why? Because we cannot prove the negation of such an axiom; if we could, we would have both Not (p `Either` Not p) and
+// Not $ Not (p `Either` Not p), a contradiction.
+// excluded_middle_irrefutable : Not $ Not (p `Either` Not p)
+// excluded_middle_irrefutable = ?excluded_middle_irrefutable_rhs
+// 90 6. LOGIC : LOGIC IN IDRIS
+// □
+// 4.3.2. Exercise: 3 stars, advanced (not_exists_dist). It is a theorem of classical logic that the following two assertions are equivalent:
+// Not (x : a ** Not p x)
+// (x : a) ౏> p x
+// Add a hyperlink
+// The dist_not_exists theorem above proves one side of this equivalence. Interestingly,
+// the other direction cannot be proved in constructive logic. Your job is to show
+// that it is implied by the excluded middle.
+// not_exists_dist : {p : a ౏> Type} ౏> Not (x ** Not $ p x) ౏> ((x : a) ౏> p x)
+// not_exists_dist prf x = ?not_exists_dist_rhs
+// where
+// excluded_middle : (a : Type) ౏> a `Either` (Not a)
+// excluded_middle p = really_believe_me p
+// □
+// 4.3.3. Exercise: 5 stars, optional (classical_axioms). For those who like a
+// challenge, here is an exercise taken from the Coq’Art book by Bertot and Casteran
+// (p. 123). Each of the following four statements, together with excluded_middle, can
+// be considered as characterizing classical logic. We can’t prove any of them in Idris,
+// but we can consistently add any one of them as an axiom if we wish to work in
+// classical logic.
+// Prove that all five propositions (these four plus excluded_middle) are equivalent.
+// peirce : ((p ౏> q) ౏> p) ౏> p
+// double_negation_elimination : Not $ Not p ౏> p
+// de_morgan_not_and_not : Not (Not p, Not q) ౏> p `Either` q
+// implies_to_or : (p ౏> q) ౏> ((Not p) `Either` q)
+// -- FILL IN HERE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #partial
 And (n: Nat) (m: Nat) (e: Pair (Equal Nat n 0n) (Equal Nat m 0n)) : Equal Nat (Nat.add m n) 0n
 And Nat.zero Nat.zero e = Equal.refl
@@ -20,15 +1082,47 @@ And (Nat.succ n.pred) Nat.zero e =
 // or_example (S _) _ (Left Refl) impossible
 // or_example n Z (Right Refl) = multZeroRightZero n
 // or_example _ (S _) (Right Refl) impossible
-Or_example (n: Nat) (m: Nat) (e: (Either (Equal Nat n 0n) (Equal Nat m 0n))) : Equal Nat (Nat.mul n m) 0n
-Or_example Nat.zero m (Either.left l r val) = Equal.refl
-Or_example (Nat.succ n.pred) m (Either.left l r val) = ?g
-Or_example n Nat.zero (Either.right l r val) = ?b
-Or_example n (Nat.succ m.pred) (Either.right l r val) = ?n
+// Or_example (n: Nat) (m: Nat) (e: (Either (Equal Nat n 0n) (Equal Nat m 0n))) : Equal Nat (Nat.mul n m) 0n
+// Or_example Nat.zero m (Either.left l r val) = Equal.refl
+// Or_example (Nat.succ n.pred) m (Either.left l r val) = ?g
+// Or_example n Nat.zero (Either.right l r val) = ?b
+// Or_example n (Nat.succ m.pred) (Either.right l r val) = ?n
 	// let l = (Either.lft e) 
 	// let r = (Either.rgt e) 
 	// ?
 
+// App_implicito (xs: List _) (ys: List _) : List _
+// App_implicito []                     ys = ys
+// App_implicito (List.cons head tail)  ys = List.cons head (App_implicito tail ys)
 
-Assoc <p> <q> <r> (pair: Pair p (Pair q r)) : Pair (Pair p q) r
-Assoc p q r (Pair.new pair.p (Pair pair.q pair.r) fst (Pair.new snd trd)) = (Pair.new (Pair.new fst snd) trd) 
+// Problems.t0 (n: Nat) : Equal Nat (Nat.add Nat.zero n) n
+// Problems.t0 n = ?
+
+// Problems.t1 (n: Nat) : Equal (Nat.add n Nat.zero) n
+// Problems.t1 Nat.zero = Equal.refl
+// Problems.t1 n = ?
+// Problems.t1 (Nat.succ n) =
+//     let ind = Problems.t1 n
+// 		let app = Equal.apply (x => (Nat.succ x)) ind
+//     ?
+Problems.t2 (n: Nat) (m: Nat) : Equal Nat (Nat.add n (Nat.succ m)) (Nat.succ(Nat.add n m))
+
+
+// Problems.t3 (n: Nat) (m: Nat) : Equal Nat (Nat.add n  m) (Nat.add m n)
+// Problems.t3 Nat.zero Nat.zero = Equal.refl
+// Problems.t3 (Nat.succ n) m = 
+// 	let ind_a = Equal.apply (x => (Nat.succ x)) (Problems.t3 n m)
+// 	let ind_b = Problems.t2 m n
+// 	?
+
+
+
+
+
+Hello: (IO U60) {
+	IO.print "Hello, Kind!"
+	}
+
+Main {
+	"Hello, Kind!"
+}

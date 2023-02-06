@@ -1,0 +1,14 @@
+IO.print (text: String) : IO U60 {
+	do IO {
+		ask answer = IO.output text
+		return answer 
+	}
+}	
+
+// IO.prompt (question: String) : IO String {
+//   do IO {
+//     IO.output question
+//     ask answer = IO.input
+//     return answer
+//   }
+// }

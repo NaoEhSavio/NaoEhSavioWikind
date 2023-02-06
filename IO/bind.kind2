@@ -1,3 +1,4 @@
+#partial
 IO.bind <a: Type> <b: Type> (io: IO a) (cont: a -> IO b) : IO b
 IO.bind (IO.done      val)          next = next val
 IO.bind (IO.do_input          cont) next = IO.do_input          (x => IO.bind (cont x) next)
