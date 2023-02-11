@@ -29,6 +29,7 @@ Plus_fact_is_true = Equal.refl
 // three:
 Is_three (n: Nat) : Type
 Is_three n = Equal Nat n 3n
+
 // is_three : Nat ౏> Type
 // is_three n = n=3
 // λΠ> :t is_three
@@ -46,11 +47,11 @@ Injective a b f = (x: a) -> (y: a) -> (e: Equal b (f x) (f y)) -> (Equal a x y)
 // Injective : (f : a ౏> b) ౏> Type
 // Injective {a} {b} f = (x, y : a) ౏> f x = f y ౏> x = y
 
-Succ_inj : Injective Nat Nat (x => Nat.succ x)
+Succ_inj : Injective ((x: Nat) => Nat.succ x)
 Succ_inj = (n: Nat) => (m: Nat) => (e : Equal Nat (Nat.succ n) (Nat.succ m)) => (
-	let p = Equal.apply (x => Nat.pred x) e
-	p
-	)
+ 	let p = Equal.apply (x => Nat.pred x) e
+ 	p
+ 	)
 
 // succ_inj : Injective S
 // succ_inj x x Refl = Refl
@@ -58,8 +59,6 @@ Succ_inj = (n: Nat) => (m: Nat) => (e : Equal Nat (Nat.succ n) (Nat.succ m)) => 
 // The equality operator = is also a function that returns a Type.
 // The expression n = m is syntactic sugar for (=) n m, defined internally in Idris. Because = can be used with elements of any type, it is also polymorphic:
 
-
-// 1. LOGICAL CONNECTIVES 71
 
 // λΠ> :t (=)
 // (=) : A ౏> B ౏> Type
@@ -74,7 +73,6 @@ Succ_inj = (n: Nat) => (m: Nat) => (e : Equal Nat (Nat.succ n) (Nat.succ m)) => 
 
 // and_example : (3 + 4 = 7, 2 * 2 = 4)
 And_example : Pair (Equal Nat (Nat.add 3n 4n) 7n) (Equal Nat (Nat.mul 2n 2n) 4n)
-
 // To prove a conjunction, we can use value-level pair syntax:
 // and_example = (Refl, Refl)
 And_example = Pair.new (Equal.refl) (Equal.refl)
@@ -92,9 +90,10 @@ And_intro a b = x => y => Pair.new x y
 
 And_exercise (n: Nat) (m: Nat) (e: Equal Nat (Nat.add n m) 0n) : Pair (Equal Nat n 0n) (Equal Nat m 0n)
 // And_exercise n m e = ?and_exercise
+
 // and_exercise : (n, m : Nat) ౏> n + m = 0 ౏> (n = 0, m = 0)
 // and_exercise n m prf = ?and_exercise_rhs
-// □
+
 // So much for proving conjunctive statements. To go in the other direction – i.e.,
 // to use a conjunctive hypothesis to help prove something else – we employ pattern
 // matching.
@@ -139,8 +138,10 @@ And_example2 (Nat.succ n.pred) (Nat.succ m.pred) e =
 // You may wonder why we bothered packing the two hypotheses n = 0 and m = 0 into
 // a single conjunction, since we could have also stated the theorem with two separate
 // premises:
+
 And_example3 (n: Nat) (m: Nat) (e: (Equal Nat n 0n)) (p: (Equal Nat m 0n)) : Equal Nat (Nat.add n m) 0n
 // And_example3 n m e p = ?
+
 // and_example2' : (n, m : Nat) ౏> n = 0 ౏> m = 0 ౏> n + m = 0
 // and_example2' Z Z Refl Refl = Refl
 // and_example2' (S _) _ Refl _ impossible
@@ -149,12 +150,13 @@ And_example3 (n: Nat) (m: Nat) (e: (Equal Nat n 0n)) (p: (Equal Nat m 0n)) : Equ
 // how to work with conjunctive hypotheses because conjunctions often arise from
 // intermediate steps in proofs, especially in bigger developments. Here’s a simple
 // example:
-// 72 6. LOGIC : LOGIC IN IDRIS
+
 And_example4 (n: Nat) (m: Nat) (e: Equal Nat (Nat.add n m) 0n) : (Equal Nat (Nat.mul n m) 0n)
 And_example4 n m e = 
 	let fst = Pair.fst (And_exercise n m e)
 	let app = Equal.apply (x => Nat.mul x m) fst
 	app
+
 // and_example3 : (n, m : Nat) ౏> n + m = 0 ౏> n * m = 0
 // and_example3 n m prf =
 // let (nz, _) = and_exercise n m prf in
@@ -162,6 +164,7 @@ And_example4 n m e =
 // Remove lemma and exercise, use fst and snd directly?
 // Another common situation with conjunctions is that we know (a,b) but in some
 // context we need just a (or just b). The following lemmas are useful in such cases: 
+
 Proj1 <p> <q> : (Pair p q) -> p 
 Proj1 p q = (x: (Pair p q)) => Pair.fst x
 
@@ -170,22 +173,27 @@ Proj1v2 p q pair = Pair.fst pair
 
 Proj1v3 <p> <q> (pair:Pair p q) : p 
 Proj1v3 p q (Pair.new fst snd) = fst
+
 // proj1 : (p, q) ౏> p
 // proj1 = fst
+
 // 1.1.2. Exercise: 1 star, optional (proj2).
+
 Proj2 <p> <q> : (Pair p q) -> q
 Proj2 p q = (x: (Pair p q)) => Pair.snd x
 
 Proj2v2 <p> <q> (pair:Pair p q) : q 
 Proj2v2 p q pair = Pair.snd pair
+
 // proj2 : (p, q) ౏> q
 // proj2 x = ?proj2_rhs
-// □
+
 // Finally, we sometimes need to rearrange the order of conjunctions and/or the
 // grouping of multi-way conjunctions. The following commutativity and associativity theorems are handy in such cases.
 
 // and_commut : (p, q) ౏> (q, p)
 // and_commut (p, q) = (q, p)
+
 And_commut <p> <q> (pair: Pair p q) : Pair q p
 And_commut (Pair.new fst snd) = Pair.new snd fst
 
@@ -196,7 +204,7 @@ And_commut (Pair.new fst snd) = Pair.new snd fst
 
 And_assoc <p> <q> <r> (pair: Pair p (Pair q r)) : Pair (Pair p q) r
 And_assoc p q r (Pair.new pair.p (Pair pair.q pair.r) fst (Pair.new snd trd)) = (Pair.new (Pair.new fst snd) trd) 
-// □
+
 // 1.2. Disjunction.
 // Hide Basics.Booleans analogues and make syntax synonyms (/\) and (\/) for (,)
 // and Either?
@@ -206,6 +214,7 @@ And_assoc p q r (Pair.new pair.p (Pair pair.q pair.r) fst (Pair.new snd trd)) = 
 // To use a disjunctive hypothesis in a proof, we proceed by case analysis, which,
 // as for Nat or other data types, can be done with pattern matching. Here is an
 // example:
+
 Or_example (n: Nat) (m: Nat) (e: (Either (Equal Nat n 0n) (Equal Nat m 0n))) : Equal Nat (Nat.mul n m) 0n
 Or_example Nat.zero m (Either.left l r val) = Equal.refl
 Or_example (Nat.succ n.pred) m (Either.left l r val) = 
@@ -227,15 +236,17 @@ Or_example n (Nat.succ m.pred) (Either.right l r val) =
 		 	}) 
 		 	(Unit.new)) 
 		Empty.absurd p
+
 // or_example : (n, m : Nat) ౏> ((n = 0) `Either` (m = 0)) ౏> n * m = 0
 // or_example Z _ (Left Refl) = Refl
 // or_example (S _) _ (Left Refl) impossible
 // or_example n Z (Right Refl) = multZeroRightZero n
 // or_example _ (S _) (Right Refl) impossible
-// 1. LOGICAL CONNECTIVES 73
+
 // Conversely, to show that a disjunction holds, we need to show that one of its sides
 // does. This can be done via aforementioned Left and Right constructors. Here is a
 // trivial use…
+
 Or_intro_left <a> <b> (t: a) : Either a b
 Or_intro_left t = Either.left t
 
@@ -280,7 +291,7 @@ Or_commut <p> <q> (eth: Either p q) : (Either q p)
 // as q ౏> (p ౏> q). Idris actually makes a slightly different choice, defining Not p
 // as p ౏> Void, where Void is a particular contradictory proposition defined in the
 // standard library as a data type with no constructors.
-// type Empty {}
+type Empty {}
 
 // data Void : Type where
 
@@ -296,6 +307,7 @@ Not t = t -> Empty
 
 Ex_falso_quodlibet <t> : Empty -> t
 Ex_falso_quodlibet t = e => Empty.absurd e
+
 // ex_falso_quodlibet : Void ౏> p
 // ex_falso_quodlibet = void
 // The Latin ex falso quodlibet means, literally, “from falsehood follows whatever you
@@ -327,6 +339,7 @@ Zero_not_one : Not (Equal Nat 0n (Nat.succ _))
 // understand it! Here are proofs of a few familiar facts to get you warmed up.
 Not_False : Not Empty
 Not_False = e => Empty.absurd e
+
 // not_False : Not Void
 // not_False = absurd
 
@@ -338,35 +351,38 @@ Contradiction_implies_anything p q (Pair.new fst snd) = Empty.absurd (snd fst)
 // contradiction_implies_anything (p, notp) = absurd $ notp p
 
 Double_neg <p> : Not (Not p)
-// Double_neg p = ?
+// Double_neg p = Empty.absurd 
+
 // double_neg : p ౏> Not $ Not p
 // double_neg p notp = notp p
 // 1.3.2. Exercise: 2 stars, advanced, recommended (double_neg_inf). Write an
 // informal proof of double_neg:
 // Theorem: p implies Not $ Not p, for any proposition p.
 // -- FILL IN HERE
-// □
+
 // 1.3.3. Exercise: 2 stars, recommended (contrapositive).
 Contrapositive <p> <q> (f: p -> q) : (Not q -> Not p)
 // Contrapositive p q f = ?
+
 // contrapositive pq = ?contrapositive_rhs
-// □
-// 1. LOGICAL CONNECTIVES 75
+
 // 1.3.4. Exercise: 1 star (not_both_true_and_false).
 Not_both_true_and_false <p> : Not (Pair p (Not p))
 // Not_both_true_and_false p = ?
+
 // not_both_true_and_false : Not (p, Not p)
 // not_both_true_and_false = ?not_both_true_and_false_rhs
 // □
 // 1.3.5. Exercise: 1 star, advanced (informal_not_PNP). Write an informal
 // proof (in English) of the proposition Not (p, Not p).
 // -- FILL IN HERE
-// □
+
 // Similarly, since inequality involves a negation, it requires a little practice to be
 // able to work with it fluently. Here is one useful trick. If you are trying to prove a
 // goal that is nonsensical (e.g., the goal state is False = True), apply absurd to change
 // the goal to Void. This makes it easier to use assumptions of the form Not p that
 // may be available in the context – in particular, assumptions of the form Not (x=y).
+
 Not_true_is_false (b: Bool) (e: Not (Equal Bool b Bool.true)) : Equal Bool b Bool.false
 Not_true_is_false Bool.false e = Equal.refl
 Not_true_is_false Bool.true e = Empty.absurd (e Equal.refl)
@@ -376,8 +392,10 @@ Not_true_is_false Bool.true e = Empty.absurd (e Equal.refl)
 // 1.4. Truth. Besides Void, Idris’s standard library also defines Unit, a proposition that is trivially true. To prove it, we use the predefined constant ():
 True_is_true : Unit
 True_is_true = Unit.new
+
 // True_is_true : Unit
 // True_is_true = ()
+
 // Unlike Void, which is used extensively, Unit is used quite rarely in proofs, since it
 // is trivial (and therefore uninteresting) to prove as a goal, and it carries no useful
 // information as a hypothesis. But it can be quite useful when defining complex
@@ -396,13 +414,15 @@ record Equivalence (p) (q) {
 	lft: p -> q 
 	rgt: q -> p
 }
+// Equivalence (p: Type) (q: Type) : Type
+// Equivalence.new <p: Type> <q: Type> (lft: (_: p) q) (rgt: (_: q) p) : (Equivalence p q)
 
 // type Equivalence (p) (q) {
 // 	new (lft: p -> q) (rgt: q -> p)
 // }
 
 Equivalence.lft <p> <q> (e: Equivalence p q) : p 
-// Equivalence.lft p q (Equivalence.new lft rgt) = lft
+// Equivalence.lft p q (Equivalence.new lft rgt) = ?
 
 Equivalence.rgt <p> <q> (e: Equivalence p q) : q 
 // Equivalence.rgt p q (Equivalence.new lft rgt) = rgt
@@ -423,8 +443,6 @@ Equivalence.mirror p q (Equivalence.new lft rgt) = (Equivalence.new rgt lft)
 // iff_sym (pq, qp) = (qp, pq)
 
 
-// 76 6. LOGIC : LOGIC IN IDRIS
-
 Not_true_iff_false (b: Bool) : Equivalence (Not (Equal Bool b Bool.true)) (Equal Bool b Bool.false)
 Not_true_iff_false  b = Equivalence.new (x => Not_true_is_false b x) (y => Not_true_and_false b y)
 
@@ -432,9 +450,20 @@ Not_true_iff_false  b = Equivalence.new (x => Not_true_is_false b x) (y => Not_t
 // not_true_iff_false {b} = (not_true_is_false b, not_true_and_false b)
 // where
 
-Not_true_and_false (b : Bool) (e: Equal Bool b Bool.false) : (Not (Equal Bool b Bool.true))
-// Not_true_and_false Bool.false Equal.refl = ?
-// Not_true_and_false Bool.true Equal.refl = ?
+Not_true_and_false (b : Bool) (e: Equal Bool b Bool.false) : Not (Equal Bool b Bool.true)
+Not_true_and_false Bool.false Equal.refl = 
+	emp => 
+	let p = (Equal.rewrite emp
+			(x => match Bool x {
+				true => Empty
+				false => Unit
+		 	}) 
+		 	(Unit.new)) 
+	Empty.absurd p
+
+Not_true_and_false Bool.true e = 
+	let p = Equal.rewrite e (x => if x {Unit} else {Empty}) Unit.new
+	Empty.absurd p
 // not_true_and_false : (b : Bool) ౏> (b = False) ౏> Not (b = True)
 // not_true_and_false False _ Refl impossible
 // not_true_and_false True Refl _ impossible
@@ -444,11 +473,12 @@ Not_true_and_false (b : Bool) (e: Equal Bool b Bool.false) : (Not (Equal Bool b 
 
 Equivalence.refl <p> : Equivalence p p
 Equivalence.refl p = (Equivalence.new p p (p => p) (p => p))
+
 // iff_refl : p <౦> p
 // iff_refl = ?iff_refl_rhs
-#axiom
+
 Equivalence.chain <p> <q> <r> (e0: Equivalence p q) (e1: Equivalence q r) : Equivalence p r
-Equivalence.chain p q r e0 (Equivalence.refl x) = e0 :: Equivalence p x 
+Equivalence.chain p q r e0 (Equivalence.refl x) = e0 :: Equivalence p x
 
 // iff_trans : (p <౦> q) ౏> (q <౦> r) ౏> (p <౦> r)
 // iff_trans piq qir = ?iff_trans_rhs
@@ -457,6 +487,7 @@ Equivalence.chain p q r e0 (Equivalence.refl x) = e0 :: Equivalence p x
 
 Or_distributes_over_and <p> <q> <r> : Equivalence (Either p (Pair q r)) (Pair (Either p q) (Either p r))
 // Or_distributes_over_and p q r = ?
+
 // or_distributes_over_and : (p `Either` (q,r)) <౦> (p `Either` q, p `Either` r)
 // or_distributes_over_and = ?or_distributes_over_and_rhs
 // □
@@ -469,31 +500,54 @@ Or_distributes_over_and <p> <q> <r> : Equivalence (Either p (Pair q r)) (Pair (E
 // equality (setoids).
 // Here is a simple example demonstrating how these tactics work with iff. First,
 // let’s prove a couple of basic iff equivalences…
+
 Mult_0 (n: Nat) (m: Nat) : Equivalence (Equal Nat (Nat.mul n m) 0n) (Either (Equal Nat n 0n) (Equal Nat m 0n))
 Mult_0 n m = Equivalence.new (x => To_mult_0 n m x) (y => Or_example n m y)
 // mult_0 : (n * m = Z) <౦> ((n = Z) `Either` (m = Z))
 // mult_0 {n} {m} = (to n m, or_example n m)
 // where
+Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
+
 To_mult_0 (n: Nat) (m: Nat) (e: Equal Nat (Nat.mul n m) 0n) : (Either (Equal Nat n 0n) (Equal Nat m 0n))
+To_mult_0 Nat.zero Nat.zero Equal.refl = Either.right Equal.refl
+To_mult_0 Nat.zero (Nat.succ m) Equal.refl = Either.left Equal.refl
+To_mult_0 (Nat.succ n) Nat.zero e = Either.right Equal.refl
+To_mult_0 (Nat.succ n) (Nat.succ m) e =
+		let a = Plus_comm (Nat.mul n (Nat.succ m)) (Nat.succ m)
+		let b = Equal.chain (Equal.mirror e) a
+		let c = (Equal.rewrite b
+			(x => match Nat x {
+				zero => Unit
+				succ => Empty
+		 	})
+		 	(Unit.new)) 
+		Empty.absurd c
+
 // to : (n, m : Nat) ౏> (n * m = Z) ౏> (n = 0) `Either` (m = 0)
 // to Z _ Refl = Left Refl
 // to (S _) Z _ = Right Refl
 // to (S _) (S _) Refl impossible
 Or_assoc <p> <q> <r> : Equivalence (Either p (Either q r)) (Either (Either p q) r)
-Or_assoc p q r = Equivalence.new (x => To_or_assoc x) (y => Fro_or_assoc y)
+Or_assoc = Equivalence.new (x => To_or_assoc x) (y => Fro_or_assoc y)
 // or_assoc : (p `Either` (q `Either` r)) <౦> ((p `Either` q) `Either` r)
 // or_assoc = (to, fro)
 // where
 To_or_assoc <p> <q> <r> (e: Either p (Either q r)) : Either (Either p q) r
+To_or_assoc (Either.left e) = Either.left (Either.left e)
+To_or_assoc (Either.right p (Either q r) (Either.left e)) = Either.left (Either.right e)
+To_or_assoc (Either.right p (Either q r) (Either.right e)) = Either.right e
 // to (Left p) = Left $ Left p
 // to (Right (Left q)) = Left $ Right q
 // to (Right (Right r)) = Right r
 
-
 Fro_or_assoc <p> <q> <r> (e: Either (Either p q) r) : Either p (Either q r)
+Fro_or_assoc (Either.left (Either p q) r (Either.left e)) = Either.left e
+Fro_or_assoc (Either.left (Either p q) r (Either.right e)) = Either.right (Either.left e)
+Fro_or_assoc (Either.right (Either p q) r e) = Either.right (Either.right e)
 // fro (Left (Left p)) = Left p
 // fro (Left (Right q)) = Right $ Left q
 // fro (Right r) = Right $ Right r
+
 // We can now use these facts with rewrite and Refl to give smooth proofs of statements
 // involving equivalences. Here is a ternary version of the previous mult_0 result:
 Mult_0_3 (n: Nat) (m: Nat) (p: Nat) : Equivalence (Equal Nat (Nat.mul n (Nat.mul m p)) 0n) (Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n)))
@@ -502,16 +556,29 @@ Mult_0_3 n m p = Equivalence.new (x => To_mult_0_3 n m p x) (y => Fro_mult_0_3 n
 // ((n = Z) `Either` ((m = Z) `Either` (p = Z)))
 // mult_0_3 = (to, fro)
 // where
-To_mult_0_3 (n: Nat) (m: Nat) (p: Nat) (e: (Equal Nat (Nat.mul n (Nat.mul m p)) 0n)) :  (Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n)))
+To_mult_0_3 (n: Nat) (m: Nat) (p: Nat) (e: (Equal Nat (Nat.mul n (Nat.mul m p)) 0n)) : (Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n)))
+To_mult_0_3 n m p e = Either.swap (Equivalence.rgt (Or_assoc (Equal m 0n) (Equal p 0n) (Equal n 0n)))
+		 	 
 // to : (n * m * p = Z) ౏> ((n = Z) `Either` ((m = Z) `Either` (p = Z)))
 // to {n} {m} {p} prf = let
 // (nm_p_to, _) = mult_0 {n=(n*m)} {m=p}
 // (n_m_to, _) = mult_0 {n} {m}
 // (_, or_a_fro) = or_assoc {p=(n=Z)} {q=(m=Z)} {r=(p=Z)}
-// in or_a_fro $ case nm_p_to prf of
+// in or_a_fro  case nm_p_to prf of
 // Left prf ౬> Left $ n_m_to prf
 // Right prf ౬> Right prf
+Mult_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.mul m n) (Nat.mul n m))
+Mult_assoc (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.mul n (Nat.mul m p)) (Nat.mul (Nat.mul n m) p))
+
 Fro_mult_0_3 (n: Nat) (m: Nat) (p: Nat) (e: Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n))) : (Equal Nat (Nat.mul n (Nat.mul m p)) 0n)
+Fro_mult_0_3 Nat.zero m p (Either.left Equal.refl) = Equal.refl
+Fro_mult_0_3 n Nat.zero p (Either.right a (Either b c) (Either.left Equal.refl)) = 
+	let i = Mult_assoc (Nat.succ n) p p
+	?
+// Fro_mult_0_3 (Nat.succ n) Nat.zero Nat.zero (Either.right l (Either lr rr) (Either.left Equal.refl)) = ?
+// Fro_mult_0_3 (Nat.succ n) (Nat.succ m) Nat.zero (Either.right l (Either lr rr) (Either.right Equal.refl)) = 
+// 	let a = Mult_comm (Nat.succ n) (Nat.succ m) 
+// 	?
 // fro : ((n = Z) `Either` ((m = Z) `Either` (p = Z))) ౏> (n * m * p = Z)
 // fro (Left Refl) = Refl
 // fro {n} (Right (Left Refl)) = rewrite multZeroRightZero n in Refl
@@ -537,8 +604,15 @@ Apply_iff_example n m e = Equivalence.rgt (Mult_0 n m)
 
 record Sigma (a: Type) (f: a -> Type) {
   fst : a
-  snd : f fst
-}						
+  snd : (f fst)
+}
+
+// Sigma (a: Type) (f: a -> Type) : Type
+// Sigma.new <a: Type> <f: a -> Type> (fst: a) (snd: f fst) : Sigma a f
+
+// type Sigma (a) (f: a -> Type) {
+// 	new (fst: a) (snd: f fst)
+// }						
 // four_is_even : (n : Nat ** 4 = n + n)
 
 Four_is_even : Sigma Nat (n => (Equal Nat 4n (Nat.add n n)))
@@ -547,20 +621,42 @@ Four_is_even = Sigma.new 2n Equal.refl
 // Conversely, if we have an existential hypothesis (x ** p) in the context, we can
 // pattern match on it to obtain a witness x and a hypothesis stating that p holds of
 // x.
-Exists_example_2 : (m : Nat ** n = 4 + m) ౏> (o : Nat ** n = 2 + o)
+// Exists_example_2 (s: Sigma Nat (m => (Equal Nat n (Nat.add 4n m)))) : (o : Nat ** n = 2 + o)
+Exists_example_2 (n: Nat) (m: Sigma Nat (m => (Equal Nat n (Nat.add 4n m)))) : Sigma Nat (o => (Equal Nat n (Nat.add 2n o)))
+// Exists_example_2 n (Sigma.new fst snd) = (Sigma.new fst (
+// 	let ind = Equal.apply (n =>(Nat.succ n)) snd
+// 	?
+// ))
+// Nat : Type
+// Nat.zero : Nat
+// Nat.succ (pred: Nat) : Nat
+
+// Equal <x> (a: x) (b: x) : Type
+// Equal.refl <x> <a: x> : Equal a a 
+// Equal.mirror <x> <a: x> <b: x> (c: Equal x a b) : Equal x b a
+// Equal.apply <x> <y> <a: x> <b: x> (f: x -> y) (c: Equal x a b) : Equal y (f a) (f b)
+// Equal.chain <x> <a: x> <b: x> <c: x> (e: Equal x a b) (f: Equal x b c) : Equal x a c
+
+// Exists_example_3 (s: Sigma Nat (m => Sigma Nat (n => (Equal Nat n (Nat.add (U60.to_nat 4) m))))) : Sigma Nat (o => Sigma Nat (n => (Equal Nat n (Nat.add (U60.to_nat 2) o))))
+// Exists_example_3 (Sigma.new m e) = $ (Nat.add (Nat.succ(Nat.succ Nat.zero)) m) ($ ? ?)  
+
 // exists_example_2 : (m : Nat ** n = 4 + m) ౏> (o : Nat ** n = 2 + o)
 // exists_example_2 (m ** pf) = (2 + m ** pf)
-// 78 6. LOGIC : LOGIC IN IDRIS
+
 // 1.6.1. Exercise: 1 star (dist_not_exists). Prove that “p holds for all x” implies
 // “there is no x for which p does not hold.”
+
+Dist_not_exists <a> <p: a -> Type> (f: (x: a) -> (p x)) : Not (Sigma a (x => ( Not (p x))))
+// Dist_not_exists a p f = ?
 // dist_not_exists : {p : a ౏> Type} ౏> ((x : a) ౏> p x) ౏> Not (x ** Not $ p x)
 // dist_not_exists f = ?dist_not_exists_rhs
 // □
 // 1.6.2. Exercise: 2 stars (dist_exists_or). Prove that existential quantification
 // distributes over disjunction.
+Dist_exists_or <a> <p: a -> Type> <q: a -> Type> : Equivalence (Sigma a (x => (Either (p x) (q x)))) (Either (Sigma a (x => (p x))) (Sigma a (x => (q x))))
 // dist_exists_or : {p, q : a ౏> Type} ౏> (x ** (p x `Either` q x)) <౦>
 // ((x ** p x) `Either` (x ** q x))
-// dist_exists_or = ?dist_exists_or_rhs
+// Dist_exists_or a p q = ?dist_exists_or_rhs
 // □
 
 
@@ -575,15 +671,26 @@ Exists_example_2 : (m : Nat ** n = 4 + m) ౏> (o : Nat ** n = 2 + o)
 // is equal to x' or it occurs in xs.
 // We can translate this directly into a straightforward recursive function from taking
 // an element and a list and returning a proposition:
+In <a> (x: a) (l: List a) : Type
+In a x List.nil = Empty
+In a x (List.cons head tail) = Either (Equal head x) (In x tail) 
 // In : (x : a) ౏> (l : List a) ౏> Type
-// In x [] = Void
+// In x [] =  
 // In x (x' ௝௞ xs) = (x' = x) `Either` In x xs
 // When In is applied to a concrete list, it expands into a concrete sequence of nested
 // disjunctions.
+
+In_example_1 : In 4n [1n, 2n, 3n, 4n, 5n]
+In_example_1 = Either.right (Either.right (Either.right (Either.left Equal.refl)))
 // In_example_1 : In 4 [1, 2, 3, 4, 5]
 // In_example_1 = Right $ Right $ Right $ Left Refl
+
+In_example_2 (n: Nat) (i: In n [2n, 4n]) : Sigma Nat (m => (Equal n (Nat.mul 2n m)))
 // In_example_2 : In n [2, 4] ౏> (n' : Nat ** n = 2 * n')
 
+// In_example_2 n (Either.left Equal.refl) = Sigma.new 1n ?
+// In_example_2 n (Either.right( Either.left Equal.refl)) = Sigma.new 2n ? 
+// In_example_2 n (Either.right l r( Either.right ll rr e)) = ? 
 // In_example_2 (Left Refl) = (1 ** Refl)
 // In_example_2 (Right $ Left Refl) = (2 ** Refl)
 // In_example_2 (Right $ Right prf) = absurd prf
@@ -1087,18 +1194,18 @@ And (Nat.succ n.pred) Nat.zero e =
 // Or_example (Nat.succ n.pred) m (Either.left l r val) = ?g
 // Or_example n Nat.zero (Either.right l r val) = ?b
 // Or_example n (Nat.succ m.pred) (Either.right l r val) = ?n
-	// let l = (Either.lft e) 
-	// let r = (Either.rgt e) 
-	// ?
+// 	let l = (Either.lft e) 
+// 	let r = (Either.rgt e) 
+// 	?
 
-// App_implicito (xs: List _) (ys: List _) : List _
-// App_implicito []                     ys = ys
-// App_implicito (List.cons head tail)  ys = List.cons head (App_implicito tail ys)
+App_implicito (xs: List _) (ys: List _) : List _
+App_implicito list.nil               ys = ys
+App_implicito (List.cons head tail)  ys = List.cons head (App_implicito tail ys)
 
-// Problems.t0 (n: Nat) : Equal Nat (Nat.add Nat.zero n) n
+Problems.t0 (n: Nat) : Equal Nat (Nat.add Nat.zero n) n
 // Problems.t0 n = ?
 
-// Problems.t1 (n: Nat) : Equal (Nat.add n Nat.zero) n
+Problems.t1 (n: Nat) : Equal (Nat.add n Nat.zero) n
 // Problems.t1 Nat.zero = Equal.refl
 // Problems.t1 n = ?
 // Problems.t1 (Nat.succ n) =
@@ -1108,7 +1215,7 @@ And (Nat.succ n.pred) Nat.zero e =
 Problems.t2 (n: Nat) (m: Nat) : Equal Nat (Nat.add n (Nat.succ m)) (Nat.succ(Nat.add n m))
 
 
-// Problems.t3 (n: Nat) (m: Nat) : Equal Nat (Nat.add n  m) (Nat.add m n)
+Problems.t3 (n: Nat) (m: Nat) : Equal Nat (Nat.add n  m) (Nat.add m n)
 // Problems.t3 Nat.zero Nat.zero = Equal.refl
 // Problems.t3 (Nat.succ n) m = 
 // 	let ind_a = Equal.apply (x => (Nat.succ x)) (Problems.t3 n m)

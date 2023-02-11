@@ -458,8 +458,8 @@ Test_plus3_1 = Equal.refl
 Test_plus3_2 : Equal Nat (Doit3times (Plus3) 0n) 9n
 Test_plus3_2 = Equal.refl
 
-Test_plus3_3 : Equal Nat (Doit3times (Plus3) 0n) 9n
-Test_plus3_3 = Equal.refl
+Test_plus3_3 : Equal (Doit3times (x => Nat.add 3n x) 0n) 9n
+Test_plus3_3 = ?
 
 // Test_plus3_3 : doit3times (plus 3) 0 = 9
 // Test_plus3_3 = Refl
@@ -663,7 +663,7 @@ Mult_3 = Equal.refl
 // (Hint: Polymorphism plays a crucial role here. However, choosing the right type to
 // iterate over can be tricky. If you hit a “Universe inconsistency” error, try iterating
 // over a different type: Nat' itself is usually problematic.)
-Exp (n: Num) (m: Num) : Num
+Exp (n: Num) (m: Num -> Num) : Num
 Exp n m = s => z =>  m n s z
 // exp' : (n : Nat' {x}) ౏> (m : Nat' {x=x౏>x}) ౏> Nat' {x}
 // exp' n m = ?exp__rhs
