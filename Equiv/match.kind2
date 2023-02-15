@@ -1,0 +1,3 @@
+// Automatically derived from Equiv/_.type
+Equiv.match <p: Type> <q: Type> (x: (Equiv p q)) -(p: (x: (Equiv p q)) Type) (new: (lft: (_: p) q) (rgt: (_: q) p) (p (Equiv.new p q lft rgt))) : (p x)
+Equiv.match p q (Equiv.new p_ q_ lft_ rgt_) p new = (new lft_ rgt_)

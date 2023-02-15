@@ -1,2 +1,0 @@
-Equivalence.lft <p> <q> (e: Equivalence p q) : p
-// Equivalence.lft p q (Equivalence.new lft rgt) = lft

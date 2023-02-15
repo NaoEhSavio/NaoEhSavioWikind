@@ -12,40 +12,40 @@ type IO (a: Type) {
   // Global Events
 
   // Posts a buffer of up to 20 U60 numbers (1200 bits) to a global room
-  do_events_post (room: U60) (data: List U60) (cont: U60 -> IO a)
+  // do_events_post (room: U60) (data: List U60) (cont: U60 -> IO a)
 
-  // Returns all the posts on the [from_id .. to_id] range of a global room, truncating
-  // If we are watching this room, return from the local buffer
-  // Otherwise, makes a get request
-  do_events_view (room: U60) (from_id: U60) (to_id: U60) (cont: List (List U60) -> IO a)
+  // // Returns all the posts on the [from_id .. to_id] range of a global room, truncating
+  // // If we are watching this room, return from the local buffer
+  // // Otherwise, makes a get request
+  // do_events_view (room: U60) (from_id: U60) (to_id: U60) (cont: List (List U60) -> IO a)
 
-  // The events below are optimizations that make `do_events_view` to return faster.
+  // // The events below are optimizations that make `do_events_view` to return faster.
 
-  // Watches a room. This has no direct effect, but will cause the process to
-  // keep a buffer with all the post on given room cached on memory. This will
-  // cause `do_events_view` to return instantly if the target room is watched.
-  do_events_watch (room: U60) (cont: U60 -> IO a)
+  // // Watches a room. This has no direct effect, but will cause the process to
+  // // keep a buffer with all the post on given room cached on memory. This will
+  // // cause `do_events_view` to return instantly if the target room is watched.
+  // do_events_watch (room: U60) (cont: U60 -> IO a)
 
-  // Unwatches a room. Will clear the cached event buffer from memory.
-  do_events_unwatch (room: U60) (cont: U60 -> IO a)
+  // // Unwatches a room. Will clear the cached event buffer from memory.
+  // do_events_unwatch (room: U60) (cont: U60 -> IO a)
 
-  // Stores a room to disk
-  do_events_save (room: U60)
+  // // Stores a room to disk
+  // do_events_save (room: U60)
 
-  // Clears a room from disk
-  do_events_forget (room: U60)
+  // // Clears a room from disk
+  // do_events_forget (room: U60)
 
-  // Returns our best estimative of the rooms.kindelia.org server time.
-  do_events_get_time (cont: U60 -> IO a)
+  // // Returns our best estimative of the rooms.kindelia.org server time.
+  // do_events_get_time (cont: U60 -> IO a)
 
-  // Returns our best estimative of the ping to rooms.kindelia.org.
-  do_events_get_ping (cont: U60 -> IO a)
+  // // Returns our best estimative of the ping to rooms.kindelia.org.
+  // do_events_get_ping (cont: U60 -> IO a)
 
-  // Starts synchronizing with the rooms.kindelia.org clock
-  do_events_start_sync (cont: U60 -> IO a)
+  // // Starts synchronizing with the rooms.kindelia.org clock
+  // do_events_start_sync (cont: U60 -> IO a)
 
-  // Stops synchronizing with the rooms.kindelia.org clock
-  do_events_stop_sync (cont: U60 -> IO a)
+  // // Stops synchronizing with the rooms.kindelia.org clock
+  // do_events_stop_sync (cont: U60 -> IO a)
 
   // TODO: make the APIs above work on both HVM-JS (web version) and `hvm run` (Rust's interpreter)
 

@@ -1,3 +1,0 @@
-// Automatically derived from Equivalence/_.type
-Equivalence.match <p: Type> <q: Type> (x: (Equivalence p q)) -(p: (x: (Equivalence p q)) Type) (new: (lft: (_: p) q) (rgt: (_: q) p) (p (Equivalence.new p q lft rgt))) : (p x)
-Equivalence.match p q (Equivalence.new p_ q_ lft_ rgt_) p new = (new lft_ rgt_)

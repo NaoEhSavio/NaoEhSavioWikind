@@ -1,0 +1,3 @@
+#axiom
+Equiv.rgt <p> <q> (e: Equiv p q) : q 
+// Equiv.rgt p q (Equiv.new lft rgt) = rgt

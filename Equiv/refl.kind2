@@ -1,0 +1,2 @@
+Equiv.refl <p> : Equiv p p
+Equiv.refl p = (Equiv.new p p (p => p) (p => p))

@@ -1,2 +1,0 @@
-Equivalence.chain <p> <q> <r> (e0: Equivalence p q) (e1: Equivalence q r) : Equivalence p r
-Equivalence.chain p q r e0 (Equivalence.refl x) = e0 :: Equivalence p x 

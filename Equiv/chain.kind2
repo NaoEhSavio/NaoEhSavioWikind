@@ -1,0 +1,2 @@
+Equiv.chain <p> <q> <r> (e0: Equiv p q) (e1: Equiv q r) : Equiv p r
+Equiv.chain p q r e0 (Equiv.refl x) = e0 :: Equiv p x 

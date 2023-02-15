@@ -1,0 +1,2 @@
+Equiv.mirror <p> <q> (e: Equiv p q) : Equiv q p
+Equiv.mirror p q (Equiv.new lft rgt) = (Equiv.new rgt lft)
