@@ -1,3 +1,2 @@
-#axiom
 Equiv.lft <p> <q> (e: Equiv p q) : p
-// Equiv.lft p q (Equiv.new lft rgt) = lft
+Equiv.lft (Equiv.new p q l r)    = r (Equiv.rgt (Equiv.new p q l r))

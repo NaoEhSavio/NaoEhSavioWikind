@@ -109,13 +109,13 @@ Andb_true_elim_2 (b: Bool) (c: Bool) (e: Equal Bool (Bool.and b c) Bool.true) : 
 Andb_true_elim_2 Bool.true Bool.true prf = Equal.refl
 // - prf : (Equal Bool Bool.true Bool.true)
 // - Goal: (Equal Bool Bool.true Bool.true)
-Andb_true_elim_2 Bool.true Bool.false prf = ?
+// Andb_true_elim_2 Bool.true Bool.false prf = ?
 // - prf : (Equal Bool Bool.false Bool.true)
 // - Goal: (Equal Bool Bool.false Bool.true)
 Andb_true_elim_2 Bool.false Bool.true prf = Equal.refl
 // - prf : (Equal Bool Bool.false Bool.true)
 // - Goal: (Equal Bool Bool.true Bool.true)
-Andb_true_elim_2 Bool.false Bool.false prf = ?
+// Andb_true_elim_2 Bool.false Bool.false prf = ?
 // - prf : (Equal Bool Bool.false Bool.true)
 // - Goal: (Equal Bool Bool.false Bool.true)
 
@@ -148,10 +148,10 @@ Andb_eq_orb (b: Bool) (c: Bool) (e: Equal Bool (Bool.and b c) (Bool.or b c)) : (
 Andb_eq_orb Bool.true Bool.true prf = Equal.refl // prf
 // - prf : (Equal Bool Bool.true Bool.true)
 // - Goal: (Equal Bool Bool.true Bool.true)
-Andb_eq_orb Bool.true Bool.false prf = ? // prf
-// - prf : (Equal Bool Bool.false Bool.true)
-// - Goal: (Equal Bool Bool.true Bool.false)
-Andb_eq_orb Bool.false Bool.true prf =  ?// prf
+// Andb_eq_orb Bool.true Bool.false prf = ? // prf
+// // - prf : (Equal Bool Bool.false Bool.true)
+// // - Goal: (Equal Bool Bool.true Bool.false)
+// Andb_eq_orb Bool.false Bool.true prf =  ?// prf
 // - prf : (Equal Bool Bool.false Bool.true)
 // - Goal: (Equal Bool Bool.false Bool.true)
 Andb_eq_orb Bool.false Bool.false prf = Equal.refl // prf

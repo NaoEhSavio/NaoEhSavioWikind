@@ -3,4 +3,4 @@
 (Fib 2) = 1
 (Fib n) = (+ (Fib (- n 1)) (Fib (- n 2)))
 
-(Main) = (Fib 42)
+(Main) = (Fib 36)

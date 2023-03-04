@@ -3,9 +3,3 @@ record Equiv (p) (q) {
 	lft: p -> q 
 	rgt: q -> p
 }
-// type Equiv (p: Type) (q: Type) {
-//   #kdl_name = Either_left
-//   left  (lft: p -> q)
-//   #kdl_name = Either_right
-//   right (rgt: q -> p)
-// }

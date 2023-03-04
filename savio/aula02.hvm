@@ -30,20 +30,26 @@ New = λfst λsnd λnew (new fst snd)
   //succ (pred: Nat)
 //}
 
-(Nat.show n) = (n "Zero" λp(String.concat (String.concat "(Succ " (Nat.show p)) ")"))
 
-Zero =    λzero λsucc zero
-Succ = λn λzero λsucc (succ n)
+// (Nat.show n) = (n "Zero" λp(String.concat (String.concat "(Succ " (Nat.show p)) ")"))
+
+(SNat.show n) = (n "Z" λp(String.concat (String.concat "(S " (SNat.show p)) ")"))
+
+(CNat.show n) = (n λp (String.concat (String.concat "(S " p) ")") "Z")
+
+(Zero) =    λzero λsucc zero
+(Succ) = λn λzero λsucc (succ n)
 
 
 // λzero λsucc (succ λzero λsucc (succ λzero λsucc zero))
 Two = ((Succ) ((Succ) Zero))
-
+STwo = λzero λsucc (succ λzero λsucc (succ λzero λsucc zero))
+CTwo = λsucc λzero (succ (succ zero))
 (Double n) = (n Zero λp((Succ) ((Succ) (Double p))))
 
-(Main n) = (Nat.show (Double (Double ((Succ) ((Succ) Zero)))))
+(Main) = (CNat.show CTwo)
 
-(Inc n) = (Succ n)
+// (Inc n) = (Succ n)
 
 
 //(Not True)

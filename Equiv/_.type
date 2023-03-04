@@ -1,3 +1,0 @@
-type Equiv (p) (q) {
-	new (lft: p -> q) (rgt: q -> p)
-}
