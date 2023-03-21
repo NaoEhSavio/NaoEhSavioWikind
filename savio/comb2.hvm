@@ -1,0 +1,146 @@
+// List.fold -(x: Type) -(y: Type) (func: (_: x) (_: y) y) (l: (List x)) (b: y) : y
+(List.fold func (List.nil) b) = b
+(List.fold func (List.cons head tail) b) = ((func head) (List.fold func tail b))
+
+// List.length -(a: Type) (xs: (List a)) : U60
+(List.length (List.nil)) = 0
+(List.length (List.cons head tail)) = (+ (List.length tail) 1)
+
+// List.delete_all (v: U60) (s: (List U60)) : (List U60)
+(List.delete_all v (List.nil)) = (List.nil)
+(List.delete_all v (List.cons head tail)) = (Bool.if (U60.equal v head) (List.delete_all v tail) (List.cons head (List.delete_all v tail)))
+
+// List.filter -(a: Type) (xs: (List a)) (cond: (_: a) (Bool)) : (List a)
+(List.filter (List.nil) cond) = (List.nil)
+(List.filter (List.cons head tail) cond) = (Bool.if (cond head) (List.cons head (List.filter tail cond)) (List.filter tail cond))
+
+// U60.to_bool (n: U60) : (Bool)
+(U60.to_bool 0) = (Bool.false)
+(U60.to_bool n) = (Bool.true)
+
+// List.u60.filter.go (cond: (_: U60) U60) (eql: U60) (xs: (List U60)) : (List U60)
+(List.u60.filter.go cond eql (List.nil)) = (List.nil)
+(List.u60.filter.go cond 0 (List.cons head tail)) = (List.u60.filter.go cond (cond head) tail)
+(List.u60.filter.go cond 1 (List.cons head tail)) = (CONS head (List.u60.filter.go cond (cond head) tail))
+
+// List.u60.filter (cond: (_: U60) U60) (xs: (List U60)) : (List U60)
+(List.u60.filter cond (List.nil)) = (List.nil)
+(List.u60.filter cond (List.cons head tail)) = 
+let eql = (cond head); 
+(List.u60.filter.go cond eql (List.cons head tail))
+
+// Quick.sort (xs: (List U60)) : (List U60)
+(Quick.sort (List.nil)) = (List.nil)
+(Quick.sort (List.cons x xs)) = 
+let min = (Quick.sort (List.u60.filter @n (< n x) xs)); 
+let max = (Quick.sort (List.u60.filter @n (> n x) xs)); 
+(List.concat min (CONS x max))
+
+// Bubble.sort (xs: (List U60)) : (List U60)
+(Bubble.sort (List.nil)) = (List.nil)
+(Bubble.sort (List.cons x xs)) = (Insert x (Bubble.sort xs))
+
+// Insert (v: U60) (xs: (List U60)) : (List U60)
+(Insert v (List.nil)) = (List.cons v (List.nil))
+(Insert v (List.cons x xs)) = (GoDown (> v x) v x xs)
+
+// GoDown (b: U60) (v: U60) (x: U60) (xs: (List U60)) : (List U60)
+(GoDown 0 v x xs) = (CONS  v (List.cons x xs))
+(GoDown 1 v x xs) = (CONS  x (Insert v xs))
+
+// Loto.soma (xs: (List U60)) : U60
+
+(Sum (List.nil))         = 0
+(Sum (List.cons x xs)) = (+ x (Sum xs))
+
+(Loto.soma xs) = (List.fold @a @b (+ a b) xs 0)
+
+// Loto (xs: (List (List U60))) : (List U60)
+(Loto (List.nil)) = (List.nil)
+(Loto (List.cons head tail)) = let h = (Sum head); let t = (Loto tail); (CONS h t)
+
+// Porcent (xs: (List U60)) : (List (List U60))
+(Porcent xs) = (Porcent.go xs (List.length xs))
+
+// Porcent.go (xs: (List U60)) (len: U60) : (List (List U60))
+(Porcent.go (List.nil) len) = (List.nil)
+(Porcent.go (List.cons head tail) len) = 
+	let eql = (List.length (List.u60.filter @a (== head a) (List.cons head tail) )); 
+	let por = (/ (* 1000000000 eql) len); 
+	let par = (CONS head (List.cons eql (List.cons por (List.nil)))); 
+	let del = (List.delete_all head (List.cons head tail)); 
+	let res = (Porcent.go del len); 
+	(List.cons par res)
+
+// U60.equal (a: U60) (b: U60) : (Bool)
+(U60.equal a b) = (U60.to_bool (== a b))
+
+// Bool.if -(a: Type) (b: (Bool)) (t: a) (f: a) : a
+(Bool.if (Bool.true) t f) = t
+(Bool.if (Bool.false) t f) = f
+
+(List.fold func [] b) = b
+(List.fold func (List.cons head tail) b) = (func head (List.fold func tail b))
+
+(U60.fac 0) = 1
+(U60.fac n) = (* n (U60.fac (- n 1)))
+
+(U60.if 0 t f) = f
+(U60.if n t f) = t
+
+(U60.interval start stop step) = (U60.if (>= start stop) [] (List.cons (+ start step) (U60.interval (+ start step) stop step)))
+
+(List.bind xs f) = (List.flatten (List.map xs f))
+
+(List.map [] f) = []
+(List.map (List.cons head tail) f) = (CONS (f head) (List.map tail f))
+
+(List.concat [] ys) = ys
+(List.concat (List.cons head tail) ys) = (List.cons  head (List.concat tail ys))
+
+(List.flatten []) = []
+(List.flatten (List.cons head tail)) = (List.concat head (List.flatten tail))
+
+(List.delete f []) = []
+(List.delete f (List.cons head tail)) = (U60.if (f head) [] (CONS head (List.delete f tail)))
+
+(List.length []) = 0
+(List.length (List.cons head tail)) = (+ (List.length tail) 1)
+
+(U60.comb n p) = 
+	let aux = (U60.if (> (- n p) p) (- n p) p); 
+	let cop = (List.fold λa λb (* a b) (U60.interval aux n 1) 1); 
+	(U60.if (>= n p) (/ cop (U60.fac (- n aux))) 0)
+
+// Strict constructors
+(CONS !a !b) = (List.cons a b)
+
+(Comb []) = []
+(Comb xs) = (List.bind xs 
+λa (List.bind (List.delete λx (== a x) xs) 
+λb (List.bind (List.delete λx (| (== b x) (== a x)) xs) 
+λc (List.bind (List.delete λx (| (| (== b x) (== a x)) (== c x)) xs) 
+λd (List.bind (List.delete λx (| (| (== b x) (== a x)) (| (== c x) (== d x))) xs) 
+λe (List.bind (List.delete λx (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (== e x)) xs) 
+λf (List.bind (List.delete λx (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (== e x) (== f x))) xs) 
+λg (List.bind (List.delete λx (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (== g x))) xs) 
+λh (List.bind (List.delete λx (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) xs) 
+λi (List.bind (List.delete λx (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (== i x)) xs) 
+λj (List.bind (List.delete λx (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (== i x) (== j x))) xs) 
+λk (List.bind (List.delete λx (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (== i x) (== j x)) (== k x))) xs) 
+λl (List.bind (List.delete λx (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (== i x) (== j x)) (| (== k x) (== l x)))) xs) 
+λm (List.bind (List.delete λx (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (| (== i x) (== j x)) (| (== k x) (== l x))) (== m x))) xs) 
+λn (List.bind (List.delete λx (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (| (== i x) (== j x)) (| (== k x) (== l x))) (| (== m x) (== n x)))) xs) 
+λo [[o, n, m, l, k, j, i, h, g, f, e, d, c, b, a]])))))))))))))))
+
+
+(Main) = 
+	let a = (U60.comb 25 15); 
+	let b = (Comb [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]); 
+	let c = (Loto b)
+	let d = (Bubble.sort c)
+  let e = (Porcent c)
+	let f = (List.length c)
+	e
+	// (List.length (Comb [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20]))
+	// (List.length (Comb [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20]))

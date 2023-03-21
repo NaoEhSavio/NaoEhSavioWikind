@@ -83,6 +83,7 @@ Double (Nat.succ n) = Nat.succ (Nat.succ (Double n))
 Double_plus (n: Nat) : (Equal Nat (Double n) (Nat.add n n))
 Double_plus Nat.zero = Equal.refl
 // - Goal: (Equal Nat Nat.zero Nat.zero)
+
 Double_plus (Nat.succ n.pred) = 
                           let ind = Double_plus n.pred
                           let app = Equal.apply (x => Nat.succ x) ind
@@ -165,6 +166,7 @@ Plus_swap (Nat.succ n.pred) m p =
 Mult_n_one (n: Nat) : (Equal Nat n (Nat.mul n (Nat.succ Nat.zero)))
 Mult_n_one Nat.zero = Equal.refl 
 // - Goal: (Equal Nat Nat.zero Nat.zero)
+
 Mult_n_one (Nat.succ n.pred) = 
                         let ind = Mult_n_one n.pred
                         let app = Equal.apply (x => Nat.add x (Nat.succ Nat.zero)) ind

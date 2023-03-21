@@ -54,6 +54,9 @@ let max = (Quick.sort (List.u60.filter @n (> n x) xs));
 
 // Loto.soma (xs: (List U60)) : U60
 (Loto.soma xs) = (List.fold @a @b (+ a b) xs 0)
+																				//        314337051
+(Sum (List.nil))       = 0 //                     314053713
+(Sum (List.cons x xs)) = (+ x (Sum xs))
 
 // Loto (xs: (List (List U60))) : (List U60)
 (Loto (List.nil)) = (List.nil)
@@ -2754,6 +2757,6 @@ let max = (Quick.sort (List.u60.filter @n (> n x) xs));
 [01,04,05,06,07,09,11,12,13,15,16,19,20,23,24],
 [02,03,05,06,09,10,11,13,14,16,18,20,23,24,25]]
   let b = (Loto a)
-	let c = (Quick.sort b)
+	let c = (Bubble.sort b)
   let d = (Porcent c)
 	d

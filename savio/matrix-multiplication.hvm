@@ -34,7 +34,7 @@
 //(Main n) = (Sum (Scale (Rnd (* n 2) 1) (Rnd (* n 2) 1)))
 
 // 4. Ensure we can multiply two 1D lists of reasonable size
-(Main n) = (Sum (Multiply (Rnd (* n 1000) 1) (Rnd (* n 1000) 1)))
+(Main) = (Sum (Multiply (Rnd (* 10 1000) 1) (Rnd (* 10 1000) 1)))
 
 // 5. This results in stack overflow :-/
 // --

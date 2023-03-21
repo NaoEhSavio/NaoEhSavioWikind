@@ -216,7 +216,8 @@ And_assoc p q r (Pair.new pair.p (Pair pair.q pair.r) fst (Pair.new snd trd)) = 
 // example:
 
 Or_example (n: Nat) (m: Nat) (e: (Either (Equal Nat n 0n) (Equal Nat m 0n))) : Equal Nat (Nat.mul n m) 0n
-Or_example Nat.zero m (Either.left l r val) = Equal.refl
+Or_example Nat.zero m (Either.left l r Equal.refl) = Equal.refl
+Or_example n Nat.zero (Either.right l r val) = Mult_0_r n
 // Or_example n Nat.zero (Either.right l r Equal.refl) = ?
 Or_example (Nat.succ n.pred) m (Either.left l r val) = 
 	let p = (Equal.rewrite 
@@ -642,27 +643,29 @@ Apply_iff_example n m e = Equiv.rgt (Mult_0 n m)
 
 
 
-// Sigma <t> (a: Type) (p: a -> Type) : Type
-// Sigma.new <a: Type> <p: a -> Type> (fst: a) (snd: p fst) : Sigma a p
+// Sigmat (a: Type) (p: a -> Type) : Type
+// Sigmat.new <a> <p: a -> Type> (fst: a) (snd: p fst) : Sigmat a p
 
 // data DPair : (a : Type) -> (P : a -> Type) -> Type where
 //    MkDPair : {P : a -> Type} -> (x : a) -> P x -> DPair a P
 
 
-// type Sigma (a) (f: a -> Type) {
-// 	new (fst: a) (snd: f fst)
-// }						
-// four_is_even : (n : Nat ** 4 = n + n)
+type Sigma (a) (f: a -> Type) {
+	new (fst: a) (snd: f fst)
+}		
 
+// four_is_even : (n : Nat ** 4 = n + n)
+// Four_is_even : [n: Nat] -> (Equal Nat 4n (Nat.add n n))
 Four_is_even : Sigma Nat (n => (Equal Nat 4n (Nat.add n n)))
-Four_is_even = $ 2n Equal.refl
+Four_is_even = Sigma.new 2n Equal.refl
+
 
 // Conversely, if we have an existential hypothesis (x ** p) in the context, we can
 // pattern match on it to obtain a witness x and a hypothesis stating that p holds of
 // x.
 // Exists_example_2 (s: Sigma Nat (m => (Equal Nat n (Nat.add 4n m)))) : (o : Nat ** n = 2 + o)
-Exists_example_2 (n: Nat) (m: Sigma Nat (m => (Equal Nat n (Nat.add 4n m)))) : Sigma Nat (o => (Equal Nat n (Nat.add 2n o)))
-// Exists_example_2 n (Sigma.new m prf) = Sigma.new (Nat.add 2n m) (
+Exists_example_2 (n: Nat) (p: [m: Nat] -> (Equal Nat n (Nat.add 4n m))) : [o: Nat] -> (Equal Nat n (Nat.add 2n o))
+// Exists_example_2 n (Sigma.new a (f) m prf) = $ (Nat.add 2n m) (Equal.apply (x => x) prf)
 // 	let e = prf
 // 	?)
 
@@ -714,7 +717,7 @@ Dist_exists_or <a> <p: a -> Type> <q: a -> Type> : Equiv (Sigma a (x => (Either 
 
 In <a> (x: a) (l: List a) : Type
 In a x List.nil = Empty
-In a x (List.cons head tail) = Either (Equal a head x) (In x tail) 
+In a x (List.cons head tail) = Either (Equal a x head) (In a x tail) 
 // In : (x : a) ౏> (l : List a) ౏> Type
 // In x [] =  
 // In x (x' ௝௞ xs) = (x' = x) `Either` In x xs
@@ -726,10 +729,19 @@ In_example_1 = Either.right (Either.right (Either.right (Either.left Equal.refl)
 // In_example_1 : In 4 [1, 2, 3, 4, 5]
 // In_example_1 = Right $ Right $ Right $ Left Refl
 
-In_example_2 (n: Nat) (i: In n [2n, 4n]) : Sigma Nat (m => (Equal n (Nat.mul 2n m)))
-// In_example_2 n (Either.left e) = Sigma.new 1n e
-// In_example_2 n (Either.right (Either.left e)) = Sigma.new 2n ? 
-// In_example_2 n (Either.right (Either.right e)) = Empty.absurd ?
+// In_example_2 (n: Nat) (i: In n [2n, 4n]) : Sigma Nat (m => (Equal n (Nat.mul 2n m)))
+In_example_2 (n: Nat) (i: In n [2n, 4n]) : Sigma Nat (m => Equal Nat n (Nat.mul 2n m))
+In_example_2 n (Either.left e) = $ 1n e
+In_example_2 n (Either.right l (Either rl rr) (Either.left e)) = $ 2n e
+In_example_2 n (Either.right l (Either rl rr) (Either.right e))	= Empty.absurd e
+
+// In_example_2 (n: Nat) (i: In n [2n, 4n]) : Sigma Nat (m => Equal Nat n (Nat.mul 2n m))
+// In_example_2 n (Either.left e)            = $ 1n e
+// // In_example_2 n (Either.right e)           = $ 2n (Either.lft e) // funciona 
+// In_example_2 n (Either.right l r (Either.left ll rr e)) = Sigma.new 2n e // não funciona 
+// // In_example_2 n (Either.right e)           = Empty.absurd (Either.rgt e) // funciona 
+// In_example_2 n (Either.right l r (Either.right ll rr e)) = Empty.absurd e // não funciona 
+
 // In_example_2 (Left Refl) = (1 ** Refl)
 // In_example_2 (Right $ Left Refl) = (2 ** Refl)
 // In_example_2 (Right $ Right prf) = absurd prf
@@ -738,14 +750,14 @@ In_example_2 (n: Nat) (i: In n [2n, 4n]) : Sigma Nat (m => (Equal n (Nat.mul 2n 
 // Note, in the next, how In starts out applied to a variable and only gets expanded
 // when we do case analysis on this variable:
 
-Map <x> <y> (func: x -> y) (l: (List x)): (List y)
+Map <x> <y> (func: x -> y) (l: (List x)) : (List y)
 Map func List.nil = List.nil
 Map func (List.cons head tail) = List.cons (func head) (Map func tail)
 
 // 2. PROGRAMMING WITH PROPOSITIONS 79
 In_map <a> <b> (f: a -> b) (l: List a) (x: a) (i: In x l) : In (f x) (Map f l)
 In_map a b f List.nil x i = Empty.absurd i
-In_map a b f (List.cons t head tail) x (Either.left l r e) = Equal.rewrite e (k => (Either (Equal (f head) (f k)) (In (f x) (Map f tail)))) (Either.left Equal.refl)
+In_map a b f (List.cons head tail) x (Either.left e) = Equal.rewrite e (k => (Either (Equal (f x) (f k)) _)) (Either.left Equal.refl)
 In_map a b f (List.cons head tail) x (Either.right e) = Either.right (In_map f tail x e)
 // In_map : (f : a ౏> b) ౏> (l : List a) ౏> (x : a) ౏> In x l ౏>
 // In (f x) (map f l)
@@ -759,7 +771,7 @@ In_map a b f (List.cons head tail) x (Either.right e) = Either.right (In_map f t
 // “obviously terminating.” In the next chapter, we will see how to define propositions
 // inductively, a different technique with its own set of strengths and limitations.
 // 2.0.1. Exercise: 2 stars (In_map_iff).
-In_map_iff <a> <b> (f: a ->b ) (l: List a) (y: b) : Equiv (In y (Map f l)) (Sigma a (x => (Pair (Equal (f x) y) (In x l))))
+In_map_iff <a> <b> (f: a -> b) (l: List a) (y: b) : Equiv (In y (Map f l)) (Sigma a (x => (Pair (Equal (f x) y) (In x l))))
 // In_map_iff : (f : a ౏> b) ౏> (l : List a) ౏> (y : b) ౏>
 // (In y (map f l)) <౦> (x ** (f x = y, In x l))
 // In_map_iff a b f l y = ?In_map_iff
@@ -808,52 +820,84 @@ In_app_iff <a> (x: a) (lx: List a) (ly: List a) : Equiv (In x (List.concat lx ly
 // prove the All_In lemma below. (Of course, your definition should not just restate
 // the left-hand side of All_In.)
 All <t> (p: t -> Type) (l: List t) : Type
-All t p List.nil = ?
-All t p (List.cons head tail) = ?
+All t p List.nil = Empty
+All t p (List.cons head tail) = Pair (p head) (All p tail)
 // All t p l = ?All
 // All : (p : t ౏> Type) ౏> (l : List t) ౏> Type
 // All p l = ?All_rhs
 All_in <t> (p: t -> Type) (l: List t) : Equiv ((x: t) -> (i: In x l) -> p x) (All p l) 
 All_in t p l =  Equiv.new (x => All_in_to t p l x) (x => All_in_fro t p l x)
 
-All_in_to <t> (p: t -> Type) (l: List t) (e: (x: t) -> (i: (In x l)) -> (p x)) : (All p l) 
-// All_in t p l = ?All_In_rhs
+All_in_to <t> (p: t -> Type) (l: List t) (e: (x: t) -> (In x l) -> (p x)) : (All p l) 
+All_in_to  t p List.nil e = Empty.absurd _
+All_in_to t p (List.cons r head tail) e = 
+	let left = e head
+	let left = left (Either.left Equal.refl)
+	let right = All_in_to p tail (x => i => e x (Either.right i))
+	Pair.new (left) (right)
 
+All_in_fro <t> (p: t -> Type) (l: List t) (e: All p l) : (x : t) -> (In x l) -> (p x)
+All_in_fro t p List.nil e = Empty.absurd _
+All_in_fro t p (List.cons r head tail) (Pair.new fst snd) = x => i => 
+	let body = All_in_fro p tail snd
+	let last = Either.rgt i
+	(body x last)
 
-All_in_fro <t> (p: t -> Type) (l: List t) (e: All p l) : (x : t) -> (i : (In x l)) -> (p x)
-// All_In : ((x:t) ౏> In x l ౏> p x) <౦> (All p l)
-// □
 // 2.0.4. Exercise: 3 stars (combine_odd_even). Complete the definition of the
 // combine_odd_even function below. It takes as arguments two properties of numbers,
 // podd and peven, and it should return a property p such that p n is equivalent to
 // podd n when n is odd and equivalent to peven n otherwise.
-Combine.odd.even (podd: (o: Nat) -> Type) (peven: (e: Nat) -> Type) : Nat -> Type
-Combine.odd.even podd peven = ?combine_odd_even_rhs
+Evenb (n: Nat) : Bool
+Evenb Nat.zero = Bool.true
+Evenb (Nat.succ Nat.zero) = Bool.false
+Evenb (Nat.succ (Nat.succ n)) = Evenb n
+
+Odd (n: Nat) : Bool
+Odd Nat.zero = Bool.false
+Odd (Nat.succ Nat.zero) = Bool.true
+Odd (Nat.succ (Nat.succ n)) = Odd n
+
+Evenb_S (n: Nat) : (Equal Bool (Evenb (Nat.succ n)) (Bool.not (Evenb n)))
+// Evenb_S n = Equal.refl
+
+Combine.odd.even (podd: (o: Nat) -> Type) 
+								 (peven: (e: Nat) -> Type) : Nat -> Type
+Combine.odd.even podd peven = n => Bool.if _ (Odd n) (podd n) (peven n)
 
 // To test your definition, prove the following facts:
-Combine.odd.even.intro (n: Nat) (podd: (o: Nat) -> Type) (peven: (e: Nat) -> Type) (e: (Equal (Nat.is_odd n) Bool.true ) -> podd n) (p: (Equal (Nat.is_odd n) Bool.false) -> peven n) : (Combine.odd.even (podd) (peven)) n
-// combine_odd_even_intro : (n : Nat) ౏> (oddb n = True ౏> podd n) ౏> (oddb n = False ౏> peven n) ౏>
-// combine_odd_even podd peven n
-Combine.odd.even.intro n odd even oddp evenp = ?
+// Nat_Succ_N (n: Nat) : Equal (Nat.succ n) n
 
 
-Combine.odd.even.elim.odd (n: Nat) (podd: (o: Nat) -> Type) (peven: (e: Nat) -> Type) (e: (Combine.odd.even (podd) (peven)) n) (p: (Equal (Nat.is_odd n) Bool.true)) : podd n
+Combine.odd.even.intro.go (n: Nat) : Either (Equal Bool (Odd n) Bool.true) (Equal Bool (Odd n) Bool.false)
+Combine.odd.even.intro.go Nat.zero = Either.right Equal.refl
+Combine.odd.even.intro.go (Nat.succ Nat.zero) = Either.left Equal.refl
+Combine.odd.even.intro.go (Nat.succ (Nat.succ n)) = (Combine.odd.even.intro.go n)
 
-// combine_odd_even_elim_odd : (n : Nat) ౏>
-// combine_odd_even podd peven n ౏>
-// oddb n = True ౏>
-// podd n
-// combine_odd_even_elim_odd n x prf = ?combine_odd_even_elim_odd_rhs
+Ero (n: Nat) : Equal Nat (n) (Nat.succ (Nat.succ n)) 
 
-Combine.odd.even.elim.even (n: Nat) (podd: (o: Nat) -> Type) (peven: (e: Nat) -> Type) (e: (Combine.odd.even (podd) (peven)) n) (p: (Equal (Nat.is_odd n) Bool.false)) : peven n
+Combine.odd.even.intro (n: Nat) 
+												(podd: (o: Nat) -> Type) 
+												(peven: (e: Nat) -> Type) 
+												(i: (Equal (Odd n) Bool.true ) -> podd n) 
+												(p: (Equal (Odd n) Bool.false) -> peven n) : 
+												(Combine.odd.even podd peven) n
+	
+Combine.odd.even.intro Nat.zero odd even i p = (p Equal.refl)
+Combine.odd.even.intro (Nat.succ Nat.zero) odd even oddp evenp = (oddp Equal.refl)
+// Combine.odd.even.intro (Nat.succ (Nat.succ n)) odd even oddp evenp = 
+// 	let o = (oddp) (Either.lft (Combine.odd.even.intro.go n))
+// 	let e = (evenp) (Either.rgt (Combine.odd.even.intro.go n))
+// 	let ind = Combine.odd.even.intro n odd even _ _
+// 	let co = Combine.odd.even.elim.odd n odd even ind (Either.lft (Combine.odd.even.intro.go n))
+// 	let ce = Combine.odd.even.elim.even n odd even ind (Either.rgt (Combine.odd.even.intro.go n))
+// 	let rrt = Equal.rewrite (Ero n) (x => (Bool.if _ (Odd x) (odd x) (even x))) _
+// 	rrt
+Combine.odd.even.elim.odd (n: Nat) (podd: (o: Nat) -> Type) (peven: (e: Nat) -> Type) (e: (Combine.odd.even (podd) (peven)) n) (p: (Equal (Odd n) Bool.true)) : podd n
+// Combine.odd.even.elim.odd Nat.zero podd pevem e p = ?
+// Combine.odd.even.elim.odd (Nat.succ n) podd pevem e p = ?
 
-// combine_odd_even_elim_even : (n : Nat) ౏>
-// combine_odd_even podd peven n ౏>
-// oddb n = False ౏>
-// peven n
-// combine_odd_even_elim_even n x prf = ?combine_odd_even_elim_even_rhs
-// □
 
+Combine.odd.even.elim.even (n: Nat) (podd: (o: Nat) -> Type) (peven: (e: Nat) -> Type) (e: (Combine.odd.even (podd) (peven)) n) (p: (Equal (Odd n) Bool.false)) : peven n
 
 
 
@@ -870,7 +914,7 @@ Combine.odd.even.elim.even (n: Nat) (podd: (o: Nat) -> Type) (peven: (e: Nat) ->
 // λΠ> :t plusCommutative
 // plusCommutative : (left : Nat) ౏> (right : Nat) ౏> left + right = right + left
 Plus.Commutative (left: Nat) (right: Nat) : Equal Nat (Nat.add left right) (Nat.add right left)
-Plus.Commutative left right = ?
+// Plus.Commutative left right = ?
 // Idris prints the statement of the plusCommutative theorem in the same way that it
 // prints the type of any term that we ask it to check. Why?
 // The reason is that the identifier plusCommutative actually refers to a proof object – a
@@ -888,7 +932,9 @@ Plus.Commutative left right = ?
 // having to resort to intermediate assertions. For example, suppose we wanted to
 // prove the following result:
 
-// plus_comm3 : (n, m, p : Nat) ౏> n + (m + p) = (p + m) + n
+Plus.comm3 (n: Nat) (m: Nat) (p: Nat) : Equal Nat (Nat.add n (Nat.add m p)) (Nat.add (Nat.add p m ) n)
+// Plus.comm3 n m p = 
+
 // Edit, we have already done this in previous chapters (add a hyperlink?)
 // It appears at first sight that we ought to be able to prove this by rewriting with
 // plusCommutative twice to make the two sides match. The problem, however, is that
@@ -922,6 +968,11 @@ Plus.Commutative left right = ?
 // inference mechanisms as function application; thus, it is possible, for example, to
 // supply wildcards as arguments to be inferred, or to declare some hypotheses to a
 // theorem as implicit by default. These features are illustrated in the proof below.
+
+Lemma_application_ex (n: Nat) (ns: List Nat) (i: In n (Map (m => (Nat.mul m 0n)) ns)) : Equal Nat n 0n
+Lemma_application_ex n List.nil prf = Empty.absurd prf
+Lemma_application_ex n (List.cons head tail) (Either.left prf) = Equal.rewrite (Mult_0_r head) (x => (Equal Nat n x)) prf
+Lemma_application_ex n (List.cons head tail) (Either.right prf) = Lemma_application_ex n tail prf
 // lemma_application_ex : (n : Nat) ౏> (ns : List Nat) ౏>
 // In n (map (\m ౬> m * 0) ns) ౏> n = 0
 // lemma_application_ex _ [] prf = absurd prf
@@ -953,13 +1004,16 @@ Plus.Commutative left right = ?
 // 4.1. Functional Extensionality. The equality assertions that we have seen
 // so far mostly have concerned elements of inductive types (Nat, Bool, etc.). But since
 // Idris’s equality operator is polymorphic, these are not the only possibilities – in
-// particular, we can write propositions claiming that two functions are equal to each
-// other:
+// particular, we can write propositions claiming that two functions are equal to e
+Function_equality_ex1 : Equal Nat (Nat.succ 3n) (Nat.succ (Nat.pred 4n))
+Function_equality_ex1 = Equal.refl
 // function_equality_ex1 : plus 3 = plus (pred 4)
 // function_equality_ex1 = Refl
 // In common mathematical practice, two functions f and g are considered equal if
 // they produce the same outputs:
+
 // (∀𝑥, 𝑓(𝑥) = 𝑔(𝑥)) → 𝑓 = 𝑔
+
 // This is known as the principle of functional extensionality.
 // 4. IDRIS VS. SET THEORY 83
 // Informally speaking, an “extensional property” is one that pertains to an object’s
@@ -967,13 +1021,22 @@ Plus.Commutative left right = ?
 // Idris terms, the results we obtain after applying it.
 // Functional extensionality is not part of Idris’s basic axioms. This means that some
 // “reasonable” propositions are not provable.
+
 // function_equality_ex2 : (\x ౬> plus x 1) = (\x ౬> plus 1 x)
 // function_equality_ex2 = ?stuck
+
 // Explain believe_me vs really_believe_me?
 // However, we can add functional extensionality to Idris’s core logic using the
 // really_believe_me command.
+
 // functional_extensionality : ((x : a) ౏> f x = g x) ౏> f = g
+Functional_extensionality <a> <b> (f: a -> b) (g: a -> b) (e: (x: a) -> (Equal b (f x) (g x))) : Equal f g
+// Functional_extensionality a b f g e = 
+// 	let x = a
+// 	let gg = e x
+// 	?
 // functional_extensionality = really_believe_me
+
 // Using really_believe_me has the same effect as stating a theorem and skipping its
 // proof using a hole, but it alerts the reader (and type checker) that this isn’t just
 // something we’re going to come back and fill in later!
@@ -1000,20 +1063,89 @@ Plus.Commutative left right = ?
 // running ++ takes time asymptotically linear in the size of the list, which means
 // that rev has quadratic running time.
 // We can improve this with the following definition:
+Rev_append <x> (l1: List x) (l2: List x) : List x
+Rev_append x List.nil l2 = l2
+Rev_append x (List.cons head tail) l2 = Rev_append tail (List.cons head l2)
 // rev_append : (l1, l2 : List x) ౏> List x
 // rev_append [] l2 = l2
 // rev_append (x ௝௞ xs) l2 = rev_append xs (x ௝௞ l2)
+Tr_rev <x> (l: List x) : List x
+Tr_rev x l = Rev_append l List.nil
+
 // tr_rev : (l : List x) ౏> List x
 // tr_rev l = rev_append l []
+Rev_involutive <x> (l: List x) : (Equal (List x) (Rev (Rev l)) l)
+
+Rev_app_distr <x> (l1: List x) (l2: List x) : (Equal (List x) (Rev (App l1 l2)) (App (Rev l2) (Rev l1)))
+
+App_assoc <a> (l: List a) (m: List a) (n: List a) : (Equal (List a) (App l (App m n)) (App (App l m) n)) 
+
+App_assoc4 <a> (l1: (List a)) (l2: (List a)) (l3: (List a)) (l4: (List a)) : (Equal (List a) (App l1 (App l2 (App l3 l4))) (App (App (App l1 l2) l3) l4))
+
+App_nil_r <x> (l: List x) : Equal (List x) (App l List.nil) l
+
+Rev <x> (l: List x) : List x
+Rev List.nil = List.nil                      // #######[head]#######
+Rev (List.cons x head tail) = App (Rev tail) (List.cons head List.nil) 
+
+App <a> (l1: List a) (l2: List a) : List a
+App (List.nil ) l2 = l2
+App (List.cons x head tail) l2 = List.cons head (App tail l2) 
 // (This is very similar to how reverse is defined in Prelude.List.)
 // This version is said to be tail-recursive, because the recursive call to the function
 // is the last operation that needs to be performed (i.e., we don’t have to execute ++
 // after the recursive call); a decent compiler will generate very efficient code in this
 // case. Prove that the two definitions are indeed equivalent.
+Tr_rev_app_distr <x> (l1: List x) (l2: List x) : (Equal (List x) (Tr_rev (App l1 l2)) (App (Tr_rev l2) (Tr_rev l1)))
+Tr_rev_app_distr x List.nil l2 = 
+	let aux = App_nil_r (Rev_append l2 [])
+	Equal.mirror aux
+Tr_rev_app_distr x (List.cons head tail) l2 = 
+	let ind = Tr_rev_app_distr tail l2
+	let ind = Tr_rev_app_distr tail (List.cons head l2)
+	let aux = App_assoc (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))) []
+	let auy = App_nil_r (Rev_append tail (List.cons head (List.nil))) 
+	let rrt = Equal.rewrite auy (x => (Equal (App (Rev_append l2 (List.nil)) x) _)) aux
+	let auy = App_nil_r ((App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
+	let rrt = Equal.rewrite auy (x => (Equal _ (x))) aux
+	?
+// • Expected: (Equal (Rev_append (App tail l2) (List.cons head (List.nil))) (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
+//  •   ind  : (Equal (Rev_append (App tail l2) (List.nil))                  (App (Rev_append l2 (List.nil)) (Rev_append tail (List.nil)))) 
+//  •   aux  : (Equal (App (Rev_append l2 (List.nil)) (App (Rev_append tail (List.cons head (List.nil))) (List.nil))) (App (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil)))) (List.nil)))
+
+//  •   auy  : (Equal (App (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil)))) (List.nil)) (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
+//  •   rrt  : (Equal (App (Rev_append l2 (List.nil)) (App (Rev_append tail (List.cons head (List.nil))) (List.nil))) (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
+
+//  •   auy  : (Equal (App (Rev_append tail (List.cons head (List.nil))) (List.nil)) (Rev_append tail (List.cons head (List.nil))))
+//  •   rrt  : (Equal (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil)))) (App (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil)))) (List.nil)))
+
+//  •   aux  : (Equal (App (Rev_append (App tail l2) (List.nil)) (List.cons head (List.nil))) (App (App (Rev_append (App tail l2) (List.nil)) (List.cons head (List.nil))) (List.nil)))
+//  •   aux  : (Equal (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (App (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (List.nil))) 
+//  •   aux  : (Equal (App (Rev_append tail (List.cons head (List.nil))) (List.cons head (List.nil))) (App (App (Rev_append tail (List.cons head (List.nil))) (List.cons head (List.nil))) (List.nil))) 
+
+//  •   ind  : (Equal (Rev_append (App tail (List.cons head l2)) (List.nil)) (App (Rev_append l2 (List.cons head (List.nil))) (Rev_append tail (List.nil)))) 
+//  •   aux  : (Equal (App (Rev_append (App tail l2) (List.nil)) (List.cons head (List.nil))) (App (App (Rev_append (App tail l2) (List.nil)) (List.cons head (List.nil))) (List.nil)))
+
+
+
+Tr_rev_correct <a> (x: List a) : Equal (List a) (Tr_rev x) (Rev x) 
+Tr_rev_correct a List.nil = Equal.refl
+Tr_rev_correct a (List.cons head tail) = 
+	let ind = Tr_rev_correct a tail 
+	let app = Equal.apply (x => App x [head]) ind
+	let aux = Tr_rev_app_distr [head] tail
+	let chn = Equal.chain aux app
+	chn
+
 // tr_rev_correct : (x : List a) ౏> tr_rev x = rev x
 // tr_rev_correct = ?tr_rev_correct_rhs
-// □
-// 4.2. Propositions and Booleans. We’ve seen two different ways of encoding logical facts in Idris: with booleans (of type Bool), and with propositions (of
+
+// • Expected: (Equal (Rev_append tail (List.cons head (List.nil))) (App (Rev tail) (List.cons head (List.nil)))) 
+// •   ind   : (Equal (Rev_append tail (List.nil)) (Rev tail)) 
+// •   app   : (Equal (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (App (Rev tail) (List.cons head (List.nil)))) 
+// •   aux   : (Equal (Rev_append tail (List.cons head (List.nil))) (App (Rev_append tail (List.nil)) (List.cons head (List.nil)))) 
+
+// 4.2. Propositions and Booleans. We’ve seen two different ways of encoding logical facts in Idris: with booleans (of type Bool), and with propositions (of
 // type Type).
 // For instance, to claim that a number n is even, we can say either
 // • (1) that evenb n returns True, or
@@ -1021,6 +1153,7 @@ Plus.Commutative left right = ?
 // notions of evenness are equivalent, as can easily be shown with a
 // couple of auxiliary lemmas.
 // We often say that the boolean evenb n reflects the proposition (k ** n = double k).
+
 // evenb_double : evenb (double k) = True
 // evenb_double {k = Z} = Refl
 // evenb_double {k = (S k')} = evenb_double {k=k'}
@@ -1127,7 +1260,7 @@ Plus.Commutative left right = ?
 // 4.2.5. Exercise: 2 stars, recommended (All_forallb). Recall the function
 // forallb, from the exercise forall_exists_challenge in chapter Tactics:
 // forallb : (test : x ౏> Bool) ౏> (l : List x) ౏> Bool
-// forallb _ [] = True
+// forallb [] = True
 // forallb test (x ௝௞ xs) = test x && forallb test xs
 // Prove the theorem below, which relates forallb to the All property of the above
 // exercise.
@@ -1155,7 +1288,7 @@ Plus.Commutative left right = ?
 // knowing whether it holds or not is trivial: we just have to check the value of b.
 // restricted_excluded_middle : (p <౦> b = True) ౏> p `Either` Not p
 // restricted_excluded_middle {b = True} (_, bp) = Left $ bp Refl
-// restricted_excluded_middle {b = False} (pb, _) = Right $ uninhabited . pb
+// restricted_excluded_middle {b = False} (pb,) = Right $ uninhabited . pb
 // In particular, the excluded middle is valid for equations n = m, between natural
 // numbers n and m.
 // Is there a simpler way to write this? Maybe with setoids?
@@ -1165,12 +1298,12 @@ Plus.Commutative left right = ?
 // where
 // to : (n, m : Nat) ౏> (n=m) ౏> (nతథm)=True
 // to Z Z prf = Refl
-// to Z (S _) Refl impossible
-// to (S _) Z Refl impossible
+// to Z (S) Refl impossible
+// to (S) Z Refl impossible
 // to (S k) (S j) prf = to k j (succInjective k j prf)
 // fro : (n, m : Nat) ౏> (nతథm)=True ౏> (n=m)
 // fro Z Z Refl = Refl
-// fro Z (S _) Refl impossible
+// fro Z (S) Refl impossible
 // fro (S _) Z Refl impossible
 // fro (S k) (S j) prf = rewrite fro k j prf in Refl
 // (Idris has a built-in version of this, called decEq.)
@@ -1324,12 +1457,12 @@ Problems.t3 (n: Nat) (m: Nat) : Equal Nat (Nat.add n  m) (Nat.add m n)
 // 	let ind_b = Problems.t2 m n
 // 	?
 
-
-
-Hello: (IO U60) {
-	IO.print "Hello, Kind!"
-	}
+Otm <a> (l: List a) : Pair (List a) (List a)
+Otm a List.nil = Pair.new [] []
+Otm a (List.cons head tail) = Pair.new (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (App (Rev_append tail (List.cons head (List.nil))) (List.nil)) 
+	
 
 Main {
-	"Hello, Kind!"
+	let tail = [1,2,3]
+	Otm tail
 }
