@@ -819,6 +819,7 @@ In_app_iff <a> (x: a) (lx: List a) (ly: List a) : Equiv (In x (List.concat lx ly
 // Drawing inspiration from In, write a recursive function All stating that some property p holds of all elements of a list l. To make sure your definition is correct,
 // prove the All_In lemma below. (Of course, your definition should not just restate
 // the left-hand side of All_In.)
+
 All <t> (p: t -> Type) (l: List t) : Type
 All t p List.nil = Empty
 All t p (List.cons head tail) = Pair (p head) (All p tail)
@@ -1096,19 +1097,19 @@ App (List.cons x head tail) l2 = List.cons head (App tail l2)
 // is the last operation that needs to be performed (i.e., we don’t have to execute ++
 // after the recursive call); a decent compiler will generate very efficient code in this
 // case. Prove that the two definitions are indeed equivalent.
-Tr_rev_app_distr <x> (l1: List x) (l2: List x) : (Equal (List x) (Tr_rev (App l1 l2)) (App (Tr_rev l2) (Tr_rev l1)))
-Tr_rev_app_distr x List.nil l2 = 
-	let aux = App_nil_r (Rev_append l2 [])
-	Equal.mirror aux
-Tr_rev_app_distr x (List.cons head tail) l2 = 
-	let ind = Tr_rev_app_distr tail l2
-	let ind = Tr_rev_app_distr tail (List.cons head l2)
-	let aux = App_assoc (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))) []
-	let auy = App_nil_r (Rev_append tail (List.cons head (List.nil))) 
-	let rrt = Equal.rewrite auy (x => (Equal (App (Rev_append l2 (List.nil)) x) _)) aux
-	let auy = App_nil_r ((App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
-	let rrt = Equal.rewrite auy (x => (Equal _ (x))) aux
-	?
+// Tr_rev_app_distr <x> (l1: List x) (l2: List x) : (Equal (List x) (Tr_rev (App l1 l2)) (App (Tr_rev l2) (Tr_rev l1)))
+// Tr_rev_app_distr x List.nil l2 = 
+// 	let aux = App_nil_r (Rev_append l2 [])
+// 	Equal.mirror aux
+// Tr_rev_app_distr x (List.cons head tail) l2 = 
+// 	let ind = Tr_rev_app_distr tail l2
+// 	let ind = Tr_rev_app_distr tail (List.cons head l2)
+// 	let aux = App_assoc (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))) []
+// 	let auy = App_nil_r (Rev_append tail (List.cons head (List.nil))) 
+// 	let rrt = Equal.rewrite auy (x => (Equal (App (Rev_append l2 (List.nil)) x) _)) aux
+// 	let auy = App_nil_r ((App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
+// 	let rrt = Equal.rewrite auy (x => (Equal _ (x))) aux
+
 // • Expected: (Equal (Rev_append (App tail l2) (List.cons head (List.nil))) (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
 //  •   ind  : (Equal (Rev_append (App tail l2) (List.nil))                  (App (Rev_append l2 (List.nil)) (Rev_append tail (List.nil)))) 
 //  •   aux  : (Equal (App (Rev_append l2 (List.nil)) (App (Rev_append tail (List.cons head (List.nil))) (List.nil))) (App (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil)))) (List.nil)))
@@ -1129,21 +1130,57 @@ Tr_rev_app_distr x (List.cons head tail) l2 =
 
 
 Tr_rev_correct <a> (x: List a) : Equal (List a) (Tr_rev x) (Rev x) 
-Tr_rev_correct a List.nil = Equal.refl
-Tr_rev_correct a (List.cons head tail) = 
-	let ind = Tr_rev_correct a tail 
-	let app = Equal.apply (x => App x [head]) ind
-	let aux = Tr_rev_app_distr [head] tail
-	let chn = Equal.chain aux app
-	chn
+// // Tr_rev_correct a List.nil = Equal.refl
+// // Tr_rev_correct a (List.cons head tail) = 
+// // 	let ind = Tr_rev_correct a tail 
+// // 	let app = Equal.apply (x => App x [head]) ind
+// // 	let aux = Tr_rev_app_distr [head] tail
+// // 	let chn = Equal.chain aux app
+// // 	chn
 
 // tr_rev_correct : (x : List a) ౏> tr_rev x = rev x
 // tr_rev_correct = ?tr_rev_correct_rhs
 
+
+// Tr_rev_correct <a> (x: List a) : Equal (List a) (Tr_rev x) (Rev x) 
+// Tr_rev_correct a List.nil = Equal.refl
+// Tr_rev_correct a (List.cons head tail) = 
+// 	let ind = Tr_rev_correct tail
+// 	let app = Equal.apply (x => App x [head]) ind 
+// 	let aux =	App_nil_r (Rev_append tail [head])
+// 	let auy = App_assoc [] (Tr_rev tail) [head]
+// 	?
+
+
+
+
+
 // • Expected: (Equal (Rev_append tail (List.cons head (List.nil))) (App (Rev tail) (List.cons head (List.nil)))) 
-// •   ind   : (Equal (Rev_append tail (List.nil)) (Rev tail)) 
-// •   app   : (Equal (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (App (Rev tail) (List.cons head (List.nil)))) 
-// •   aux   : (Equal (Rev_append tail (List.cons head (List.nil))) (App (Rev_append tail (List.nil)) (List.cons head (List.nil)))) 
+//  •   ind  : (Equal (Rev_append tail (List.nil)) (Rev tail)) 
+//  •   app  : (Equal (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (App (Rev tail) (List.cons head (List.nil)))) 
+//  •   aux  : (Equal (App (Rev_append tail (List.cons head (List.nil))) (List.nil)) (Rev_append tail (List.cons head (List.nil))))
+// Aux <a> (l: List a) :              (App (Rev_append tail (List.cons head (List.nil))) (List.nil)) (App (Rev_append tail (List.nil)) (List.cons head (List.nil)))
+Aux <a> (l1: List a) (l2: List a) : Equal (Rev_append l1 l2) (App (Tr_rev l1) l2)
+Aux  List.nil l2 = Equal.refl
+Aux  (List.cons head tail) l2 = 
+	let ind = Aux tail l2
+	let app = Equal.apply (x => List.cons head x) ind
+	let aux = Aux.aux head tail l2
+	let auy = App_assoc4 [head] (Tr_rev tail) l2 []
+	let auy = App_assoc4 [] (Tr_rev tail) [head] l2
+	?
+// •Expected: (Equal (Rev_append tail (List.cons head l2)) (App (Rev_append tail (List.cons head (List.nil))) l2)) 
+// •   ind  : (Equal (Rev_append tail l2) (App (Rev_append tail (List.nil)) l2))
+// •   app  : (Equal (List.cons head (Rev_append tail l2)) (List.cons head (App (Rev_append tail (List.nil)) l2)))
+// •   aux  : (Equal (Rev_append tail (List.cons head l2)) (List.cons head (Rev_append tail l2)))
+// •   auy  : (Equal (List.cons head (App (Rev_append tail (List.nil)) l2))) (List.cons head (App (Rev_append tail (List.nil)) l2))))
+
+Aux.aux <a> (x: a) (l1: List a) (l2: List a) : Equal (Rev_append l1 (List.cons x l2)) (List.cons x (Rev_append l1 l2))
+Aux.aux x List.nil l2 = Equal.refl
+// Aux.aux x (List.cons head tail) l2 = 
+// 	let ind = Aux.aux x tail l2 
+// 	?
+
 
 // 4.2. Propositions and Booleans. We’ve seen two different ways of encoding logical facts in Idris: with booleans (of type Bool), and with propositions (of
 // type Type).
@@ -1154,9 +1191,13 @@ Tr_rev_correct a (List.cons head tail) =
 // couple of auxiliary lemmas.
 // We often say that the boolean evenb n reflects the proposition (k ** n = double k).
 
+
+
+
 // evenb_double : evenb (double k) = True
 // evenb_double {k = Z} = Refl
 // evenb_double {k = (S k')} = evenb_double {k=k'}
+
 // 4.2.1. Exercise: 3 stars (evenb_double_conv).
 // evenb_double_conv : (k ** n = if evenb n then double k else S (double k))
 // Hint: Use the evenb_S lemma from Induction.
@@ -1304,7 +1345,7 @@ Tr_rev_correct a (List.cons head tail) =
 // fro : (n, m : Nat) ౏> (nతథm)=True ౏> (n=m)
 // fro Z Z Refl = Refl
 // fro Z (S) Refl impossible
-// fro (S _) Z Refl impossible
+// fro (S) Z Refl impossible
 // fro (S k) (S j) prf = rewrite fro k j prf in Refl
 // (Idris has a built-in version of this, called decEq.)
 // It may seem strange that the general excluded middle is not available by default in
@@ -1464,5 +1505,5 @@ Otm a (List.cons head tail) = Pair.new (App (Rev_append tail (List.nil)) (List.c
 
 Main {
 	let tail = [1,2,3]
-	Otm tail
+	Pair.new  (Rev_append tail (List.cons 1 (List.nil))) (App (Rev_append tail (List.nil)) (List.cons 1 (List.nil)))
 }

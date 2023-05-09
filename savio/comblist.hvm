@@ -16,10 +16,23 @@
 	let t = (Loto tail); 
 	(List.cons h t) 
 
+
+(Sort List.nil)         = List.nil
+(Sort (List.cons x xs)) = (Insert x (Sort xs))
+
+// Insert : U60 -> List -> List
+(Insert v List.nil)         = (List.cons v List.nil)
+(Insert v (List.cons x xs)) = (SwapGT (> v x) v x xs)
+
+// SwapGT : U60 -> U60 -> U60 -> List -> List
+(SwapGT 0 v x xs) = (List.cons v (List.cons x xs))	
+(SwapGT 1 v x xs) = (StrictCons x (Insert v xs))
+  (StrictCons e t) = (List.cons e t)
+
 (List.count (List.cons head tail) cond) = (List.count.aux (List.cons head tail) cond (== cond (+ 1 head)) 0)
 
 (List.count.aux [] cond 0 num) = (Pair num [])
-(List.count.aux (List.cons head tail) cond 0 num) = (List.count.aux tail cond (== cond head) (+ num 1)) 
+(List.count.aux (List.cons head tail) cond 0 num) = (List.count.aux tail cond (== head (+ 1 cond)) (+ 1 num)) 
 // (List.count.aux lst cond n num) = (Pair num lst)
 (List.count.aux lst cond n num) = (Pair num lst)
 
@@ -87,22 +100,23 @@
 // 252459750
 (Combinations lst k) = (Combinations.aux lst k (+ 1 (List.length lst)) 0)
 (Combinations.aux lst 0 len 0) = [[]]
-(Combinations.aux lst k 0 0) = []
+// (Combinations.aux lst k 0 0) = []
 (Combinations.aux (List.cons head tail) k len 0) = 
 	let l = (- len 1);
 	let v = (< l k);
 	let hd = (Combinations.aux tail k l v); 
 	let tl = (Combinations.aux tail (- k 1) l v); 
-	let mp = (List.map tl (@x (List.cons head x)));
+	let mp = (List.map tl (@x (Cons head x)));
 	(List.concat mp hd)
 (Combinations.aux lst k len v) = []
 
  
 // Strict constructors
-(Cons !a b) = (List.cons a b)
+(Cons a b) = (List.cons a b)
 
 // (Main) = ( ((Loto (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] 15))))
-(Main) = (Porcent ((Loto (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] 15))))
+// (Main) = ((List.length (Sort (Loto (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] 15)))))
+(Main) = ((List.length ((Loto (Combinations [1,2,3,4,5,6,7,8,9,10] 5)))))
 
-// (Main) = (((Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] 15)))
-// (Main) = (List.length  (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,0] 15))
+// (Main) = (((Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] 10)))
+// (Main) = (List.length  (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25] 15))

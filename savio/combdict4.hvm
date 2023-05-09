@@ -1,0 +1,30 @@
+// data BTree a = Leaf
+//              | Node (BTree a) a (BTree a)
+
+// insert : Ord a => a -> BTree a -> BTree a
+// insert x Leaf = Node Leaf x Leaf
+// insert x (Node l v r) = if (x < v) then (Node (insert x l) v r)
+//                                    else (Node l v (insert x r))
+
+// toList : BTree a -> List a
+// toList Leaf = []
+// toList (Node l v r) = Btree.toList l ++ (v :: Btree.toList r)
+
+// toTree : Ord a => List a -> BTree a
+// toTree [] = Leaf
+// toTree (x :: xs) = insert x (toTree xs)
+
+(F.if 0.0 t f) = f
+(F.if v t f) = t
+
+(FU 0.0) = 0
+(FU f )  = (F.if (<= f 1.0) (0) (+ 1 (FU (- f 1.0))))
+
+(Main) = (FU 511111.7)
+
+
+
+
+Prove (n: Nat) : 5n = 5n
+Prove n := 
+	let x := 0n

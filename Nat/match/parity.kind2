@@ -10,7 +10,7 @@ Nat.match.parity
   (o: (m: Nat) -> p (Nat.succ (Nat.double m)))
 : (p n)
 Nat.match.parity n p e o =
-  (Sigma.match (Nat.half.rel n) (x => p n) (fst => snd => 
+  (Sigma.match (Nat.proof.half.rel n) (x => p n) (fst => snd => 
     match Either snd {
       left  => Equal.rewrite (Equal.mirror snd.val) (x => p x) (e fst)
       right => Equal.rewrite (Equal.mirror snd.val) (x => p x) (o fst)

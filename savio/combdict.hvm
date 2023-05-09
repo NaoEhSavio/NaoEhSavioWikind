@@ -1,0 +1,109 @@
+
+
+// (Bits.Map.update (Bits.Map.tie (Maybe.none) left right) (Bits.e) func) = 
+// 	let value = (Maybe.none); 
+// 	(Bits.Map.tie value left right)
+// (Bits.Map.update (Bits.Map.tie (Maybe.some value) left right) (Bits.e) func) = 
+// 	let value = (Maybe.some (func value)); 
+// 	(Bits.Map.tie value left right)
+// (Bits.Map.update (Bits.Map.new) (Bits.o pred) func) = 
+// 	let value = (Maybe.none); 
+// 	let left = (Bits.Map.update (Bits.Map.new) pred func); 
+// 	let right = (Bits.Map.new); 
+// 	(Bits.Map.tie value left right)
+// (Bits.Map.update (Bits.Map.tie value left right) (Bits.o pred) func) = 
+// 	let left = (Bits.Map.update left pred func); 
+// 	(Bits.Map.tie value left right)
+// (Bits.Map.update (Bits.Map.new) (Bits.i pred) func) = 
+// 	let value = (Maybe.none); 
+// 	let left = (Bits.Map.update (Bits.Map.new) pred func); 
+// 	let right = (Bits.Map.new); 
+// 	(Bits.Map.tie value left right)
+// (Bits.Map.update (Bits.Map.tie value left right) (Bits.i pred) func) = 
+// 	let right = (Bits.Map.update right pred func); 
+// 	(Bits.Map.tie value left right)
+// (Bits.Map.set (Bits.Map.new) (Bits.e) value) = 
+// let value = (Maybe.some value); 
+// let left = (Bits.Map.new); let right = (Bits.Map.new); 
+// (Bits.Map.tie value left right)
+// (Bits.Map.set (Bits.Map.tie old_value left right) (Bits.e) value) = 
+// let value = (Maybe.some value); 
+// (Bits.Map.tie value left right)
+// (Bits.Map.set (Bits.Map.new) (Bits.o pred) new_value) = 
+// let value = (Maybe.none); 
+// let left = (Bits.Map.set (Bits.Map.new) pred new_value); 
+// let right = (Bits.Map.new); 
+// (Bits.Map.tie value left right)
+// (Bits.Map.set (Bits.Map.tie old_value left right) (Bits.o pred) new_value) = let left = (Bits.Map.set left pred new_value); (Bits.Map.tie old_value left right)
+// (Bits.Map.set (Bits.Map.new) (Bits.i pred) new_value) = let value = (Maybe.none); let left = (Bits.Map.new); let right = (Bits.Map.set (Bits.Map.new) pred new_value); (Bits.Map.tie value left right)
+// (Bits.Map.set (Bits.Map.tie value left right) (Bits.i pred) new_value) = let right = (Bits.Map.set right pred new_value); (Bits.Map.tie value left right)
+// Atomic Swapper (HVM builtin)
+//(U60.swap 0 a b) = (Both a b)
+//(U60.swap n a b) = (Both b a)
+
+// Swaps distant values in parallel; corresponds to a Red Box
+// (Warp s (Leaf a)   (Leaf b))   = (U60.swap (^ (> a b) s) (Leaf a) (Leaf b))
+// (Warp s (Both a b) (Both c d)) = (Join (Warp s a c) (Warp s b d))
+
+// // Rebuilds the warped tree in the original order
+// (Join (Both a b) (Both c d)) = (Both (Both a c) (Both b d))
+
+// // Recursively warps each sub-tree; corresponds to a Blue/Green Box
+// (Flow s (Leaf a))   = (Leaf a)
+// (Flow s (Both a b)) = (Down s (Warp s a b))
+
+// // Propagates Flow downwards
+// (Down s (Leaf a))   = (Leaf a)
+// (Down s (Both a b)) = (Both (Flow s a) (Flow s b))
+
+// // Bitonic Sort
+// (Sort s (Leaf a))   = (Leaf a)
+// (Sort s (Both a b)) = (Flow s (Both (Sort 0 a) (Sort 1 b)))
+
+// Generates a tree of depth `n`
+(Genb 0 x) = (Leaf x)
+(Genb n x) = 
+	let m = (- n 1); 
+	(Both (Gen m (* x 2)) (Gen m (+ (* x 2) 1)))
+
+// (Gen 0 x) = (Leaf)
+// (Gen n x) = let m = (- n 1); (Node (Gen m (* x 2)) x (Gen m (+ (* x 2) 1)))
+
+
+// (Gen 0 x) = (Leaf)
+// (Gen n x) = 
+//   let m = (- n 1);
+//   (Node (Gen m x) x (Gen m (+ x 1)))
+
+// // Reverses a tree
+// (Rev (Leaf x))   = (Leaf x)
+// (Rev (Both a b)) = (Both (Rev b) (Rev a))
+
+// Sums a tree
+(Sumb (Leaf x))   = x
+(Sumb (Both a b)) = (+ (Sum a) (Sum b))
+
+(Sum Leaf)         = 0
+(Sum (Node l m r)) = (+ m (+ (Sum l) (Sum r)))
+
+// (Combinations lst k) = (Combinations.dict lst k (+ 1 (List.length lst)))
+// (Combinations.dict lst 0 len 0) = (Leaf 1)
+// (Combinations.dict (List.cons head tail) k len 0) = 
+// 	let l = (- len 1);
+// 	let v = (< l k);
+// 	let lft = (Combinations.dict tail k l v); 
+// 	let rgt = (Combinations.dict tail (- k 1) l v); 
+// 	let bth = (Both lft rgt);
+// (Combinations.dict lst k len v) = (Leaf 0)
+
+(Main) = ((Genb 2 0))
+// (Main) = (Gen 5 0)
+
+
+(Merge Free       Free)       = Free
+(Merge Free       Used)       = Used
+(Merge Used       Free)       = Used
+(Merge Used       Used)       = Used
+(Merge Free       (Both c d)) = (Both c d)
+(Merge (Both a b) Free)       = (Both a b)
+(Merge (Both a b) (Both c d)) = (BOTH (Merge a c) (Merge b d))

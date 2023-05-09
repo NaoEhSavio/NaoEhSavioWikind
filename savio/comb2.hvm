@@ -90,6 +90,11 @@ let max = (Quick.sort (List.u60.filter @n (> n x) xs));
 
 (U60.interval start stop step) = (U60.if (>= start stop) [] (List.cons (+ start step) (U60.interval (+ start step) stop step)))
 
+(U60.comb n p) = 
+	let aux = (U60.if (> (- n p) p) (- n p) p); 
+	let cop = (List.fold λa λb (* a b) (U60.interval aux n 1) 1); 
+	(U60.if (>= n p) (/ cop (U60.fac (- n aux))) 0)
+
 (List.bind xs f) = (List.flatten (List.map xs f))
 
 (List.map [] f) = []
@@ -107,10 +112,6 @@ let max = (Quick.sort (List.u60.filter @n (> n x) xs));
 (List.length []) = 0
 (List.length (List.cons head tail)) = (+ (List.length tail) 1)
 
-(U60.comb n p) = 
-	let aux = (U60.if (> (- n p) p) (- n p) p); 
-	let cop = (List.fold λa λb (* a b) (U60.interval aux n 1) 1); 
-	(U60.if (>= n p) (/ cop (U60.fac (- n aux))) 0)
 
 // Strict constructors
 (CONS !a !b) = (List.cons a b)
