@@ -1,0 +1,395 @@
+// 1.0.1. Exercise: 2 stars, recommended (basic_induction). Prove the following
+// using induction. You might need previously proven results.
+Mult_0_r (n: Nat) : (Equal Nat (Nat.mul n Nat.zero) Nat.zero)
+Mult_0_r Nat.zero = Equal.refl
+Mult_0_r (Nat.succ n.pred) = 
+                        let ind = Mult_0_r n.pred
+                        let app = Equal.apply (x => Nat.add x Nat.zero) ind
+                        app
+// - ind : (Equal Nat (Nat.mul n.pred Nat.zero) Nat.zero)
+// - app : (Equal Nat (Nat.add (Nat.mul n.pred Nat.zero) Nat.zero) Nat.zero)
+// - Goal: (Equal Nat (Nat.add (Nat.mul n.pred Nat.zero) Nat.zero) Nat.zero)
+Plus_n_Z (n: Nat) : (Equal Nat n (Nat.add n Nat.zero))
+Plus_n_Z Nat.zero = Equal.refl
+// - Goal: (Equal Nat Nat.zero Nat.zero)
+Plus_n_Z (Nat.succ n.pred) =
+                        let ind = Plus_n_Z n.pred
+                        let app = Equal.apply (x => Nat.succ x) ind 
+                        app
+// - ind : (Equal Nat n.pred (Nat.add n.pred Nat.zero))
+// - app : (Equal Nat (Nat.succ n.pred) (Nat.succ (Nat.add n.pred Nat.zero)))
+// - Goal: (Equal Nat (Nat.succ n.pred) (Nat.succ (Nat.add n.pred Nat.zero)))
+Plus_n_one (n: Nat) : (Equal Nat (Nat.succ n) (Nat.add n (Nat.succ Nat.zero)))
+Plus_n_one Nat.zero = Equal.refl
+// - Goal: (Equal Nat (Nat.succ Nat.zero) (Nat.succ Nat.zero)
+Plus_n_one (Nat.succ n.pred) = 
+                      let ind = Plus_n_one n.pred
+                      let app = Equal.apply (x => Nat.succ x) ind
+                      app
+// - ind : (Equal Nat (Nat.succ n.pred) (Nat.add n.pred (Nat.succ Nat.zero)))
+// - app : (Equal Nat (Nat.succ (Nat.succ n.pred)) (Nat.succ (Nat.add n.pred (Nat.succ Nat.zero))))
+// - Goal: (Equal Nat (Nat.succ (Nat.succ n.pred)) (Nat.succ (Nat.add n.pred (Nat.succ Nat.zero))))
+
+Minus_diag (n: Nat) : (Equal Nat (Nat.sub n n)  Nat.zero)
+Minus_diag Nat.zero = Equal.refl
+Minus_diag (Nat.succ n.pred) = 
+                        let ind = Minus_diag n.pred
+                        ind
+// - ind : (Equal Nat (Nat.sub n.pred n.pred) Nat.zero)
+// - Goal: (Equal Nat (Nat.sub n.pred n.pred) Nat.zero)
+Plus_n_Sm (n: Nat) (m: Nat) : (Equal Nat (Nat.succ (Nat.add n m)) (Nat.add n (Nat.succ m)))
+Plus_n_Sm Nat.zero m = Equal.refl
+Plus_n_Sm (Nat.succ n) m =
+                      let ind = Plus_n_Sm n m
+                      let app = Equal.apply (x => Nat.succ x) ind
+                      app
+// - ind : (Equal Nat (Nat.succ (Nat.add n m)) (Nat.add n (Nat.succ m)))
+// - app : (Equal Nat (Nat.succ (Nat.succ (Nat.add n m))) (Nat.succ (Nat.add n (Nat.succ m))))
+// - Goal: (Equal Nat (Nat.succ (Nat.succ (Nat.add n m))) (Nat.succ (Nat.add n (Nat.succ m))))
+Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
+Plus_comm Nat.zero m = 
+                  let ind = Plus_n_Z m
+                  ind
+// - ind : (Equal Nat m (Nat.add m Nat.zero))
+// - Goal: (Equal Nat m (Nat.add m Nat.zero))
+Plus_comm (Nat.succ n.pred) m = 
+                          let ind = Plus_comm n.pred m 
+                          let app = Equal.apply (x => Nat.succ x) ind 
+                          let aux = Plus_n_Sm m n.pred
+                          let chn = Equal.chain app aux
+                          chn
+// - ind : (Equal Nat (Nat.add n.pred m) (Nat.add m n.pred))
+// - app : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.succ (Nat.add m n.pred)))
+// - aux : (Equal Nat (Nat.succ (Nat.add m n.pred)) (Nat.add m (Nat.succ n.pred)))
+// - chn : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
+// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
+
+Plus_assoc (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.add n (Nat.add m p)) (Nat.add (Nat.add n m) p))
+Plus_assoc Nat.zero m p = Equal.refl
+// - Goal: (Equal Nat (Nat.add m p) (Nat.add m p))
+Plus_assoc (Nat.succ n.pred) m p = 
+                              let ind = Plus_assoc n.pred m p
+                              let app = Equal.apply (x => Nat.succ x) ind
+                              app
+// - ind : (Equal Nat (Nat.add n.pred (Nat.add m p)) (Nat.add (Nat.add n.pred m) p))
+// - app : (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.succ (Nat.add (Nat.add n.pred m) p)))
+// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.succ (Nat.add (Nat.add n.pred m) p)))
+
+// 1.0.2. Exercise: 2 stars (double_plus). Consider the following function, which doubles its argument:
+Double (n: Nat) : Nat
+Double Nat.zero = Nat.zero
+Double (Nat.succ n) = Nat.succ (Nat.succ (Double n))
+
+Double_plus (n: Nat) : (Equal Nat (Double n) (Nat.add n n))
+Double_plus Nat.zero = Equal.refl
+// - Goal: (Equal Nat Nat.zero Nat.zero)
+
+Double_plus (Nat.succ n.pred) = 
+                          let ind = Double_plus n.pred
+                          let app = Equal.apply (x => Nat.succ x) ind
+                          let aux = Plus_n_Sm n.pred n.pred
+                          let chn = Equal.chain app aux
+                          let app = Equal.apply (x => Nat.succ x) chn
+                          app
+// - ind : (Equal Nat (Double n.pred) (Nat.add n.pred n.pred))
+// - app : (Equal Nat (Nat.succ (Double n.pred)) (Nat.succ (Nat.add n.pred n.pred)))
+// - aux : (Equal Nat (Nat.succ (Nat.add n.pred n.pred)) (Nat.add n.pred (Nat.succ n.pred)))
+// - chn : (Equal Nat (Nat.succ (Double n.pred)) (Nat.add n.pred (Nat.succ n.pred)))
+// - app : (Equal Nat (Nat.succ (Nat.succ (Double n.pred))) (Nat.succ (Nat.add n.pred (Nat.succ n.pred))))
+// - Goal: (Equal Nat (Nat.succ (Nat.succ (Double n.pred))) (Nat.succ (Nat.add n.pred (Nat.succ n.pred))))
+
+// 1.0.3. Exercise: 2 stars, optional (evenb_S). One inconvenient aspect of our
+// definition of evenb n is that it may need to perform a recursive call on n - 2. This
+// makes proofs about evenb n harder when done by induction on n, since we may
+// need an induction hypothesis about n - 2. The following lemma gives a better
+// characterization of evenb (S n):
+Evenb (n: Nat) : Bool
+Evenb Nat.zero = Bool.true
+Evenb (Nat.succ k) = Bool.not (Evenb k)
+
+Evenb_S (n: Nat) : (Equal Bool (Evenb (Nat.succ n)) (Bool.not (Evenb n)))
+Evenb_S n = Equal.refl
+// - Goal: (Equal Bool (Bool.not (Evenb n)) (Bool.not (Evenb n)))
+                 
+// 3.0.1. Exercise: 3 stars, recommended (mult_comm). Use rewrite to help
+// prove this theorem. You shouldn’t need to use induction on plus_swap.
+
+Plus_swap (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.add n (Nat.add m p)) (Nat.add m (Nat.add n p)))
+Plus_swap Nat.zero m p = Equal.refl
+// - Goal: (Equal Nat (Nat.add m p) (Nat.add m p))
+Plus_swap (Nat.succ n.pred) m p = 
+                            let ind = Plus_swap n.pred m p
+                            let app1 = Equal.apply (x => Nat.succ x) ind
+                            // let aux1 = Plus_assoc m n.pred p
+                            // let aux12 = Plus_assoc p n.pred m
+                            // let aux2 = Plus_assoc n.pred m p
+                            // let aux22 = Plus_assoc n.pred p m
+                            // let aux24 = Plus_assoc m p n.pred 
+                            // let aux25 = Plus_assoc p m n.pred 
+                            let aux3 = Plus_comm n.pred p
+                            let aux4 = Plus_comm p n.pred
+                            let aux5 = Plus_comm m (Nat.add p n.pred)
+                            let aux6 = Plus_comm m (Nat.add n.pred p)
+                            // let aux7 = Plus_n_Sm n.pred p
+                            // let aux8 = Plus_n_Sm p n.pred
+                            let aux9 = (Plus_n_Sm m (Nat.add n.pred p))
+                            let aux0 = (Plus_n_Sm m (Nat.add p n.pred))
+                            let app2 = Equal.apply (x => Nat.succ (Nat.add m (x))) aux3
+                            let app3 = Equal.apply (x => Nat.succ (Nat.add m (x))) aux4
+                            // let app4 = Equal.apply (x => Nat.add m (x)) aux5
+                            // let app5 = Equal.apply (x => Nat.add m (x)) aux6
+                            let app6 = Equal.apply (x => Nat.add m (Nat.succ (x))) aux3
+                            let app7 = Equal.apply (x => Nat.add m (Nat.succ (x))) aux4
+                            let chn1 = Equal.chain app1 aux9
+                            // let rrt = Equal.rewrite app4 (x => (Equal Nat (Nat.add n.pred (Nat.add m x)) (Nat.add m (Nat.add n.pred x)))) _
+                            chn1
+
+// - ind : (Equal Nat (Nat.add n.pred (Nat.add m p)) (Nat.add m (Nat.add n.pred p)))
+// - app1: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.succ (Nat.add m (Nat.add n.pred p))))
+// - aux3: (Equal Nat (Nat.add n.pred p) (Nat.add p n.pred))
+// - aux4: (Equal Nat (Nat.add p n.pred) (Nat.add n.pred p))
+// - aux5: (Equal Nat (Nat.add m (Nat.add p n.pred)) (Nat.add (Nat.add p n.pred) m))
+// - aux6: (Equal Nat (Nat.add m (Nat.add n.pred p)) (Nat.add (Nat.add n.pred p) m))
+// - aux9: (Equal Nat (Nat.succ (Nat.add m (Nat.add n.pred p))) (Nat.add m (Nat.succ (Nat.add n.pred p))))
+// - aux0: (Equal Nat (Nat.succ (Nat.add m (Nat.add p n.pred))) (Nat.add m (Nat.succ (Nat.add p n.pred))))
+// - app2: (Equal Nat (Nat.succ (Nat.add m (Nat.add n.pred p))) (Nat.succ (Nat.add m (Nat.add p n.pred))))
+// - app3: (Equal Nat (Nat.succ (Nat.add m (Nat.add p n.pred))) (Nat.succ (Nat.add m (Nat.add n.pred p))))
+// - app6: (Equal Nat (Nat.add m (Nat.succ (Nat.add n.pred p))) (Nat.add m (Nat.succ (Nat.add p n.pred))))
+// - app7: (Equal Nat (Nat.add m (Nat.succ (Nat.add p n.pred))) (Nat.add m (Nat.succ (Nat.add n.pred p))))
+// - chn1: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.add m (Nat.succ (Nat.add n.pred p))))
+// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.add m (Nat.succ (Nat.add n.pred p))))
+
+// Now prove commutativity of multiplication. (You will probably need to define and
+// prove a separate subsidiary theorem to be used in the proof of this one. You may
+// find that plus_swap comes in handy.)
+
+Mult_n_one (n: Nat) : (Equal Nat n (Nat.mul n (Nat.succ Nat.zero)))
+Mult_n_one Nat.zero = Equal.refl 
+// - Goal: (Equal Nat Nat.zero Nat.zero)
+
+Mult_n_one (Nat.succ n.pred) = 
+                        let ind = Mult_n_one n.pred
+                        let app = Equal.apply (x => Nat.add x (Nat.succ Nat.zero)) ind
+                        let aux = Plus_n_one n.pred
+                        let chn = Equal.chain aux app
+                        chn
+// - ind : (Equal Nat n.pred (Nat.mul n.pred (Nat.succ Nat.zero)))
+// - app : (Equal Nat (Nat.add n.pred (Nat.succ Nat.zero)) (Nat.add (Nat.mul n.pred (Nat.succ Nat.zero)) (Nat.succ Nat.zero)))
+// - aux : (Equal Nat (Nat.succ n.pred) (Nat.add n.pred (Nat.succ Nat.zero)))
+// - chn : (Equal Nat (Nat.succ n.pred) (Nat.add (Nat.mul n.pred (Nat.succ Nat.zero)) (Nat.succ Nat.zero)))
+// - Goal: (Equal Nat (Nat.succ n.pred) (Nat.add (Nat.mul n.pred (Nat.succ Nat.zero)) (Nat.succ Nat.zero)))
+
+Mult_0_plus (n: Nat) (m: Nat) : (Equal Nat (Nat.mul (Nat.add Nat.zero n) m) (Nat.mul n m))
+Mult_0_plus n m = Equal.refl
+// - Goal: (Equal Nat (Nat.mul n m) (Nat.mul n m))
+
+Mult_n_Sm (n: Nat) (m: Nat) : (Equal Nat (Nat.mul n (Nat.succ m)) (Nat.add (Nat.mul n m) n))
+Mult_n_Sm Nat.zero m = Equal.refl
+// - Goal: (Equal Nat Nat.zero Nat.zero)
+Mult_n_Sm (Nat.succ n.pred) m = 
+                        let ind = Mult_n_Sm n.pred m
+                        let app1 = Equal.apply (x => Nat.add x (Nat.succ m)) ind
+                        let aux2 = Plus_comm n.pred m
+                        let aux3 = Plus_n_Sm m n.pred
+                        let app2 = Equal.apply (x => (Nat.succ x)) aux2
+                        let chn1 = Equal.chain app2 aux3
+                        let mir1 = Equal.mirror chn1
+                        let aux4 = Plus_n_Sm n.pred m
+                        let chn2 = Equal.chain mir1 aux4
+                        let aux5 = Plus_assoc (Nat.mul n.pred m) m (Nat.succ n.pred)
+                        let aux6 = Plus_assoc (Nat.mul n.pred m) n.pred (Nat.succ m)
+                        let rrt1 = Equal.rewrite chn2 (x => (Equal Nat (Nat.add (Nat.mul n.pred m) (x)) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))) aux5
+                        let mir2 = Equal.mirror aux6
+                        let chn3 = Equal.chain mir2 rrt1
+                        let chn4 = Equal.chain app1 chn3
+                        chn4
+// - ind : (Equal Nat (Nat.mul n.pred (Nat.succ m)) (Nat.add (Nat.mul n.pred m) n.pred))
+// - app1: (Equal Nat (Nat.add (Nat.mul n.pred (Nat.succ m)) (Nat.succ m)) (Nat.add (Nat.add (Nat.mul n.pred m) n.pred) (Nat.succ m)))
+// - aux2: (Equal Nat (Nat.add n.pred m) (Nat.add m n.pred))
+// - aux3: (Equal Nat (Nat.succ (Nat.add m n.pred)) (Nat.add m (Nat.succ n.pred)))
+// - app2: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.succ (Nat.add m n.pred)))
+// - chn1: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
+// - mir1: (Equal Nat (Nat.add m (Nat.succ n.pred)) (Nat.succ (Nat.add n.pred m)))
+// - aux4: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add n.pred (Nat.succ m)))
+// - chn2: (Equal Nat (Nat.add m (Nat.succ n.pred)) (Nat.add n.pred (Nat.succ m)))
+// - aux5: (Equal Nat (Nat.add (Nat.mul n.pred m) (Nat.add m (Nat.succ n.pred))) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
+// - aux6: (Equal Nat (Nat.add (Nat.mul n.pred m) (Nat.add n.pred (Nat.succ m))) (Nat.add (Nat.add (Nat.mul n.pred m) n.pred) (Nat.succ m)))
+// - rrt1: (Equal Nat (Nat.add (Nat.mul n.pred m) (Nat.add n.pred (Nat.succ m))) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
+// - mir2: (Equal Nat (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)) (Nat.add (Nat.mul n.pred m) (Nat.add n.pred (Nat.succ m))))
+// - chn3: (Equal Nat (Nat.add (Nat.add (Nat.mul n.pred m) n.pred) (Nat.succ m)) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
+// - chn4: (Equal Nat (Nat.add (Nat.mul n.pred (Nat.succ m)) (Nat.succ m)) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
+// - Goal: (Equal Nat (Nat.add (Nat.mul n.pred (Nat.succ m)) (Nat.succ m)) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
+
+Mult_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.mul m n) (Nat.mul n m))
+Mult_comm Nat.zero m = 
+                  let ind = Mult_0_r m
+                  ind
+// - ind : (Equal Nat (Nat.mul n Nat.zero) Nat.zero)
+// - Goal: (Equal Nat (Nat.mul n Nat.zero) Nat.zero)
+Mult_comm (Nat.succ n.pred) m = 
+                          let ind = Mult_comm n.pred m 
+                          let aux = Mult_n_Sm m n.pred
+                          let rrt = Equal.rewrite ind (x => (Equal Nat (Nat.mul m (Nat.succ n.pred)) (Nat.add (x) m))) aux
+                          rrt
+// - ind : (Equal Nat (Nat.mul m n.pred) (Nat.mul n.pred m))
+// - aux : (Equal Nat (Nat.mul m (Nat.succ n.pred)) (Nat.add (Nat.mul m n.pred) m))
+// - rrt : (Equal Nat (Nat.mul m (Nat.succ n.pred)) (Nat.add (Nat.mul n.pred m) m))
+// - Goal: (Equal Nat (Nat.mul m (Nat.succ n.pred)) (Nat.add (Nat.mul n.pred m) m))
+
+// 3.0.2. Exercise: 3 stars, optional (more_exercises).
+// Edit
+// Take a piece of paper. For each of the following theorems, first think about whether
+// (a) it can be proved using only simplification and rewriting, (b) it also requires case
+// analysis (destruct), or (c) it also requires induction. Write down your prediction.
+// Then fill in the proof. (There is no need to turn in your piece of paper; this is just
+// to encourage you to reflect before you hack!)
+
+Lte (n: Nat) (m: Nat) : Bool
+Lte Nat.zero m = Bool.true
+Lte n Nat.zero = Bool.false
+Lte (Nat.succ k) (Nat.succ j) = Lte k j
+
+Lte_refl (n: Nat) : (Equal Bool Bool.true (Lte n n))
+Lte_refl Nat.zero = Equal.refl
+Lte_refl (Nat.succ n.pred) = 
+                        let ind = Lte_refl n.pred
+                        ind
+// - ind : (Equal Bool Bool.true (Lte n.pred n.pred))
+// - Goal: (Equal Bool Bool.true (Lte n.pred n.pred))
+Zero_nbeq_S (n: Nat) : (Equal Bool (Nat.equal Nat.zero (Nat.succ n)) Bool.false)
+Zero_nbeq_S n = Equal.refl
+
+Andb_false_r (b: Bool) : (Equal Bool (Bool.and b Bool.false) Bool.false)
+Andb_false_r Bool.true = Equal.refl
+// - Goal: (Equal Bool Bool.false Bool.false)
+Andb_false_r Bool.false = Equal.refl
+// - Goal: (Equal Bool Bool.false Bool.false)
+Plus_ble_compat_l (n: Nat) (m: Nat) (p: Nat) (e: Equal Bool (Lte n m) Bool.true) : (Equal Bool (Lte (Nat.add p n) (Nat.add p m)) Bool.true)
+Plus_ble_compat_l n m Nat.zero prf = prf
+// - prf : (Equal Bool (Lte n m) Bool.true)
+// - Goal: (Equal Bool (Lte n m) Bool.true)
+Plus_ble_compat_l n m (Nat.succ p.pred) prf =
+                                        let ind = Plus_ble_compat_l n m p.pred prf
+                                        ind
+// - prf : (Equal Bool (Lte n m) Bool.true)
+// - ind : (Equal Bool (Lte (Nat.add p.pred n) (Nat.add p.pred m)) Bool.true)
+// - Goal: (Equal Bool (Lte (Nat.add p.pred n) (Nat.add p.pred m)) Bool.true)
+S_nbeq_0 (n: Nat) : (Equal Bool (Nat.equal (Nat.succ n) Nat.zero) Bool.false )
+S_nbeq_0 n = Equal.refl
+
+Mult_1_l (n: Nat) : (Equal Nat (Nat.mul (Nat.succ(Nat.zero)) n) n)
+Mult_1_l n = Equal.refl
+
+All3_spec (b: Bool) (c: Bool) : (Equal Bool (Bool.or (Bool.and b c) (Bool.or (Bool.not b) (Bool.not c))) Bool.true)
+All3_spec Bool.true Bool.true = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+All3_spec Bool.true Bool.false = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+All3_spec Bool.false c = Equal.refl
+//  Goal: (Equal Bool Bool.true Bool.true)
+
+Mult_plus_distr_r (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.mul (Nat.add n m) p) (Nat.add (Nat.mul n p) (Nat.mul m p)))
+Mult_plus_distr_r Nat.zero m p = Equal.refl
+// - Goal: (Equal Nat (Nat.mul m p) (Nat.mul m p))
+Mult_plus_distr_r (Nat.succ n.pred) m p = 
+                                    let ind = Mult_plus_distr_r n.pred m p
+                                    let app1 = Equal.apply (x => Nat.add x p) ind
+                                    let aux1 = Plus_comm (Nat.mul m p) p
+                                    let aux2 = Plus_assoc (Nat.mul n.pred p) p (Nat.mul m p)
+                                    let aux3 = Plus_assoc (Nat.mul n.pred p) (Nat.mul m p) p
+                                    let rrt1 = Equal.rewrite aux1 (x => (Equal Nat (Nat.add (Nat.mul n.pred p) (x)) (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p))) aux3
+                                    let mir1 = Equal.mirror rrt1
+                                    let chn1 = Equal.chain mir1 aux2
+                                    let chn2 = Equal.chain app1 chn1
+                                    chn2
+// - ind : (Equal Nat (Nat.mul (Nat.add n.pred m) p) (Nat.add (Nat.mul n.pred p) (Nat.mul m p)))
+// - app1: (Equal Nat (Nat.add (Nat.mul (Nat.add n.pred m) p) p) (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p))
+// - aux1: (Equal Nat (Nat.add (Nat.mul m p) p) (Nat.add p (Nat.mul m p)))
+// - aux2: (Equal Nat (Nat.add (Nat.mul n.pred p) (Nat.add p (Nat.mul m p))) (Nat.add (Nat.add (Nat.mul n.pred p) p) (Nat.mul m p)))
+// - aux3: (Equal Nat (Nat.add (Nat.mul n.pred p) (Nat.add (Nat.mul m p) p)) (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p))
+// - rrt1: (Equal Nat (Nat.add (Nat.mul n.pred p) (Nat.add p (Nat.mul m p))) (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p))
+// - mir1: (Equal Nat (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p) (Nat.add (Nat.mul n.pred p) (Nat.add p (Nat.mul m p))))
+// - chn1: (Equal Nat (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p) (Nat.add (Nat.add (Nat.mul n.pred p) p) (Nat.mul m p)))
+// - chn2: (Equal Nat (Nat.add (Nat.mul (Nat.add n.pred m) p) p) (Nat.add (Nat.add (Nat.mul n.pred p) p) (Nat.mul m p)))
+// - Goal: (Equal Nat (Nat.add (Nat.mul (Nat.add n.pred m) p) p) (Nat.add (Nat.add (Nat.mul n.pred p) p) (Nat.mul m p)))
+
+Mult_assoc (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.mul n (Nat.mul m p)) (Nat.mul (Nat.mul n m) p))
+Mult_assoc Nat.zero m p = Equal.refl
+// - Goal: (Equal Nat Nat.zero Nat.zero)
+Mult_assoc (Nat.succ n.pred) m p = 
+                            let ind = Mult_assoc n.pred m p 
+                            let aux = Mult_plus_distr_r (Nat.mul n.pred m) m p 
+                            let mir = Equal.mirror ind
+                            let rrt = Equal.rewrite mir (x => (Equal Nat (Nat.mul (Nat.add (Nat.mul n.pred m) m) p) (Nat.add (x) (Nat.mul m p)))) aux
+                            let mir = Equal.mirror rrt
+                            mir
+// - ind : (Equal Nat (Nat.mul n.pred (Nat.mul m p)) (Nat.mul (Nat.mul n.pred m) p))
+// - aux : (Equal Nat (Nat.mul (Nat.add (Nat.mul n.pred m) m) p) (Nat.add (Nat.mul (Nat.mul n.pred m) p) (Nat.mul m p)))
+// - mir : (Equal Nat (Nat.mul (Nat.mul n.pred m) p) (Nat.mul n.pred (Nat.mul m p)))
+// - rrt : (Equal Nat (Nat.mul (Nat.add (Nat.mul n.pred m) m) p) (Nat.add (Nat.mul n.pred (Nat.mul m p)) (Nat.mul m p)))
+// - mir : (Equal Nat (Nat.add (Nat.mul n.pred (Nat.mul m p)) (Nat.mul m p)) (Nat.mul (Nat.add (Nat.mul n.pred m) m) p))
+// - Goal: (Equal Nat (Nat.add (Nat.mul n.pred (Nat.mul m p)) (Nat.mul m p)) (Nat.mul (Nat.add (Nat.mul n.pred m) m) p))
+
+// 3.0.3. Exercise: 2 stars, optional (beq_nat_refl).
+// Prove the following theorem. (Putting the True on the left-hand side of the equality
+// may look odd, but this is how the theorem is stated in the Coq standard library,
+// so we follow suit. Rewriting works equally well in either direction, so we will have
+// no problem using the theorem no matter which way we state it.)
+
+Beq_nat_refl (n : Nat) : (Equal Bool Bool.true (Nat.equal n n)) //ok 
+Beq_nat_refl Nat.zero = Equal.refl
+// - Goal: (Equal Bool Bool.true Bool.true)
+Beq_nat_refl (Nat.succ n.pred) = 
+                          let ind = Beq_nat_refl n.pred
+                          ind
+// - ind : (Equal Bool Bool.true (Nat.equal n.pred n.pred))
+// - Goal: (Equal Bool Bool.true (Nat.equal n.pred n.pred))
+// 3.0.4. Exercise: 2 stars, optional (plus_swap’).
+
+// Kek : (a: U60) -> U60
+// Kek = x => 10
+
+
+// Main {
+//   ((Kek) 10)
+// }
+
+// The replace tactic allows you to specify a particular subterm to rewrite and what
+// you want it rewritten to: replace (t) with (u) replaces (all copies of) expression t
+// in the goal by expression u, and generates t = u as an additional subgoal. This is
+// often useful when a plain rewrite acts on the wrong part of the goal.
+// Use the replace tactic to do a proof of plus_swap', just like plus_swap but without
+// needing assert (n + m = m + n).
+
+// Plus_swap_plus_comm (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.add n (Nat.add p m)) (Nat.add m (Nat.add p m)))
+// Plus_swap_plus_comm n m p = ?
+
+// 3.0.5. Exercise: 3 stars, recommended (binary_commute). Recall the incr and
+// bin_to_nat functions that you wrote for the binary exercise in the Basics chapter.
+// Prove that the following diagram commutes:
+// bin --------- incr ౪౪౪౪ౝ౧౑> bin
+// | |
+// bin_to_nat bin_to_nat
+// | |
+// v v
+// nat ---------- S ౪౪౪౪౪౪ౝ౧౑> nat
+// That is, incrementing a binary number and then converting it to a (unary) natural
+// number yields the same result as first converting it to a natural number and then
+// incrementing. Name your theorem bin_to_nat_pres_incr (“pres” for “preserves”).
+// Before you start working on this exercise, please copy the definitions from your
+// solution to the binary exercise here so that this file can be graded on its own. If
+// you find yourself wanting to change your original definitions to make the property
+// easier to prove, feel free to do so!
+
+// 3.0.6. Exercise: 5 stars, advanced (binary_inverse). This exercise is a continuation of the previous exercise about binary numbers. You will need your definitions
+// and theorems from there to complete this one.
+// (a) First, write a function to convert natural numbers to binary numbers.
+// Then prove that starting with any natural number, converting to binary,
+// then converting back yields the same natural number you started with.
+// (b) You might naturally think that we should also prove the opposite direction: that starting with a binary number, converting to a natural, and
+// then back to binary yields the same number we started with. However,
+// this is not true! Explain what the problem is.
+// (c) Define a “direct” normalization function – i.e., a function normalize from
+// binary numbers to binary numbers such that, for any binary number
+// b, converting to a natural and then back to binary yields (normalize b).
+// Prove it. (Warning: This part is tricky!)

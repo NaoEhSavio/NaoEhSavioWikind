@@ -1,0 +1,122 @@
+(List.map [] f) = []
+(List.map (List.cons head tail) f) = (List.cons (f head) (List.map tail f))
+
+(List.concat [] ys) = ys
+(List.concat (List.cons head tail) ys) = (List.cons head (List.concat tail ys))
+
+(List.length []) = 0
+(List.length (List.cons head tail)) = (+ 1 (List.length tail))
+
+(Sum (List.nil))       = 0
+(Sum (List.cons head tail)) = (+ head (Sum tail))
+
+(Loto (List.nil)) = (List.nil)
+(Loto (List.cons head tail)) = 
+	let h = (Sum head); 
+	let t = (Loto tail); 
+	(List.cons h t) 
+
+
+(Sort List.nil)         = List.nil
+(Sort (List.cons x xs)) = (Insert x (Sort xs))
+
+// Insert : U60 -> List -> List
+(Insert v List.nil)         = (List.cons v List.nil)
+(Insert v (List.cons x xs)) = (SwapGT (> v x) v x xs)
+
+// SwapGT : U60 -> U60 -> U60 -> List -> List
+(SwapGT 0 v x xs) = (List.cons v (List.cons x xs))	
+(SwapGT 1 v x xs) = (StrictCons x (Insert v xs))
+  (StrictCons e t) = (List.cons e t)
+
+(List.count (List.cons head tail) cond) = (List.count.aux (List.cons head tail) cond (== cond (+ 1 head)) 0)
+
+(List.count.aux [] cond 0 num) = (Pair num [])
+(List.count.aux (List.cons head tail) cond 0 num) = (List.count.aux tail cond (== head (+ 1 cond)) (+ 1 num)) 
+// (List.count.aux lst cond n num) = (Pair num lst)
+(List.count.aux lst cond n num) = (Pair num lst)
+
+(Pair.fst (Pair a b)) = a
+
+(Pair.snd (Pair a b)) = b
+
+(Porcent []) = []
+(Porcent (List.cons head tail)) = 
+	let eq = (List.count (List.cons head tail) head);
+	let hd = (List.cons head [(Pair.fst eq)]);
+	let tl = (Porcent (Pair.snd eq));
+	(List.cons hd tl) 
+// 	let eql = (List.length (List.u60.filter @a (== head a) (List.cons head tail) )); 
+// 	let par = (List.cons head (List.cons eql (List.cons por (List.nil)))); 
+// 	let del = (List.delete_all head (List.cons head tail)); 
+// 	let res = (Porcent.go del len); 
+// 	(List.cons par res)
+
+// def combinations(lst, k):
+//     if k == 0:
+//         return [[]]
+//     elif len(lst) < k:
+//         return []
+//     else:
+//         first = lst[0]
+//         rest = lst[1:]
+//         combs_without_first = combinations(rest, k)
+//         combs_with_first = combinations(rest, k-1)
+//         combs_with_first = add_first_to_combinations(first, combs_with_first)
+//         return combs_without_first + combs_with_first
+
+// def add_first_to_combinations(first, combs):
+//     if not combs:
+//         return []
+//     else:
+//         first_comb = [first] + combs[0]
+//         rest_combs = add_first_to_combinations(first, combs[1:])
+//         return [first_comb] + rest_combs
+
+// (Combinations lst k) = (Combinations.aux lst k (List.length lst) (< (List.length lst) k))
+// (Combinations.aux lst 0 len 0) = [[]]
+// (Combinations.aux lst k 0 0) = []
+// (Combinations.aux (List.cons head tail) k len 0) = 
+// 	let l = (- len 1);
+// 	let v = (< l k);
+// 	let hd = (Combinations.aux tail k l v); 
+// 	let tl = (Combinations.aux tail (- k 1) l v); 
+// 	let mp = (Combinations.auy head tl);
+// 	(List.concat mp hd)
+// (Combinations.aux lst k len v) = []
+
+// (Combinations.auy c []) = [] 
+// (Combinations.auy c (List.cons head tail)) = 
+// 	let cc = (List.cons c [head]);
+// 	let ct = (Combinations.auy c tail);
+// 	(List.concat cc ct)
+
+//     else:
+//         first_comb = [first] + combs[0]
+//         rest_combs = add_first_to_combinations(first, combs[1:])
+//         return [first_comb] + rest_combs
+
+// 285682321
+// 252459750
+(Combinations lst k) = (Combinations.aux lst k (+ 1 (List.length lst)) 0)
+(Combinations.aux lst 0 len 0) = [[]]
+// (Combinations.aux lst k 0 0) = []
+(Combinations.aux (List.cons head tail) k len 0) = 
+	let l = (- len 1);
+	let v = (< l k);
+	let hd = (Combinations.aux tail k l v); 
+	let tl = (Combinations.aux tail (- k 1) l v); 
+	let mp = (List.map tl (@x (Cons head x)));
+	(List.concat mp hd)
+(Combinations.aux lst k len v) = []
+
+ 
+// Strict constructors
+(Cons a b) = (List.cons a b)
+
+// (Main) = ( ((Loto (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] 15))))
+// (Main) = ((List.length (Sort (Loto (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] 15)))))
+(Main) = ((List.length ((Loto (Combinations [1,2,3,4,5,6,7,8,9,10] 1)))))
+
+// (Main) = (((Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] 10)))
+// (Main) = (List.length  (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25] 15))

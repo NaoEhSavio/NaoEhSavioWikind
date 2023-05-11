@@ -1,0 +1,143 @@
+Wrongb (a: Bool) : Bool { // Rewrites: 6983
+	match Bool a {
+		true =>  Bool.true
+		false => Bool.true
+	}
+}
+
+// Wrong (a: Bool) : Bool // Rewrites: 6426
+// Wrong Bool.true = Bool.true
+// Wrong Bool.false = Nat.zero
+
+// Negation.function (b: Bool) : Bool 
+// Negation.function b = ?help
+
+
+Logics.and (a: Bool) (b: Bool) : Bool
+Logics.and Bool.true  Bool.true = Bool.true
+Logics.and Bool.false Bool.true = Bool.false
+Logics.and a          Bool.false = Bool.false
+
+Identity (b: Bool): Bool {
+	b
+}
+
+Negation (a: Bool) : Bool {
+	match Bool a {
+    true => Bool.false
+    false => Bool.true
+  }
+}
+
+And (a: Bool) (b: Bool) : Bool {
+	match Bool b {
+    true => a
+    false => Bool.true
+  }
+}
+
+//Notação equacional 
+Maybe.wrapper (b: Bool) : Maybe Bool
+Maybe.wrapper Bool.true = Maybe.some Bool.true
+Maybe.wrapper Bool.false = Maybe.none Bool
+
+//Path Matching 
+// Maybe.wrapper (b: Bool) : Maybe Bool {
+// 	match Bool b {
+// 		true => Maybe.some Bool.true
+// 		false => Maybe.none
+// 	}
+// }
+
+// Maybe.unwrapper (b: (Maybe Bool)) : Bool
+// Maybe.unwrapper (Maybe.none Bool) = ?a
+// Maybe.unwrapper (Maybe.some value) = ?b
+
+// Maybe.unwrapper (b: (Maybe Bool)) : Bool {
+// 	match Maybe b {
+// 		none => ?a
+// 		some => ?b
+// 	}
+// }
+// Is_equal (input: Bool) (saved: (Maybe Bool)) : Bool {
+// 	match Maybe saved {
+//     none => Bool.false
+//     some => ?b
+//   }
+// }
+
+// Is_equal_2 (input: Bool) (saved: (Maybe Bool)) : Bool {
+//   match Maybe saved {
+//     none => Bool.false
+//     some => (
+//       let eql = Bool.equal Bool.true saved.value
+//       ?a
+// 		)
+//   }
+// }
+
+Snd (pair: (Pair Bool Bool)) : Bool {
+  match Pair pair {
+    new => pair.snd
+  }
+}
+
+type Multiple (a: Type) (b: Type) {
+  threethings (x: a) (y: b) (z: Multiple a b)
+  onething (x: b)
+  twothings (x: a) (y: b)
+  empty
+}
+// Neg (riap: PairBool) : PairBool {
+//   match PairBool riap {
+//     new fst snd => 
+//       match Bool fst {
+//         true => 
+//           match Bool snd {
+//             true => PairBool.new Bool.false Bool.false
+//             false => PairBool.new Bool.false Bool.true
+//           }
+//         false => 
+//           match Bool snd {
+//             true => PairBool.new Bool.true Bool.false
+//             false => PairBool.new Bool.true Bool.true
+//           }
+//       }
+//   }
+// }
+Or (a: (Maybe Bool)) (b: (Maybe Bool)): Maybe Bool {
+  match Maybe a {
+    none => b
+    some value => Maybe.some value
+  }
+}
+
+
+
+// Evenb (n: Nat) : Bool // Rewrites: 2003
+// Evenb Nat.zero = Bool.true
+// Evenb (Nat.succ k) = Bool.not (Evenb k)
+
+// Odd (n: Nat) : Bool // Rewrites: 2003
+// Odd Nat.zero = Bool.false
+// Odd (Nat.succ k) = Bool.not (Odd k)
+
+Odd (n: Nat) : Bool // Rewrites: 1003
+Odd Nat.zero = Bool.false
+Odd (Nat.succ Nat.zero) = Bool.true
+Odd (Nat.succ (Nat.succ k)) = Odd k
+
+// Evenb (n: Nat) : Bool // Rewrites: 1003
+// Evenb Nat.zero = Bool.true
+// Evenb (Nat.succ Nat.zero) = Bool.false
+// Evenb (Nat.succ (Nat.succ k)) = Evenb k
+
+Main {  
+	//               // Rewrites: 3
+	// Maybe.wrapper Bool.false
+	// Path Matching // Rewrites: 4
+	// Pair.new Nat String "Bruce" 2n
+	//  Maybe.some (Pair Bool Bool) (Pair.new Bool.true Bool.true)
+	// Multiple.threethings Bool.true Bool.false (Multiple.empty)
+  Bool.not (Odd (U60.to_nat 20000000))
+}

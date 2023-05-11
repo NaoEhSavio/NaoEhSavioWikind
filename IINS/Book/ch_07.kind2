@@ -1,0 +1,41 @@
+Rev_append <x> (l1: List x) (l2: List x) : List x
+Rev_append x List.nil l2 = l2
+Rev_append x (List.cons head tail) l2 = Rev_append tail (List.cons head l2)
+// rev_append : (l1, l2 : List x) ౏> List x
+// rev_append [] l2 = l2
+// rev_append (x ௝௞ xs) l2 = rev_append xs (x ௝௞ l2)
+Tr_rev <x> (l: List x) : List x
+Tr_rev x l = Rev_append l List.nil
+
+// Trev_trev_L <a> (xs: List a) : Equal (List a) (Tr_rev (Tr_rev xs)) xs
+// Trev_trev_L List.nil = Equal.refl
+// Trev_trev_L  (List.cons head tail) = 
+// 	let ind = Trev_trev_L tail 
+// 	// let app = Equal.apply (x => List.cons head x) ind 
+// 	let aux = Equal.apply (x => (Rev_append x [head])) ind 
+// 	let auy = Trev_trev_L (Rev_append [] tail) 
+// 	?
+	
+// • Expected: (Equal (Rev_append (Rev_append tail (List.cons head (List.nil))) (List.nil)) (List.cons head tail)) 
+//  •   ind  : (Equal (Rev_append (Rev_append tail (List.nil)) (List.nil)) tail) 
+//  •   app  : (Equal (List.cons head (Rev_append (Rev_append tail (List.nil)) (List.nil))) (List.cons head tail)) 
+//  •   aux  : (Equal (Rev_append (Rev_append (Rev_append (Rev_append tail (List.nil)) (List.nil)) (List.cons head (List.nil))) (List.nil)) (Rev_append (Rev_append tail (List.cons head (List.nil))) (List.nil))) 
+
+
+// Main : IO U60 {
+//   do IO {
+//     // Tests 2D Vectors
+//     let a = 2
+//     let b = 1
+//     IO.print "a + b = {}" 
+
+//     // Tests 3D Vectors
+//     let c = 1
+//     let d = 2
+//     IO.print "c + d = {}" 
+//   }
+// }
+
+
+Even_1000b : Sigma Nat (k => Equal 1000n (Nat.double k))
+Even_1000b = Sigma.new 500n Equal.refl

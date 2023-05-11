@@ -1,0 +1,20 @@
+type Foo {
+	tic (xs: Foo)
+	tac (xs: Foo)
+}
+
+Zero : Foo
+Zero = Foo.tic Zero
+
+Inv (xs: Foo) : Foo 
+Inv (Foo.tic f) = (Foo.tac (Inv f)) 
+Inv (Foo.tac f) = (Foo.tic (Inv f))
+
+Main {
+	let t = (Foo.tic (Foo.tac (Foo.tic Zero)))
+	Inv t 
+}
+
+Inv_Equal (xs: Foo) : Equal Foo xs (Inv (Inv xs))
+Inv_Equal (Foo.tic f) = Equal.apply (x => Foo.tic x) (Inv_Equal f) 
+Inv_Equal (Foo.tac f) = Equal.apply (x => Foo.tac x) (Inv_Equal f) 

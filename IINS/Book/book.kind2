@@ -1,0 +1,181 @@
+TestU60 : Prop.Equal 6n (Data.Nat.succ (Data.Nat.succ (Data.Nat.succ (Data.Nat.succ (Data.Nat.succ (Data.Nat.succ Data.Nat.zero))))))
+TestU60 = Prop.Equal.refl
+
+Evenb (n : Data.Nat) : Data.Bool
+Evenb  Data.Nat.zero               = Data.Bool.true
+Evenb (Data.Nat.succ  Data.Nat.zero)    = Data.Bool.false
+Evenb (Data.Nat.succ (Data.Nat.succ k)) = Evenb k
+
+Oddb (n : Data.Nat) : Data.Bool
+Oddb n = Data.Bool.not (Evenb n)
+
+TestOddb1 : Prop.Equal (Oddb 1n) Data.Bool.true
+TestOddb1 = Prop.Equal.refl
+
+TestOddb2 : Prop.Equal (Oddb 4n) Data.Bool.false
+TestOddb2 = Prop.Equal.refl
+
+Plus (n : Data.Nat) (m : Data.Nat) : Data.Nat
+Plus  Data.Nat.zero    m = m
+Plus (Data.Nat.succ k) m = Data.Nat.succ (Plus k m)
+
+Mult (n : Data.Nat) (m : Data.Nat) : Data.Nat
+Mult  Data.Nat.zero    m = 0n
+Mult (Data.Nat.succ k) m = Plus m (Mult k m)
+
+TestMult1 : Prop.Equal (Mult 3n 3n) 9n
+TestMult1 = Prop.Equal.refl
+
+Lte (n: Data.Nat) (m: Data.Nat) : Data.Bool
+Lte  Data.Nat.zero     m           = Data.Bool.true
+Lte (Data.Nat.succ k)  Data.Nat.zero    = Data.Bool.false
+Lte (Data.Nat.succ k) (Data.Nat.succ j) = Lte k j
+
+TestLte1 : Prop.Equal (Lte 2n 2n) Data.Bool.true
+TestLte1 = Prop.Equal.refl
+
+TestLte2 : Prop.Equal (Lte 2n 4n) Data.Bool.true
+TestLte2 = Prop.Equal.refl
+
+TestLte3 : Prop.Equal (Lte 4n 2n) Data.Bool.false
+TestLte3 = Prop.Equal.refl
+
+Plus_id_example (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal Data.Nat n m) : Prop.Equal Data.Nat (Plus n n) (Plus m m)
+
+Plus_id_example n m e =
+  let app = Prop.Equal.apply (k => Plus k n) e
+	let rrt = Prop.Equal.rewrite e (x => Prop.Equal (Plus n n) (Plus m x)) app
+  rrt
+
+Example_mirror (a : Data.Nat) (b : Data.Nat) (e : Prop.Equal Data.Nat a b) : Prop.Equal Data.Nat b a
+Example_mirror a b e = 
+   let mir = Prop.Equal.mirror e
+  mir
+// Plus_n_Z (n: Data.Nat) : Prop.Equal Data.Nat n (Plus n Data.Nat.zero)
+// Plus_n_Z n = Prop.Equal.refl
+
+Example_apply (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal m n) : Prop.Equal (Data.Nat.succ m) (Data.Nat.succ n)
+Example_apply n m e =
+  let e_apply = Prop.Equal.apply (x => Data.Nat.succ x) e
+  e_apply
+Example_chain (a: Data.Nat) (b: Data.Nat) (c: Data.Nat) (e1: Prop.Equal Data.Nat b (Plus a a)) (e2 : Prop.Equal Data.Nat c (Plus a a)) : Prop.Equal Data.Nat b c
+Example_chain a b c e1 e2 =
+  let e3 = Prop.Equal.mirror e2
+  let chn = Prop.Equal.chain e1 e3
+	chn
+Identity_fn_applied_twice (f: Data.Bool -> Data.Bool) (e: (x: Data.Bool) -> (Prop.Equal Data.Bool (f x) x)) (b : Data.Bool) : Prop.Equal Data.Bool (f (f b)) b
+// Identity_fn_applied_twice f e b = ?
+
+// Test_head1 (xs: Data.List Data.Nat) : (Prop.Equal (Data.Maybe Data.Nat)  (Data.List.head [1n, 2n, 3n]) (Data.Maybe.some Data.Nat 1n))
+Data.List.head (xs: Data.List Data.Nat)        : Data.Maybe Data.Nat
+Data.List.head (Data.List.nil)            = Data.Maybe.none Data.Nat
+Data.List.head (Data.List.cons head tail) = Data.Maybe.some Data.Nat head
+
+// Exemplo: (Data.List.tail Data.Nat [1,2,3]) -> [2,3]
+Data.List.tail (xs: Data.List Data.Nat)        : Data.List Data.Nat
+Data.List.tail (Data.List.nil)            = Data.List.nil Data.Nat
+Data.List.tail (Data.List.cons head tail) = tail
+
+// Data.List.repeat (times: Data.Nat) (val: Data.Nat) : Data.List Data.Nat
+// Data.List.repeat Data.Nat.zero         val    = Data.List.nil Data.Nat 
+// Data.List.repeat (Data.Nat.succ times) val    = Data.List.cons Data.Nat val (Data.List.repeat times val)
+
+// Exemplo: (Data.List.length [1,2,3]) -> 3
+Data.List.length (xs: Data.List Data.Nat) : Data.Nat
+Data.List.length (Data.List.nil)            = Data.Nat.zero
+Data.List.length (Data.List.cons head tail) = (Data.Nat.succ (Data.List.length tail))
+
+Data.List.append (xs: Data.List Data.Nat) (ys: Data.List Data.Nat) : Data.List Data.Nat
+Data.List.append (Data.List.nil)            ys = ys
+Data.List.append (Data.List.cons head tail) ys = Data.List.cons Data.Nat head (Data.List.append tail ys)
+
+Test_head1 : (Prop.Equal (Data.Maybe Data.Nat) (Data.List.head [1n, 2n, 3n]) (Data.Maybe.some Data.Nat 1n))
+
+
+Test_head2 : (Prop.Equal (Data.Maybe Data.Nat) (Data.List.head (Data.List.nil)) (Data.Maybe.none Data.Nat))
+
+
+Test_head3 : (Prop.Equal (Data.List Data.Nat) (Data.List.tail [1n, 2n, 3n]) [2n, 3n])
+
+
+Tl_length_pred (xs: Data.List Data.Nat) : Prop.Equal Data.Nat (Data.Nat.pred (Data.List.length xs)) (Data.List.length (Data.List.tail xs))
+
+App_assoc (xs: Data.List Data.Nat) (ys: Data.List Data.Nat) (zs: Data.List Data.Nat) : Prop.Equal (Data.List.append (Data.List.append xs ys) zs) (Data.List.append xs (Data.List.append ys zs))
+
+App_length (xs: Data.List Data.Nat) (ys: Data.List Data.Nat)  : (Prop.Equal Data.Nat (Data.List.length (Data.List.append xs ys)) (Plus (Data.List.length xs) (Data.List.length ys)))
+
+Rev (xs: Data.List Data.Nat)        : Data.List Data.Nat
+Rev Data.List.nil              = Data.List.nil Data.Nat
+Rev (Data.List.cons head tail) = Data.List.append (Rev tail) [head]
+
+Rev_length_firsttry (xs: Data.List Data.Nat) : (Prop.Equal Data.Nat (Data.List.length (Rev xs)) (Data.List.length xs))
+
+Plus_n_z (n: Data.Nat)     : Prop.Equal Data.Nat n (Plus n Data.Nat.zero)
+Plus_n_sn (n: Data.Nat) (m: Data.Nat) : Prop.Equal Data.Nat (Data.Nat.succ (Plus n m)) (Plus n (Data.Nat.succ m))
+Plus_comm (n: Data.Nat) (m: Data.Nat) : Prop.Equal Data.Nat (Plus n m) (Plus m n)
+
+Rev_length (xs: Data.List Data.Nat)               : Prop.Equal Data.Nat (Data.List.length (Rev xs)) (Data.List.length xs)
+Rev_length Data.List.nil                     = Prop.Equal.refl
+Rev_length (Data.List.cons Data.Nat head tail)  =
+   let ind = Rev_length tail
+   let aux1 = App_length (Rev tail) [head]
+   let aux2 = Plus_comm (Data.List.length (Rev tail)) (1n)
+   let chn = Prop.Equal.chain aux1 aux2
+   let rrt = Prop.Equal.rewrite ind (x => (Prop.Equal Data.Nat (Data.List.length (Data.List.append (Rev tail) (Data.List.cons head (Data.List.nil)))) (Data.Nat.succ x ))) chn
+   rrt
+// Nth_error (n: Data.Nat) (xs: Data.List Data.Nat) : Data.Maybe Data.Nat
+// Nth_error n Data.List.nil              = Data.Maybe.none
+// Nth_error n (Data.List.cons head tail) = 
+//   let ind = Nth_error (Data.Nat.pred n) tail
+//   Data.Bool.if (Data.Data.Nat.equal n 0n) (Data.Maybe.some Data.Nat head) (ind)
+
+// Test_nth_error1 : Prop.Equal (Nth_error 0n [4n,5n,6n,7n]) (Data.Maybe.some 4n)
+// Test_nth_error1 = Prop.Equal.refl
+
+// Test_nth_error2 : Prop.Equal (Nth_error 3n [4n,5n,6n,7n]) (Data.Maybe.some 7n)
+// Test_nth_error2 = Prop.Equal.refl
+
+// Test_nth_error3 : Prop.Equal (Nth_error 9n [4n,5n,6n,7n]) Data.Maybe.none
+// Test_nth_error3 = Prop.Equal.refl
+
+Nth_error <a> (n: Data.Nat) (xs: Data.List a) : Data.Maybe a
+Nth_error a n Data.List.nil              = Data.Maybe.none
+Nth_error a n (Data.List.cons head tail) =
+  let ind = Nth_error (Data.Nat.pred n) tail
+  Data.Bool.if (Data.Nat.equal n 0n) (Data.Maybe.some head) (ind)
+
+
+Test_nth_error1 : Prop.Equal (Nth_error 0n [4n,5n,5n,7n]) (Data.Maybe.some 4n)
+Test_nth_error1 = Prop.Equal.refl
+
+Test_nth_error2 : Prop.Equal (Nth_error 2n [Data.Bool.true]) Data.Maybe.none
+Test_nth_error2 = Prop.Equal.refl
+
+Test_nth_error3 : Prop.Equal (Nth_error 1n [[1n],[2n]]) (Data.Maybe.some [2n])
+Test_nth_error3 = Prop.Equal.refl
+
+MinusTwo (n: Data.Nat) : Data.Nat
+MinusTwo  Data.Nat.zero               = Data.Nat.zero
+MinusTwo (Data.Nat.succ  Data.Nat.zero)    = Data.Nat.zero
+MinusTwo (Data.Nat.succ (Data.Nat.succ k)) = k
+
+Doit3times <x> (f: x -> x) (n: x) : x
+Doit3times f x = (f (f (f x)))
+
+Test_doit3times1 : Prop.Equal (Doit3times (x => MinusTwo x) 9n) 3n
+Test_doit3times1 = Prop.Equal.refl
+
+Test_doit3times2 : Prop.Equal (Doit3times (x => Data.Bool.not x) Data.Bool.true) (Data.Bool.false)
+Test_doit3times2 = Prop.Equal.refl
+
+
+
+// Prop.Equal <x> (a: x) (b: x) : Type
+// Prop.Equal.refl <x> <a: x> : Prop.Equal a a 
+// Prop.Equal.mirror <x> <a: x> <b: x> (c: Prop.Equal x a b) : Prop.Equal x b a
+// Prop.Equal.apply <x> <y> <a: x> <b: x> (f: x -> y) (c: Prop.Equal x a b) : Prop.Equal y (f a) (f b)
+// Prop.Equal.chain <x> <a: x> <b: x> <c: x> (e: Prop.Equal x a b) (f: Prop.Equal x b c) : Prop.Equal x a c
+
+Main {
+  Data.Nat.show 10n 
+}

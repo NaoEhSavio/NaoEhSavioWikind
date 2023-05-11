@@ -1,0 +1,69 @@
+(String.concat String.nil         ys) = ys
+(String.concat (String.cons x xs) ys) = (String.cons x (String.concat xs ys))
+
+(Bool.show b) = (b "True" "False") 
+
+True  = λtrue λfalse true
+False = λtrue λfalse false
+
+// Not a = match a { True => False; False => True }
+(Not a) = (a False True)
+
+// And a b = match a { True => match b { True => True; False => False }; False => match b { True => False; False => False; } }
+(And a b) = (a (b True False) (b False False))
+
+// -------------------------------------------
+
+//type Pair {
+//  new (fst: Bool) (snd: Bool)
+//}
+
+New = λfst λsnd λnew (new fst snd) 
+
+// Swap p = match p { new a b => Pair.new b a }
+(Swap p) = (p λa λb (Pair.new b a))
+
+// ----------------------------------------------------------
+
+//type Nat {
+  //zero
+  //succ (pred: Nat)
+//}
+
+
+// (Nat.show n) = (n "Zero" λp(String.concat (String.concat "(Succ " (Nat.show p)) ")"))
+
+(SNat.show n) = (n "Z" λp(String.concat (String.concat "(S " (SNat.show p)) ")"))
+
+(CNat.show n) = (n λp (String.concat (String.concat "(S " p) ")") "Z")
+
+(Zero) =    λzero λsucc zero
+(Succ) = λn λzero λsucc (succ n)
+
+
+// λzero λsucc (succ λzero λsucc (succ λzero λsucc zero))
+Two = ((Succ) ((Succ) Zero))
+STwo = λzero λsucc (succ λzero λsucc (succ λzero λsucc zero))
+CTwo = λsucc λzero (succ (succ zero))
+(Double n) = (n Zero λp((Succ) ((Succ) (Double p))))
+
+(Main) = (CNat.show CTwo)
+
+// (Inc n) = (Succ n)
+
+
+//(Not True)
+//----------
+//(Not (λtrue λfalse true))
+//-------------------------
+//((λtrue λfalse true) False True)
+//---------------------------------
+//((λtrue λfalse true) (λtrue λfalse false) (λtrue λfalse true))
+//--------------------------------------------------------------
+//((λa λb a) (λc λd d) (λe λf e))
+//-------------------------------
+//((λb (λc λd d)) (λe λf e))
+//--------------------------
+//λc λd d
+//-------
+//False

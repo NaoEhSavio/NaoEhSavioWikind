@@ -1,0 +1,49 @@
+Revers_length (l: List Nat) : (Equal (List.length (Revers l)) (List.length l)) //meu video
+Revers_length (List.nil Nat) = Equal.refl
+// - Goal: (Equal _ Nat.zero Nat.zero)
+Revers_length (List.cons Nat head tail) = // livro 
+																let ind = Revers_length tail 
+																let aux1 = App_length (Revers tail) [head]
+																let aux2 = Plus_comm (List.length (Revers tail)) (Nat.succ Nat.zero)
+																let rrt1 = Equal.rewrite ind (x => (Equal Nat (Nat.add (List.length Nat (Revers tail)) (Nat.succ Nat.zero)) (Nat.succ x))) aux2			
+																let rrt2 = Equal.rewrite rrt1 (x => (Equal _ (List.length _ (List.concat _ (Revers tail) (List.cons _ head (List.nil _)))) x )) aux1				
+																rrt2
+
+
+
+
+
+
+
+Revers <a: Type>(l: List a) : List a
+Revers a (List.nil l) = List.nil a
+Revers a (List.cons l head tail) = List.concat (Revers tail) [head]
+
+Plus_n_Z (n: Nat) : (Equal Nat n (Nat.add n Nat.zero))
+Plus_n_Z Nat.zero = Equal.refl
+Plus_n_Z (Nat.succ n.pred) = Equal.apply (x => Nat.succ x) (Plus_n_Z n.pred)
+
+Plus_n_Sm (n: Nat) (m: Nat) : (Equal Nat (Nat.succ (Nat.add n m)) (Nat.add n (Nat.succ m)))
+Plus_n_Sm Nat.zero m = Equal.refl
+Plus_n_Sm (Nat.succ n) m = Equal.apply (x => Nat.succ x) (Plus_n_Sm n m)
+
+Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
+Plus_comm Nat.zero m = Plus_n_Z m
+Plus_comm (Nat.succ n.pred) m = Equal.chain (Equal.apply (x => Nat.succ x) (Plus_comm n.pred m )) (Plus_n_Sm m n.pred)
+
+App_length <a: Type> (l1: List a) (l2: List a) : (Equal Nat (List.length (List.concat l1 l2)) (Nat.add (List.length l1) (List.length l2)))
+App_length a (List.nil l) l2 = Equal.refl
+App_length a (List.cons l head tail) l2 = Equal.apply (x => Nat.succ x) (App_length l tail l2)
+
+
+
+
+
+
+
+
+
+
+
+// Theorem: For all lists l, List.length (revers l) = List.length l
+Theorem <a: Type> (xs: List a): Equal Nat (List.length (Revers xs)) (List.length xs)

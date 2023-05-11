@@ -1,0 +1,132 @@
+#derive[match]
+type List (t) {
+  #kdl_name = List_nil
+  nil
+  #kdl_name = List.cons
+  cons (head: t) (tail: List t)
+}
+
+List.fold <x> <y> (func: x -> y -> y) (l: List x) (b: y) : y
+List.fold func List.nil  b = b
+List.fold func (List.cons l head tail) b = (func head) (List.fold func tail b)
+
+U60.if <r: Type> (n: U60) (t: r) (f: r) : r
+U60.if 0 t f = f
+U60.if n t f = t
+
+List.length <a> (xs: List a) : U60
+List.length a (List.nil t)            = 0
+List.length a (List.cons t head tail) = (+ (List.length a tail) 1)
+
+List.delete (f: U60 -> U60) (xs: List U60) : List U60
+List.delete f (List.nil )         = List.nil
+List.delete f (List.cons head tail) =
+  U60.if (f head) [] (List.cons head (List.delete f tail)) 
+
+List.delete_all (v: U60) (s: List U60) : List U60
+List.delete_all v List.nil = []
+List.delete_all v (List.cons head tail) = if (U60.equal v head) {(List.delete_all v tail)} else {(List.cons U60 head (List.delete_all v tail))}
+
+U60.to_bool (n: U60) : Bool
+U60.to_bool 0 = Bool.false
+U60.to_bool n = Bool.true
+
+List.filter <a> (xs: List a) (cond: a -> Bool) : List a
+List.filter a (List.nil t)            cond = List.nil
+List.filter a (List.cons t head tail) cond =
+  if cond head {
+    List.cons head (List.filter tail cond)
+  } else {
+    List.filter tail cond
+  }
+
+Loto.list_result : List (List U60) {
+  do List {
+    ask a = [ 1,  2,  3, 4, 5]
+    ask b = [ 1,  2,  3, 4, 5]
+    ask c = [ 1,  2,  3, 4, 5]
+    ask d = [ 1,  2,  3, 4, 5]
+    ask e = [ 1,  2,  3, 4, 5]
+    return [a, b, c, d, e]
+  }
+}
+
+U60.interval (start: U60) (stop: U60) (step: U60) : List U60{
+	U60.if (>= start stop) (List.nil U60) (
+		List.cons (+ start step) (U60.interval (+ start step) stop step)
+	)
+}
+
+U60.fac (n: U60) : U60
+U60.fac 0 = 1
+U60.fac n = (* n (U60.fac (- n 1)))
+
+U60.comb (n: U60) (p: U60) : U60
+U60.comb n p =
+	let aux = U60.if (> (- n p) p) (- n p) p
+	let cop = List.fold (a => b => (* a b)) (U60.interval aux n 1) 1 
+	U60.if (>= n p) (/ cop (U60.fac (- n aux))) (0)
+
+Comb (xs: List U60) : List (List U60)
+Comb List.nil = List.nil
+Comb xs = 
+do List {
+		ask a = xs
+		ask b = (List.delete (x => (== a x)) xs)
+		ask c = (List.delete (x => (| (== b x) (== a x))) xs)
+		ask d = (List.delete (x => (| (| (== b x) (== a x)) (== c x))) xs)
+		ask e = (List.delete (x => (| (| (== b x) (== a x)) (| (== c x) (== d x)))) xs)
+		ask f = (List.delete (x => (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (== e x))) xs)
+		ask g = (List.delete (x => (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (== e x) (== f x)))) xs)
+		ask h = (List.delete (x => (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (== g x)))) xs)
+		ask i = (List.delete (x => (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x))))) xs)
+		ask j = (List.delete (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (== i x))) xs)
+		ask k = (List.delete (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (== i x) (== j x)))) xs)
+		ask l = (List.delete (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (== i x) (== j x)) (== k x) ))) xs)
+		ask m = (List.delete (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (== i x) (== j x)) (| (== k x) (== l x))) )) xs)
+		ask n = (List.delete (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (| (== i x) (== j x)) (| (== k x) (== l x))) (== m x)))) xs)
+		ask o = (List.delete (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (| (== i x) (== j x)) (| (== k x) (== l x))) (| (== m x) (== n x))))) xs)
+		return [o,n,m,l,k,j,i,h,g,f,e,d,c,b,a]
+	}
+
+// (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (| (== i x) (== j x)) (| (== k x) (== l x))) (| (== m x) (== n x)))))
+// (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (| (== i x) (== j x)) (| (== k x) (== l x))) (== m x))))						
+// (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (== i x) (== j x)) (| (== k x) (== l x))) ))						
+// (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (| (== i x) (== j x)) (== k x) )))	
+// (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (| (== i x) (== j x))))	
+// (x => (| (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))) (== i x)))
+// (x => (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (| (== g x) (== h x)))))
+// (x => (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (| (== e x) (== f x)) (== g x))))
+// (x => (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (| (== e x) (== f x))))
+// (x => (| (| (| (== a x) (== b x)) (| (== c x) (== d x))) (== e x)))
+
+// Comb : List (List U60) {
+//   do List {
+//     ask a = [1,2,3,4,5]
+//     ask b = (List.delete (x => (== a x)) [1,2,3,4,5])
+//     ask c = (List.delete (x => (| (| (== b x) (== a x)) (== a b))) [1,2,3,4,5])
+//     return [a,b,c] 
+//   }
+// }
+Combination (n: U60) (r: U60) : List (List U60) {
+	Combination.go (U60.comb n r) 0 n 0 r [] 
+}
+Combination.go (c: U60) (start: U60) (end: U60) (idx: U60) (r: U60) (acum: List U60) : List (List U60) 
+Combination.go 0 start end idx r acum = [acum]
+Combination.go c start end idx r acum = 
+	let i = start 
+	let fun = (& (<=i end) (>= (- end (+ i 1)) (- r idx)))
+	// let v = (Combination.go c (+ start 1) end (+ idx 1) r (List.concat acum [(+ start 1)]))
+  // let f = (Combination.go c (+ start 1) end idx r acum)
+  (U60.if (== idx r) (Combination.go (- c 1) start end 0 r acum) (U60.if fun (Combination.go c (+ start 1) end (+ idx 1) r (List.concat acum [(+ start 1)])) (Combination.go c (+ start 1) end idx r acum)))
+
+//1152921504606846976 U60 MAX
+Main {
+	let a = U60.comb 5 (!= 4 4)
+	let b = Comb [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+ 	let c = Combination 5 4
+ 	c
+	// List.length 
+	// List.length Loto.list_result
+  // Loto.list_result
+}

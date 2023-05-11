@@ -1,0 +1,148 @@
+
+// Generates a tree of depth `n`
+// (Genb 0 x) = (Leaf x)
+// (Genb n x) = 
+// 	let m = (- n 1); 
+// 	(Both (Gen m (* x 2)) (Gen m (+ (* x 2) 1)))
+
+// (Gen 0 x) = (Leaf)
+// (Gen n x) = let m = (- n 1); (Node (Gen m (* x 2)) x (Gen m (+ (* x 2) 1)))
+
+
+// (Gen 0 x) = Leaf
+// (Gen n x) = 
+//   let m = (- n 1);
+//   (Node x (Gen m x) (Gen m (+ x 1)))
+
+
+// // Parallel QuickSort
+// (Sort Nil)         = (Leaf)
+// (Sort (Cons x xs)) =
+//   ((Part x xs) λmin λmax
+//     let lft = (Sort min)
+//     let rgt = (Sort max)
+//     (Node lft x rgt))
+
+//   // Partitions a list in two halves, less-than-p and greater-than-p
+//   (Part p Nil)         = λt (t Nil Nil)
+//   (Part p (Cons x xs)) = (Push (> x p) x (Part p xs))
+
+//   // Pushes a value to the first or second list of a pair
+//   (Push 0 x pair) = (pair λmin λmax λp (p (Cons x min) max))
+//   (Push 1 x pair) = (pair λmin λmax λp (p min (Cons x max)))
+  
+// // Generates a random list
+// (Rnd 0 s) = (Nil)
+// (Rnd n s) = (Cons s (Rnd (- n 1) (% (+ (* s 1664525) 1013904223) 4294967296)))
+
+
+// Sorts and sums n random numbers
+
+// Sums a tree
+// (Sum (Leaf x))   = x
+// (Sum (Node a b)) = (+ (Sum a) (Sum b))
+
+// (Sum (Leaf))         = 0
+// (Sum (Node l m r)) = (+ m (+ (Sum l) (Sum r)))
+
+(List.length []) = 0
+(List.length (List.cons head tail)) = (+ 1 (List.length tail))
+
+(List.map List.nil f) = List.nil
+(List.map (List.cons head tail) f) = (List.cons (f head) (List.map tail f))
+
+(List.concat [] ys) = ys
+(List.concat (List.cons head tail) ys) = (List.cons head (List.concat tail ys))
+
+// (Combinations lst k) = 
+// 	let len = ((List.length lst));
+// 	let eql = (== len k);
+// 	let max = (> len k);
+// 	(Combinations.dict lst k len eql)
+
+// (Combinations.dict lst 0 len 0 ) = (Leaf [])
+// (Combinations.dict (List.cons head tail) k len 0 ) = 
+// 	let l = (- len 1);
+// 	let e = (| (== l k) (< len k));
+// 	let m = (> len k);
+// 	let lft = (Combinations.dict tail k l e); 
+//   let lft = (Node (Leaf [head]) lft);
+// 	let rgt = (Combinations.dict tail (- k 1) l e); 
+// 	(Node lft rgt)
+// // (Combinations.dict (List.cons head tail) k len 0 m) = 
+// // 	// let l = (- len 1);
+// // 	// let e = (== l k);
+// // 	// let m = (> len k);
+// // 	// let lft = (Combinations.dict tail (- k 1) l e m); 
+// //   // (Node (Leaf [head]) lft)
+// (Combinations.dict lst k len 1) = (Leaf lst)
+
+// (Combinations lst k) = 
+// 	let len = ((List.length lst));
+// 	let eql = (== len k);
+// 	let max = (> len k);
+// 	(Combinations.dict lst k len eql)
+
+// // (Combinations.dict [] k len e) = Null
+// (Combinations.dict lst 0 len e) = Null
+// // (Combinations.dict lst k len 0 ) = Null
+// (Combinations.dict (List.cons head tail) k len 0) = 
+// 	let l = (- len 1);
+// 	let e = (== l k);
+// 	let m = (< len k);
+// 	let lft = (Combinations.dict tail k l e); 
+//   // let lft = (Node (Leaf [head]) lft);
+// 	let mp = (MapTree (@x (List.cons head x)) lft);
+// 	let rgt = (Combinations.dict tail (- k 1) l e); 
+// 	(Node rgt mp)
+// (Combinations.dict lst k len e) = (Leaf lst)
+
+
+
+(Fold f [] b) = b
+(Fold f (List.cons head tail) b) = (f head (Fold f tail b))
+
+(Fold_map f l) = (Fold (@h @t (List.cons (f h) t)) l [])
+
+(MapTree f Null) = Null
+(MapTree f (Leaf xs)) = (Leaf (Fold_map f xs))
+(MapTree f (Node left right)) = (Node (MapTree f left) (MapTree f right))
+
+(Combinations lst k) = 
+	let len = ((List.length lst));
+	let eql = (== k len);
+	let max = (> k len);
+	(Combinations.dict lst k len eql max)
+
+	(Combinations.dict lst 0 len eql max) = (Leaf [])
+	(Combinations.dict (List.cons head tail) k len 0 0) = 
+			let l = (- len 1);
+			let e = (== k l);
+			let m = (> k len);
+			let lft = (Combinations.dict tail k l e m);
+			let rgt = (CombinationsSubtree (List.cons head tail) k);
+			(Node lft rgt)
+	(Combinations.dict lst k len 0 max) = Null
+	(Combinations.dict lst k len eql m) = (Leaf lst)
+
+
+// (List.fold func [] b) = b
+// (List.fold func (List.cons head tail) b) = (func head (List.fold func tail b))
+
+// import Data.Tree (Tree (..))
+
+(CombinationsSubtree [] k) = Null
+(CombinationsSubtree lst 0) = (Leaf [])
+(CombinationsSubtree (List.cons head tail) k) = (Node (MapTree (@t (List.cons head t)) (CombinationsSubtree tail (- k 1))) (CombinationsSubtree tail (- k 1)))
+
+(Sum Null)       = 0
+(Sum (Leaf x))   = 1
+(Sum (Node a b)) = (+ (Sum a) (Sum b))
+
+(BOTH !a !b) = (Node a b)
+
+(Main) = ((Combinations [1,2,3] 2))
+// Sorts and sums n random numbers
+// (Main) = (Sum (Sort (Rnd (<< 1 20) 1)))
+// (Main) = (Gen 5 0)
+// (Main) = (Gen 5 0)

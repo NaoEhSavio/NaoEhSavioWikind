@@ -1,0 +1,50 @@
+//FORMAS DE REPRESENTAR DADOS EM PROGRAMACAO FUNCIONAL
+//1. Construtores Nativos
+//2. Lambdas - Scott Encoding
+//3. Lambdas - Church Encoding
+
+//type Bool {
+  //true
+  //false
+//}
+
+STrue  = λtrue λfalse true 
+SFalse = λtrue λfalse false
+
+// type Pair {
+//   new (fst: Bool) (snd: Bool)
+// }
+
+SNew = λfst λsnd λnew (new fst snd)
+
+// type Maybe {
+//   none
+//   some (value: Bool)
+// }
+SNone =        λnone λsome none
+SSome = λvalue λnone λsome (some value)
+
+// type Nat {
+//   zero
+//   succ (pred: Nat)
+// }
+
+// Scott Encoding
+SZero =       λzero λsucc zero
+SSucc = λpred λzero λsucc (succ pred)
+
+// Church Encoding
+CZero =       λzero λsucc zero
+CSucc = λpred λzero λsucc (succ (pred zero succ))
+
+// type Tree {
+//   leaf
+//   node (val: Nat) (left: Tree) (right: Tree)
+// }
+
+CLeaf =                   λleaf λnode leaf
+CNode = λval λleft λright λleaf λnode (node val (left leaf node) (right leaf node))
+//type Bool {
+  //true
+  //false
+//}

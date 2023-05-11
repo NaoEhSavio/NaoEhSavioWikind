@@ -1,0 +1,141 @@
+List.fold <x> <y> (func: x -> y -> y) (l: List x) (b: y) : y
+List.fold func List.nil  b = b
+List.fold func (List.cons l head tail) b = (func head) (List.fold func tail b)
+
+List.length <a> (xs: List a) : U60
+List.length a (List.nil t)            = 0
+List.length a (List.cons t head tail) = (+ (List.length a tail) 1)
+
+List.delete_all (v: U60) (s: List U60) : List U60
+List.delete_all v (List.nil) = List.nil 
+List.delete_all v (List.cons  head tail) = if (U60.equal v head) {(List.delete_all v tail)} else {(List.cons U60 head (List.delete_all v tail))}
+
+List.filter <a> (xs: List a) (cond: a -> Bool) : List a
+List.filter a (List.nil t)            cond = List.nil
+List.filter a (List.cons t head tail) cond =
+  if cond head {
+    List.cons head (List.filter tail cond)
+  } else {
+    List.filter tail cond
+  }
+
+List.concat <a> (xs: List a) (ys: List a) : List a
+List.concat a (List.nil t)            ys = ys
+List.concat a (List.cons t head tail) ys = (List.cons a head (List.concat a tail ys))
+
+U60.to_bool (n: U60) : Bool
+U60.to_bool 0 = Bool.false
+U60.to_bool n = Bool.true
+
+List.u60.filter.go (cond: U60 -> U60) (eql: U60)  (xs: List U60)  : List U60
+List.u60.filter.go cond eql (List.nil t)         = List.nil
+List.u60.filter.go cond 0 (List.cons t head tail) = (List.u60.filter cond tail)
+List.u60.filter.go cond 1 (List.cons t head tail) = (List.cons head (List.u60.filter cond tail))
+
+List.u60.filter (cond: U60 -> U60) (xs: List U60)  : List U60
+List.u60.filter cond (List.nil t)         = List.nil
+List.u60.filter cond (List.cons t head tail) =
+	let eql = (cond head)
+	List.u60.filter.go cond eql (List.cons t head tail)
+
+// Quick sort : List -> List
+Quick.sort (xs: List U60) : List U60
+Quick.sort List.nil = List.nil
+Quick.sort (List.cons x xs) =
+  let min = Quick.sort (List.u60.filter (n => (< n x)) xs)
+  let max = Quick.sort (List.u60.filter (n => (> n x)) xs)
+  (List.concat min (List.cons x max))
+
+
+// Bubble sort : List -> List
+Bubble.sort (xs: List U60) : List U60
+Bubble.sort List.nil         = List.nil
+Bubble.sort (List.cons t x xs) = (Insert x (Bubble.sort xs))
+
+// Insert : U60 -> List -> List
+Insert (v: U60) (xs: List U60)  :  List U60
+Insert v List.nil            = (List.cons v List.nil)
+Insert v (List.cons t x xs)  = (GoDown (> v x) v x xs)
+
+// GoDown : U60 -> U60 -> U60 -> List -> List
+#partial
+GoDown (b: U60) (v: U60) (x: U60) (xs: List U60) : List U60
+GoDown 0 v x xs = (List.cons v (List.cons x xs))
+GoDown 1 v x xs = (List.cons x (Insert v xs))
+
+Loto.soma (xs: List U60) : U60 {
+	List.fold (a => b => (+ a b)) xs 0
+	}
+Loto (xs: List (List U60)) : List U60
+Loto (List.nil) = List.nil
+Loto (List.cons xs head tail) = 
+	let h = Loto.soma head 
+	let t = Loto tail
+	List.cons h t
+
+Porcent (xs: List U60) : List (List U60)  {
+	Porcent.go xs (List.length xs)
+}
+Porcent.go (xs: List U60) (len: U60) : List (List U60) 
+Porcent.go (List.nil xs) len = List.nil
+Porcent.go (List.cons xs head tail) len = 
+	let eql = (List.length (List.filter (List.cons xs head tail) (a => (U60.equal head a))))
+	let por = (/ (* 1000000000 eql) len)
+	let par = List.cons head (List.cons eql [por])
+	let del = List.delete_all head (List.cons xs head tail)
+	let res = Porcent.go del len
+	List.cons par res
+
+U60.interval (start: U60) (stop: U60) (step: U60) : List U60{
+	U60.if (>= start stop) (List.nil U60) (
+		List.cons (+ start step) (U60.interval (+ start step) stop step)
+	)
+}
+U60.fac (n: U60) : U60
+U60.fac 0 = 1
+U60.fac n = (* n (U60.fac (- n 1)))
+
+U60.if <r: Type> (n: U60) (t: r) (f: r) : r
+U60.if r 0 t f = f
+U60.if r n t f = t
+
+#partial
+U60.combination (n: U60) (p: U60) : U60
+U60.combination n 0 = 1
+U60.combination n 1 = n
+U60.combination n p = 
+let aux = U60.if (> (- n p) p) (- n p) p
+U60.if (>= n p) (/ (List.fold (a => b => (* a b)) (U60.interval aux n 1) 1) (U60.fac (- n aux))) (0)
+
+
+// Comb (c: U60) (r: U60) : List (List U60) {
+// 	Comb.go (U60.combination c r) r 1 c 0 []
+// }
+// Comb.go (c: U60) (r: U60) (start: U60) (end: U60) (idx: U60) (acum: List U60) : List (List U60) 
+// Comb.go 0 r start end idx acum = List.nil
+// Comb.go c r start end idx acum = 
+//   let const = (& (<=start end) (>= (- end (+ start 1)) (- r idx)))
+//   U60.if (== idx r) (List.cons acum (Comb.go (- c 1) r 0 end idx acum)) ((U60.if const (Comb.go c r (+ start 1) end (+ idx 1) (List.concat acum [start]))  (Comb.go c r (+ 1 start) end idx acum)))
+
+Comb (n: U60) (r: U60) : List (List U60) {
+	Comb.go (U60.combination n r) 0 n 0 r [] 
+}
+Comb.go (c: U60) (start: U60) (end: U60) (idx: U60) (r: U60) (acum: List U60) : List (List U60) 
+Comb.go 0 start end idx r acum = List.nil
+Comb.go c start end idx r acum = 
+  let fun = (& (<=start end) (>= (- end (+ start 1)) (- r idx)))
+  let v =  (Comb.go c (+ start 1) end (+ idx 1) r (List.concat acum [idx]))
+  let f =  (Comb.go c (+ start 1) end idx r acum)
+  (U60.if (== idx r) (List.cons acum (Comb.go (- c 1) start end idx r [])) (U60.if fun v f))
+
+Main {
+// 	let a = Loto.list_result
+// 	let b = Loto a
+// 	let c = Quick.sort b
+//  	let d = Porcent c 
+	let e = U60.combination 5 3
+	// let f = List.length Loto.list_result
+	let g = List.length (Comb 25 15)
+	let h = (Comb 5 3)
+ g
+}
