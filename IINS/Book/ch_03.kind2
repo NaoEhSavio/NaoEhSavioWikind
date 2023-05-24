@@ -1,125 +1,125 @@
 // 1.0.1. Exercise: 2 stars, recommended (basic_induction). Prove the following
 // using induction. You might need previously proven results.
-Mult_0_r (n: Nat) : (Equal Nat (Nat.mul n Nat.zero) Nat.zero)
-Mult_0_r Nat.zero = Equal.refl
-Mult_0_r (Nat.succ n.pred) = 
+Mult_0_r (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul n Data.Nat.zero) Data.Nat.zero)
+Mult_0_r Data.Nat.zero = Prop.Equal.refl
+Mult_0_r (Data.Nat.succ n.pred) = 
                         let ind = Mult_0_r n.pred
-                        let app = Equal.apply (x => Nat.add x Nat.zero) ind
+                        let app = Prop.Equal.apply (x => Data.Nat.add x Data.Nat.zero) ind
                         app
-// - ind : (Equal Nat (Nat.mul n.pred Nat.zero) Nat.zero)
-// - app : (Equal Nat (Nat.add (Nat.mul n.pred Nat.zero) Nat.zero) Nat.zero)
-// - Goal: (Equal Nat (Nat.add (Nat.mul n.pred Nat.zero) Nat.zero) Nat.zero)
-Plus_n_Z (n: Nat) : (Equal Nat n (Nat.add n Nat.zero))
-Plus_n_Z Nat.zero = Equal.refl
-// - Goal: (Equal Nat Nat.zero Nat.zero)
-Plus_n_Z (Nat.succ n.pred) =
+// - ind : (Prop.Equal Data.Nat (Data.Nat.mul n.pred Data.Nat.zero) Data.Nat.zero)
+// - app : (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred Data.Nat.zero) Data.Nat.zero) Data.Nat.zero)
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred Data.Nat.zero) Data.Nat.zero) Data.Nat.zero)
+Plus_n_Z (n: Data.Nat) : (Prop.Equal Data.Nat n (Data.Nat.add n Data.Nat.zero))
+Plus_n_Z Data.Nat.zero = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat Data.Nat.zero Data.Nat.zero)
+Plus_n_Z (Data.Nat.succ n.pred) =
                         let ind = Plus_n_Z n.pred
-                        let app = Equal.apply (x => Nat.succ x) ind 
+                        let app = Prop.Equal.apply (x => Data.Nat.succ x) ind 
                         app
-// - ind : (Equal Nat n.pred (Nat.add n.pred Nat.zero))
-// - app : (Equal Nat (Nat.succ n.pred) (Nat.succ (Nat.add n.pred Nat.zero)))
-// - Goal: (Equal Nat (Nat.succ n.pred) (Nat.succ (Nat.add n.pred Nat.zero)))
-Plus_n_one (n: Nat) : (Equal Nat (Nat.succ n) (Nat.add n (Nat.succ Nat.zero)))
-Plus_n_one Nat.zero = Equal.refl
-// - Goal: (Equal Nat (Nat.succ Nat.zero) (Nat.succ Nat.zero)
-Plus_n_one (Nat.succ n.pred) = 
+// - ind : (Prop.Equal Data.Nat n.pred (Data.Nat.add n.pred Data.Nat.zero))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ n.pred) (Data.Nat.succ (Data.Nat.add n.pred Data.Nat.zero)))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ n.pred) (Data.Nat.succ (Data.Nat.add n.pred Data.Nat.zero)))
+Plus_n_one (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.succ n) (Data.Nat.add n (Data.Nat.succ Data.Nat.zero)))
+Plus_n_one Data.Nat.zero = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ Data.Nat.zero) (Data.Nat.succ Data.Nat.zero)
+Plus_n_one (Data.Nat.succ n.pred) = 
                       let ind = Plus_n_one n.pred
-                      let app = Equal.apply (x => Nat.succ x) ind
+                      let app = Prop.Equal.apply (x => Data.Nat.succ x) ind
                       app
-// - ind : (Equal Nat (Nat.succ n.pred) (Nat.add n.pred (Nat.succ Nat.zero)))
-// - app : (Equal Nat (Nat.succ (Nat.succ n.pred)) (Nat.succ (Nat.add n.pred (Nat.succ Nat.zero))))
-// - Goal: (Equal Nat (Nat.succ (Nat.succ n.pred)) (Nat.succ (Nat.add n.pred (Nat.succ Nat.zero))))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.succ n.pred) (Data.Nat.add n.pred (Data.Nat.succ Data.Nat.zero)))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.succ n.pred)) (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.succ Data.Nat.zero))))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.succ n.pred)) (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.succ Data.Nat.zero))))
 
-Minus_diag (n: Nat) : (Equal Nat (Nat.sub n n)  Nat.zero)
-Minus_diag Nat.zero = Equal.refl
-Minus_diag (Nat.succ n.pred) = 
+Minus_diag (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.sub n n)  Data.Nat.zero)
+Minus_diag Data.Nat.zero = Prop.Equal.refl
+Minus_diag (Data.Nat.succ n.pred) = 
                         let ind = Minus_diag n.pred
                         ind
-// - ind : (Equal Nat (Nat.sub n.pred n.pred) Nat.zero)
-// - Goal: (Equal Nat (Nat.sub n.pred n.pred) Nat.zero)
-Plus_n_Sm (n: Nat) (m: Nat) : (Equal Nat (Nat.succ (Nat.add n m)) (Nat.add n (Nat.succ m)))
-Plus_n_Sm Nat.zero m = Equal.refl
-Plus_n_Sm (Nat.succ n) m =
+// - ind : (Prop.Equal Data.Nat (Data.Nat.sub n.pred n.pred) Data.Nat.zero)
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.sub n.pred n.pred) Data.Nat.zero)
+Plus_n_Sm (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n m)) (Data.Nat.add n (Data.Nat.succ m)))
+Plus_n_Sm Data.Nat.zero m = Prop.Equal.refl
+Plus_n_Sm (Data.Nat.succ n) m =
                       let ind = Plus_n_Sm n m
-                      let app = Equal.apply (x => Nat.succ x) ind
+                      let app = Prop.Equal.apply (x => Data.Nat.succ x) ind
                       app
-// - ind : (Equal Nat (Nat.succ (Nat.add n m)) (Nat.add n (Nat.succ m)))
-// - app : (Equal Nat (Nat.succ (Nat.succ (Nat.add n m))) (Nat.succ (Nat.add n (Nat.succ m))))
-// - Goal: (Equal Nat (Nat.succ (Nat.succ (Nat.add n m))) (Nat.succ (Nat.add n (Nat.succ m))))
-Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
-Plus_comm Nat.zero m = 
+// - ind : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n m)) (Data.Nat.add n (Data.Nat.succ m)))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.succ (Data.Nat.add n m))) (Data.Nat.succ (Data.Nat.add n (Data.Nat.succ m))))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.succ (Data.Nat.add n m))) (Data.Nat.succ (Data.Nat.add n (Data.Nat.succ m))))
+Plus_comm (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n m) (Data.Nat.add m n))
+Plus_comm Data.Nat.zero m = 
                   let ind = Plus_n_Z m
                   ind
-// - ind : (Equal Nat m (Nat.add m Nat.zero))
-// - Goal: (Equal Nat m (Nat.add m Nat.zero))
-Plus_comm (Nat.succ n.pred) m = 
+// - ind : (Prop.Equal Data.Nat m (Data.Nat.add m Data.Nat.zero))
+// - Goal: (Prop.Equal Data.Nat m (Data.Nat.add m Data.Nat.zero))
+Plus_comm (Data.Nat.succ n.pred) m = 
                           let ind = Plus_comm n.pred m 
-                          let app = Equal.apply (x => Nat.succ x) ind 
+                          let app = Prop.Equal.apply (x => Data.Nat.succ x) ind 
                           let aux = Plus_n_Sm m n.pred
-                          let chn = Equal.chain app aux
+                          let chn = Prop.Equal.chain app aux
                           chn
-// - ind : (Equal Nat (Nat.add n.pred m) (Nat.add m n.pred))
-// - app : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.succ (Nat.add m n.pred)))
-// - aux : (Equal Nat (Nat.succ (Nat.add m n.pred)) (Nat.add m (Nat.succ n.pred)))
-// - chn : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
-// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.add n.pred m) (Data.Nat.add m n.pred))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.succ (Data.Nat.add m n.pred)))
+// - aux : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add m n.pred)) (Data.Nat.add m (Data.Nat.succ n.pred)))
+// - chn : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.add m (Data.Nat.succ n.pred)))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.add m (Data.Nat.succ n.pred)))
 
-Plus_assoc (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.add n (Nat.add m p)) (Nat.add (Nat.add n m) p))
-Plus_assoc Nat.zero m p = Equal.refl
-// - Goal: (Equal Nat (Nat.add m p) (Nat.add m p))
-Plus_assoc (Nat.succ n.pred) m p = 
+Plus_assoc (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n (Data.Nat.add m p)) (Data.Nat.add (Data.Nat.add n m) p))
+Plus_assoc Data.Nat.zero m p = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.add m p) (Data.Nat.add m p))
+Plus_assoc (Data.Nat.succ n.pred) m p = 
                               let ind = Plus_assoc n.pred m p
-                              let app = Equal.apply (x => Nat.succ x) ind
+                              let app = Prop.Equal.apply (x => Data.Nat.succ x) ind
                               app
-// - ind : (Equal Nat (Nat.add n.pred (Nat.add m p)) (Nat.add (Nat.add n.pred m) p))
-// - app : (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.succ (Nat.add (Nat.add n.pred m) p)))
-// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.succ (Nat.add (Nat.add n.pred m) p)))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.add n.pred (Data.Nat.add m p)) (Data.Nat.add (Data.Nat.add n.pred m) p))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.add m p))) (Data.Nat.succ (Data.Nat.add (Data.Nat.add n.pred m) p)))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.add m p))) (Data.Nat.succ (Data.Nat.add (Data.Nat.add n.pred m) p)))
 
 // 1.0.2. Exercise: 2 stars (double_plus). Consider the following function, which doubles its argument:
-Double (n: Nat) : Nat
-Double Nat.zero = Nat.zero
-Double (Nat.succ n) = Nat.succ (Nat.succ (Double n))
+Double (n: Data.Nat) : Data.Nat
+Double Data.Nat.zero = Data.Nat.zero
+Double (Data.Nat.succ n) = Data.Nat.succ (Data.Nat.succ (Double n))
 
-Double_plus (n: Nat) : (Equal Nat (Double n) (Nat.add n n))
-Double_plus Nat.zero = Equal.refl
-// - Goal: (Equal Nat Nat.zero Nat.zero)
+Double_plus (n: Data.Nat) : (Prop.Equal Data.Nat (Double n) (Data.Nat.add n n))
+Double_plus Data.Nat.zero = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat Data.Nat.zero Data.Nat.zero)
 
-Double_plus (Nat.succ n.pred) = 
+Double_plus (Data.Nat.succ n.pred) = 
                           let ind = Double_plus n.pred
-                          let app = Equal.apply (x => Nat.succ x) ind
+                          let app = Prop.Equal.apply (x => Data.Nat.succ x) ind
                           let aux = Plus_n_Sm n.pred n.pred
-                          let chn = Equal.chain app aux
-                          let app = Equal.apply (x => Nat.succ x) chn
+                          let chn = Prop.Equal.chain app aux
+                          let app = Prop.Equal.apply (x => Data.Nat.succ x) chn
                           app
-// - ind : (Equal Nat (Double n.pred) (Nat.add n.pred n.pred))
-// - app : (Equal Nat (Nat.succ (Double n.pred)) (Nat.succ (Nat.add n.pred n.pred)))
-// - aux : (Equal Nat (Nat.succ (Nat.add n.pred n.pred)) (Nat.add n.pred (Nat.succ n.pred)))
-// - chn : (Equal Nat (Nat.succ (Double n.pred)) (Nat.add n.pred (Nat.succ n.pred)))
-// - app : (Equal Nat (Nat.succ (Nat.succ (Double n.pred))) (Nat.succ (Nat.add n.pred (Nat.succ n.pred))))
-// - Goal: (Equal Nat (Nat.succ (Nat.succ (Double n.pred))) (Nat.succ (Nat.add n.pred (Nat.succ n.pred))))
+// - ind : (Prop.Equal Data.Nat (Double n.pred) (Data.Nat.add n.pred n.pred))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Double n.pred)) (Data.Nat.succ (Data.Nat.add n.pred n.pred)))
+// - aux : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred n.pred)) (Data.Nat.add n.pred (Data.Nat.succ n.pred)))
+// - chn : (Prop.Equal Data.Nat (Data.Nat.succ (Double n.pred)) (Data.Nat.add n.pred (Data.Nat.succ n.pred)))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.succ (Double n.pred))) (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.succ n.pred))))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.succ (Double n.pred))) (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.succ n.pred))))
 
 // 1.0.3. Exercise: 2 stars, optional (evenb_S). One inconvenient aspect of our
 // definition of evenb n is that it may need to perform a recursive call on n - 2. This
 // makes proofs about evenb n harder when done by induction on n, since we may
 // need an induction hypothesis about n - 2. The following lemma gives a better
 // characterization of evenb (S n):
-Evenb (n: Nat) : Bool
-Evenb Nat.zero = Bool.true
-Evenb (Nat.succ k) = Bool.not (Evenb k)
+Evenb (n: Data.Nat) : Data.Bool
+Evenb Data.Nat.zero = Data.Bool.true
+Evenb (Data.Nat.succ k) = Data.Bool.not (Evenb k)
 
-Evenb_S (n: Nat) : (Equal Bool (Evenb (Nat.succ n)) (Bool.not (Evenb n)))
-Evenb_S n = Equal.refl
-// - Goal: (Equal Bool (Bool.not (Evenb n)) (Bool.not (Evenb n)))
+Evenb_S (n: Data.Nat) : (Prop.Equal Data.Bool (Evenb (Data.Nat.succ n)) (Data.Bool.not (Evenb n)))
+Evenb_S n = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool (Data.Bool.not (Evenb n)) (Data.Bool.not (Evenb n)))
                  
 // 3.0.1. Exercise: 3 stars, recommended (mult_comm). Use rewrite to help
 // prove this theorem. You shouldn’t need to use induction on plus_swap.
 
-Plus_swap (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.add n (Nat.add m p)) (Nat.add m (Nat.add n p)))
-Plus_swap Nat.zero m p = Equal.refl
-// - Goal: (Equal Nat (Nat.add m p) (Nat.add m p))
-Plus_swap (Nat.succ n.pred) m p = 
+Plus_swap (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n (Data.Nat.add m p)) (Data.Nat.add m (Data.Nat.add n p)))
+Plus_swap Data.Nat.zero m p = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.add m p) (Data.Nat.add m p))
+Plus_swap (Data.Nat.succ n.pred) m p = 
                             let ind = Plus_swap n.pred m p
-                            let app1 = Equal.apply (x => Nat.succ x) ind
+                            let app1 = Prop.Equal.apply (x => Data.Nat.succ x) ind
                             // let aux1 = Plus_assoc m n.pred p
                             // let aux12 = Plus_assoc p n.pred m
                             // let aux2 = Plus_assoc n.pred m p
@@ -128,113 +128,113 @@ Plus_swap (Nat.succ n.pred) m p =
                             // let aux25 = Plus_assoc p m n.pred 
                             let aux3 = Plus_comm n.pred p
                             let aux4 = Plus_comm p n.pred
-                            let aux5 = Plus_comm m (Nat.add p n.pred)
-                            let aux6 = Plus_comm m (Nat.add n.pred p)
+                            let aux5 = Plus_comm m (Data.Nat.add p n.pred)
+                            let aux6 = Plus_comm m (Data.Nat.add n.pred p)
                             // let aux7 = Plus_n_Sm n.pred p
                             // let aux8 = Plus_n_Sm p n.pred
-                            let aux9 = (Plus_n_Sm m (Nat.add n.pred p))
-                            let aux0 = (Plus_n_Sm m (Nat.add p n.pred))
-                            let app2 = Equal.apply (x => Nat.succ (Nat.add m (x))) aux3
-                            let app3 = Equal.apply (x => Nat.succ (Nat.add m (x))) aux4
-                            // let app4 = Equal.apply (x => Nat.add m (x)) aux5
-                            // let app5 = Equal.apply (x => Nat.add m (x)) aux6
-                            let app6 = Equal.apply (x => Nat.add m (Nat.succ (x))) aux3
-                            let app7 = Equal.apply (x => Nat.add m (Nat.succ (x))) aux4
-                            let chn1 = Equal.chain app1 aux9
-                            // let rrt = Equal.rewrite app4 (x => (Equal Nat (Nat.add n.pred (Nat.add m x)) (Nat.add m (Nat.add n.pred x)))) _
+                            let aux9 = (Plus_n_Sm m (Data.Nat.add n.pred p))
+                            let aux0 = (Plus_n_Sm m (Data.Nat.add p n.pred))
+                            let app2 = Prop.Equal.apply (x => Data.Nat.succ (Data.Nat.add m (x))) aux3
+                            let app3 = Prop.Equal.apply (x => Data.Nat.succ (Data.Nat.add m (x))) aux4
+                            // let app4 = Prop.Equal.apply (x => Data.Nat.add m (x)) aux5
+                            // let app5 = Prop.Equal.apply (x => Data.Nat.add m (x)) aux6
+                            let app6 = Prop.Equal.apply (x => Data.Nat.add m (Data.Nat.succ (x))) aux3
+                            let app7 = Prop.Equal.apply (x => Data.Nat.add m (Data.Nat.succ (x))) aux4
+                            let chn1 = Prop.Equal.chain app1 aux9
+                            // let rrt = Prop.Equal.rewrite app4 (x => (Prop.Equal Data.Nat (Data.Nat.add n.pred (Data.Nat.add m x)) (Data.Nat.add m (Data.Nat.add n.pred x)))) _
                             chn1
 
-// - ind : (Equal Nat (Nat.add n.pred (Nat.add m p)) (Nat.add m (Nat.add n.pred p)))
-// - app1: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.succ (Nat.add m (Nat.add n.pred p))))
-// - aux3: (Equal Nat (Nat.add n.pred p) (Nat.add p n.pred))
-// - aux4: (Equal Nat (Nat.add p n.pred) (Nat.add n.pred p))
-// - aux5: (Equal Nat (Nat.add m (Nat.add p n.pred)) (Nat.add (Nat.add p n.pred) m))
-// - aux6: (Equal Nat (Nat.add m (Nat.add n.pred p)) (Nat.add (Nat.add n.pred p) m))
-// - aux9: (Equal Nat (Nat.succ (Nat.add m (Nat.add n.pred p))) (Nat.add m (Nat.succ (Nat.add n.pred p))))
-// - aux0: (Equal Nat (Nat.succ (Nat.add m (Nat.add p n.pred))) (Nat.add m (Nat.succ (Nat.add p n.pred))))
-// - app2: (Equal Nat (Nat.succ (Nat.add m (Nat.add n.pred p))) (Nat.succ (Nat.add m (Nat.add p n.pred))))
-// - app3: (Equal Nat (Nat.succ (Nat.add m (Nat.add p n.pred))) (Nat.succ (Nat.add m (Nat.add n.pred p))))
-// - app6: (Equal Nat (Nat.add m (Nat.succ (Nat.add n.pred p))) (Nat.add m (Nat.succ (Nat.add p n.pred))))
-// - app7: (Equal Nat (Nat.add m (Nat.succ (Nat.add p n.pred))) (Nat.add m (Nat.succ (Nat.add n.pred p))))
-// - chn1: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.add m (Nat.succ (Nat.add n.pred p))))
-// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.add m p))) (Nat.add m (Nat.succ (Nat.add n.pred p))))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.add n.pred (Data.Nat.add m p)) (Data.Nat.add m (Data.Nat.add n.pred p)))
+// - app1: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.add m p))) (Data.Nat.succ (Data.Nat.add m (Data.Nat.add n.pred p))))
+// - aux3: (Prop.Equal Data.Nat (Data.Nat.add n.pred p) (Data.Nat.add p n.pred))
+// - aux4: (Prop.Equal Data.Nat (Data.Nat.add p n.pred) (Data.Nat.add n.pred p))
+// - aux5: (Prop.Equal Data.Nat (Data.Nat.add m (Data.Nat.add p n.pred)) (Data.Nat.add (Data.Nat.add p n.pred) m))
+// - aux6: (Prop.Equal Data.Nat (Data.Nat.add m (Data.Nat.add n.pred p)) (Data.Nat.add (Data.Nat.add n.pred p) m))
+// - aux9: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add m (Data.Nat.add n.pred p))) (Data.Nat.add m (Data.Nat.succ (Data.Nat.add n.pred p))))
+// - aux0: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add m (Data.Nat.add p n.pred))) (Data.Nat.add m (Data.Nat.succ (Data.Nat.add p n.pred))))
+// - app2: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add m (Data.Nat.add n.pred p))) (Data.Nat.succ (Data.Nat.add m (Data.Nat.add p n.pred))))
+// - app3: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add m (Data.Nat.add p n.pred))) (Data.Nat.succ (Data.Nat.add m (Data.Nat.add n.pred p))))
+// - app6: (Prop.Equal Data.Nat (Data.Nat.add m (Data.Nat.succ (Data.Nat.add n.pred p))) (Data.Nat.add m (Data.Nat.succ (Data.Nat.add p n.pred))))
+// - app7: (Prop.Equal Data.Nat (Data.Nat.add m (Data.Nat.succ (Data.Nat.add p n.pred))) (Data.Nat.add m (Data.Nat.succ (Data.Nat.add n.pred p))))
+// - chn1: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.add m p))) (Data.Nat.add m (Data.Nat.succ (Data.Nat.add n.pred p))))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.add m p))) (Data.Nat.add m (Data.Nat.succ (Data.Nat.add n.pred p))))
 
 // Now prove commutativity of multiplication. (You will probably need to define and
 // prove a separate subsidiary theorem to be used in the proof of this one. You may
 // find that plus_swap comes in handy.)
 
-Mult_n_one (n: Nat) : (Equal Nat n (Nat.mul n (Nat.succ Nat.zero)))
-Mult_n_one Nat.zero = Equal.refl 
-// - Goal: (Equal Nat Nat.zero Nat.zero)
+Mult_n_one (n: Data.Nat) : (Prop.Equal Data.Nat n (Data.Nat.mul n (Data.Nat.succ Data.Nat.zero)))
+Mult_n_one Data.Nat.zero = Prop.Equal.refl 
+// - Goal: (Prop.Equal Data.Nat Data.Nat.zero Data.Nat.zero)
 
-Mult_n_one (Nat.succ n.pred) = 
+Mult_n_one (Data.Nat.succ n.pred) = 
                         let ind = Mult_n_one n.pred
-                        let app = Equal.apply (x => Nat.add x (Nat.succ Nat.zero)) ind
+                        let app = Prop.Equal.apply (x => Data.Nat.add x (Data.Nat.succ Data.Nat.zero)) ind
                         let aux = Plus_n_one n.pred
-                        let chn = Equal.chain aux app
+                        let chn = Prop.Equal.chain aux app
                         chn
-// - ind : (Equal Nat n.pred (Nat.mul n.pred (Nat.succ Nat.zero)))
-// - app : (Equal Nat (Nat.add n.pred (Nat.succ Nat.zero)) (Nat.add (Nat.mul n.pred (Nat.succ Nat.zero)) (Nat.succ Nat.zero)))
-// - aux : (Equal Nat (Nat.succ n.pred) (Nat.add n.pred (Nat.succ Nat.zero)))
-// - chn : (Equal Nat (Nat.succ n.pred) (Nat.add (Nat.mul n.pred (Nat.succ Nat.zero)) (Nat.succ Nat.zero)))
-// - Goal: (Equal Nat (Nat.succ n.pred) (Nat.add (Nat.mul n.pred (Nat.succ Nat.zero)) (Nat.succ Nat.zero)))
+// - ind : (Prop.Equal Data.Nat n.pred (Data.Nat.mul n.pred (Data.Nat.succ Data.Nat.zero)))
+// - app : (Prop.Equal Data.Nat (Data.Nat.add n.pred (Data.Nat.succ Data.Nat.zero)) (Data.Nat.add (Data.Nat.mul n.pred (Data.Nat.succ Data.Nat.zero)) (Data.Nat.succ Data.Nat.zero)))
+// - aux : (Prop.Equal Data.Nat (Data.Nat.succ n.pred) (Data.Nat.add n.pred (Data.Nat.succ Data.Nat.zero)))
+// - chn : (Prop.Equal Data.Nat (Data.Nat.succ n.pred) (Data.Nat.add (Data.Nat.mul n.pred (Data.Nat.succ Data.Nat.zero)) (Data.Nat.succ Data.Nat.zero)))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ n.pred) (Data.Nat.add (Data.Nat.mul n.pred (Data.Nat.succ Data.Nat.zero)) (Data.Nat.succ Data.Nat.zero)))
 
-Mult_0_plus (n: Nat) (m: Nat) : (Equal Nat (Nat.mul (Nat.add Nat.zero n) m) (Nat.mul n m))
-Mult_0_plus n m = Equal.refl
-// - Goal: (Equal Nat (Nat.mul n m) (Nat.mul n m))
+Mult_0_plus (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul (Data.Nat.add Data.Nat.zero n) m) (Data.Nat.mul n m))
+Mult_0_plus n m = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.mul n m) (Data.Nat.mul n m))
 
-Mult_n_Sm (n: Nat) (m: Nat) : (Equal Nat (Nat.mul n (Nat.succ m)) (Nat.add (Nat.mul n m) n))
-Mult_n_Sm Nat.zero m = Equal.refl
-// - Goal: (Equal Nat Nat.zero Nat.zero)
-Mult_n_Sm (Nat.succ n.pred) m = 
+Mult_n_Sm (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul n (Data.Nat.succ m)) (Data.Nat.add (Data.Nat.mul n m) n))
+Mult_n_Sm Data.Nat.zero m = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat Data.Nat.zero Data.Nat.zero)
+Mult_n_Sm (Data.Nat.succ n.pred) m = 
                         let ind = Mult_n_Sm n.pred m
-                        let app1 = Equal.apply (x => Nat.add x (Nat.succ m)) ind
+                        let app1 = Prop.Equal.apply (x => Data.Nat.add x (Data.Nat.succ m)) ind
                         let aux2 = Plus_comm n.pred m
                         let aux3 = Plus_n_Sm m n.pred
-                        let app2 = Equal.apply (x => (Nat.succ x)) aux2
-                        let chn1 = Equal.chain app2 aux3
-                        let mir1 = Equal.mirror chn1
+                        let app2 = Prop.Equal.apply (x => (Data.Nat.succ x)) aux2
+                        let chn1 = Prop.Equal.chain app2 aux3
+                        let mir1 = Prop.Equal.mirror chn1
                         let aux4 = Plus_n_Sm n.pred m
-                        let chn2 = Equal.chain mir1 aux4
-                        let aux5 = Plus_assoc (Nat.mul n.pred m) m (Nat.succ n.pred)
-                        let aux6 = Plus_assoc (Nat.mul n.pred m) n.pred (Nat.succ m)
-                        let rrt1 = Equal.rewrite chn2 (x => (Equal Nat (Nat.add (Nat.mul n.pred m) (x)) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))) aux5
-                        let mir2 = Equal.mirror aux6
-                        let chn3 = Equal.chain mir2 rrt1
-                        let chn4 = Equal.chain app1 chn3
+                        let chn2 = Prop.Equal.chain mir1 aux4
+                        let aux5 = Plus_assoc (Data.Nat.mul n.pred m) m (Data.Nat.succ n.pred)
+                        let aux6 = Plus_assoc (Data.Nat.mul n.pred m) n.pred (Data.Nat.succ m)
+                        let rrt1 = Prop.Equal.rewrite chn2 (x => (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred m) (x)) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) m) (Data.Nat.succ n.pred)))) aux5
+                        let mir2 = Prop.Equal.mirror aux6
+                        let chn3 = Prop.Equal.chain mir2 rrt1
+                        let chn4 = Prop.Equal.chain app1 chn3
                         chn4
-// - ind : (Equal Nat (Nat.mul n.pred (Nat.succ m)) (Nat.add (Nat.mul n.pred m) n.pred))
-// - app1: (Equal Nat (Nat.add (Nat.mul n.pred (Nat.succ m)) (Nat.succ m)) (Nat.add (Nat.add (Nat.mul n.pred m) n.pred) (Nat.succ m)))
-// - aux2: (Equal Nat (Nat.add n.pred m) (Nat.add m n.pred))
-// - aux3: (Equal Nat (Nat.succ (Nat.add m n.pred)) (Nat.add m (Nat.succ n.pred)))
-// - app2: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.succ (Nat.add m n.pred)))
-// - chn1: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
-// - mir1: (Equal Nat (Nat.add m (Nat.succ n.pred)) (Nat.succ (Nat.add n.pred m)))
-// - aux4: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add n.pred (Nat.succ m)))
-// - chn2: (Equal Nat (Nat.add m (Nat.succ n.pred)) (Nat.add n.pred (Nat.succ m)))
-// - aux5: (Equal Nat (Nat.add (Nat.mul n.pred m) (Nat.add m (Nat.succ n.pred))) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
-// - aux6: (Equal Nat (Nat.add (Nat.mul n.pred m) (Nat.add n.pred (Nat.succ m))) (Nat.add (Nat.add (Nat.mul n.pred m) n.pred) (Nat.succ m)))
-// - rrt1: (Equal Nat (Nat.add (Nat.mul n.pred m) (Nat.add n.pred (Nat.succ m))) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
-// - mir2: (Equal Nat (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)) (Nat.add (Nat.mul n.pred m) (Nat.add n.pred (Nat.succ m))))
-// - chn3: (Equal Nat (Nat.add (Nat.add (Nat.mul n.pred m) n.pred) (Nat.succ m)) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
-// - chn4: (Equal Nat (Nat.add (Nat.mul n.pred (Nat.succ m)) (Nat.succ m)) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
-// - Goal: (Equal Nat (Nat.add (Nat.mul n.pred (Nat.succ m)) (Nat.succ m)) (Nat.add (Nat.add (Nat.mul n.pred m) m) (Nat.succ n.pred)))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.mul n.pred (Data.Nat.succ m)) (Data.Nat.add (Data.Nat.mul n.pred m) n.pred))
+// - app1: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred (Data.Nat.succ m)) (Data.Nat.succ m)) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) n.pred) (Data.Nat.succ m)))
+// - aux2: (Prop.Equal Data.Nat (Data.Nat.add n.pred m) (Data.Nat.add m n.pred))
+// - aux3: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add m n.pred)) (Data.Nat.add m (Data.Nat.succ n.pred)))
+// - app2: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.succ (Data.Nat.add m n.pred)))
+// - chn1: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.add m (Data.Nat.succ n.pred)))
+// - mir1: (Prop.Equal Data.Nat (Data.Nat.add m (Data.Nat.succ n.pred)) (Data.Nat.succ (Data.Nat.add n.pred m)))
+// - aux4: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.add n.pred (Data.Nat.succ m)))
+// - chn2: (Prop.Equal Data.Nat (Data.Nat.add m (Data.Nat.succ n.pred)) (Data.Nat.add n.pred (Data.Nat.succ m)))
+// - aux5: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred m) (Data.Nat.add m (Data.Nat.succ n.pred))) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) m) (Data.Nat.succ n.pred)))
+// - aux6: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred m) (Data.Nat.add n.pred (Data.Nat.succ m))) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) n.pred) (Data.Nat.succ m)))
+// - rrt1: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred m) (Data.Nat.add n.pred (Data.Nat.succ m))) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) m) (Data.Nat.succ n.pred)))
+// - mir2: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) m) (Data.Nat.succ n.pred)) (Data.Nat.add (Data.Nat.mul n.pred m) (Data.Nat.add n.pred (Data.Nat.succ m))))
+// - chn3: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) n.pred) (Data.Nat.succ m)) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) m) (Data.Nat.succ n.pred)))
+// - chn4: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred (Data.Nat.succ m)) (Data.Nat.succ m)) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) m) (Data.Nat.succ n.pred)))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred (Data.Nat.succ m)) (Data.Nat.succ m)) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred m) m) (Data.Nat.succ n.pred)))
 
-Mult_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.mul m n) (Nat.mul n m))
-Mult_comm Nat.zero m = 
+Mult_comm (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul m n) (Data.Nat.mul n m))
+Mult_comm Data.Nat.zero m = 
                   let ind = Mult_0_r m
                   ind
-// - ind : (Equal Nat (Nat.mul n Nat.zero) Nat.zero)
-// - Goal: (Equal Nat (Nat.mul n Nat.zero) Nat.zero)
-Mult_comm (Nat.succ n.pred) m = 
+// - ind : (Prop.Equal Data.Nat (Data.Nat.mul n Data.Nat.zero) Data.Nat.zero)
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.mul n Data.Nat.zero) Data.Nat.zero)
+Mult_comm (Data.Nat.succ n.pred) m = 
                           let ind = Mult_comm n.pred m 
                           let aux = Mult_n_Sm m n.pred
-                          let rrt = Equal.rewrite ind (x => (Equal Nat (Nat.mul m (Nat.succ n.pred)) (Nat.add (x) m))) aux
+                          let rrt = Prop.Equal.rewrite ind (x => (Prop.Equal Data.Nat (Data.Nat.mul m (Data.Nat.succ n.pred)) (Data.Nat.add (x) m))) aux
                           rrt
-// - ind : (Equal Nat (Nat.mul m n.pred) (Nat.mul n.pred m))
-// - aux : (Equal Nat (Nat.mul m (Nat.succ n.pred)) (Nat.add (Nat.mul m n.pred) m))
-// - rrt : (Equal Nat (Nat.mul m (Nat.succ n.pred)) (Nat.add (Nat.mul n.pred m) m))
-// - Goal: (Equal Nat (Nat.mul m (Nat.succ n.pred)) (Nat.add (Nat.mul n.pred m) m))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.mul m n.pred) (Data.Nat.mul n.pred m))
+// - aux : (Prop.Equal Data.Nat (Data.Nat.mul m (Data.Nat.succ n.pred)) (Data.Nat.add (Data.Nat.mul m n.pred) m))
+// - rrt : (Prop.Equal Data.Nat (Data.Nat.mul m (Data.Nat.succ n.pred)) (Data.Nat.add (Data.Nat.mul n.pred m) m))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.mul m (Data.Nat.succ n.pred)) (Data.Nat.add (Data.Nat.mul n.pred m) m))
 
 // 3.0.2. Exercise: 3 stars, optional (more_exercises).
 // Edit
@@ -244,91 +244,91 @@ Mult_comm (Nat.succ n.pred) m =
 // Then fill in the proof. (There is no need to turn in your piece of paper; this is just
 // to encourage you to reflect before you hack!)
 
-Lte (n: Nat) (m: Nat) : Bool
-Lte Nat.zero m = Bool.true
-Lte n Nat.zero = Bool.false
-Lte (Nat.succ k) (Nat.succ j) = Lte k j
+Lte (n: Data.Nat) (m: Data.Nat) : Data.Bool
+Lte Data.Nat.zero m = Data.Bool.true
+Lte n Data.Nat.zero = Data.Bool.false
+Lte (Data.Nat.succ k) (Data.Nat.succ j) = Lte k j
 
-Lte_refl (n: Nat) : (Equal Bool Bool.true (Lte n n))
-Lte_refl Nat.zero = Equal.refl
-Lte_refl (Nat.succ n.pred) = 
+Lte_refl (n: Data.Nat) : (Prop.Equal Data.Bool Data.Bool.true (Lte n n))
+Lte_refl Data.Nat.zero = Prop.Equal.refl
+Lte_refl (Data.Nat.succ n.pred) = 
                         let ind = Lte_refl n.pred
                         ind
-// - ind : (Equal Bool Bool.true (Lte n.pred n.pred))
-// - Goal: (Equal Bool Bool.true (Lte n.pred n.pred))
-Zero_nbeq_S (n: Nat) : (Equal Bool (Nat.equal Nat.zero (Nat.succ n)) Bool.false)
-Zero_nbeq_S n = Equal.refl
+// - ind : (Prop.Equal Data.Bool Data.Bool.true (Lte n.pred n.pred))
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true (Lte n.pred n.pred))
+Zero_nbeq_S (n: Data.Nat) : (Prop.Equal Data.Bool (Data.Nat.equal Data.Nat.zero (Data.Nat.succ n)) Data.Bool.false)
+Zero_nbeq_S n = Prop.Equal.refl
 
-Andb_false_r (b: Bool) : (Equal Bool (Bool.and b Bool.false) Bool.false)
-Andb_false_r Bool.true = Equal.refl
-// - Goal: (Equal Bool Bool.false Bool.false)
-Andb_false_r Bool.false = Equal.refl
-// - Goal: (Equal Bool Bool.false Bool.false)
-Plus_ble_compat_l (n: Nat) (m: Nat) (p: Nat) (e: Equal Bool (Lte n m) Bool.true) : (Equal Bool (Lte (Nat.add p n) (Nat.add p m)) Bool.true)
-Plus_ble_compat_l n m Nat.zero prf = prf
-// - prf : (Equal Bool (Lte n m) Bool.true)
-// - Goal: (Equal Bool (Lte n m) Bool.true)
-Plus_ble_compat_l n m (Nat.succ p.pred) prf =
+Andb_false_r (b: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.and b Data.Bool.false) Data.Bool.false)
+Andb_false_r Data.Bool.true = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.false Data.Bool.false)
+Andb_false_r Data.Bool.false = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.false Data.Bool.false)
+Plus_ble_compat_l (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) (e: Prop.Equal Data.Bool (Data.Nat.lte n m) Data.Bool.true) : (Prop.Equal Data.Bool (Data.Nat.lte (Data.Nat.add p n) (Data.Nat.add p m)) Data.Bool.true)
+Plus_ble_compat_l n m Data.Nat.zero prf = prf
+// - prf : (Prop.Equal Data.Bool (Lte n m) Data.Bool.true)
+// - Goal: (Prop.Equal Data.Bool (Lte n m) Data.Bool.true)
+Plus_ble_compat_l n m (Data.Nat.succ p.pred) prf =
                                         let ind = Plus_ble_compat_l n m p.pred prf
                                         ind
-// - prf : (Equal Bool (Lte n m) Bool.true)
-// - ind : (Equal Bool (Lte (Nat.add p.pred n) (Nat.add p.pred m)) Bool.true)
-// - Goal: (Equal Bool (Lte (Nat.add p.pred n) (Nat.add p.pred m)) Bool.true)
-S_nbeq_0 (n: Nat) : (Equal Bool (Nat.equal (Nat.succ n) Nat.zero) Bool.false )
-S_nbeq_0 n = Equal.refl
+// - prf : (Prop.Equal Data.Bool (Lte n m) Data.Bool.true)
+// - ind : (Prop.Equal Data.Bool (Lte (Data.Nat.add p.pred n) (Data.Nat.add p.pred m)) Data.Bool.true)
+// - Goal: (Prop.Equal Data.Bool (Lte (Data.Nat.add p.pred n) (Data.Nat.add p.pred m)) Data.Bool.true)
+S_nbeq_0 (n: Data.Nat) : (Prop.Equal Data.Bool (Data.Nat.equal (Data.Nat.succ n) Data.Nat.zero) Data.Bool.false )
+S_nbeq_0 n = Prop.Equal.refl
 
-Mult_1_l (n: Nat) : (Equal Nat (Nat.mul (Nat.succ(Nat.zero)) n) n)
-Mult_1_l n = Equal.refl
+Mult_1_l (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul (Data.Nat.succ(Data.Nat.zero)) n) n)
+Mult_1_l n = Prop.Equal.refl
 
-All3_spec (b: Bool) (c: Bool) : (Equal Bool (Bool.or (Bool.and b c) (Bool.or (Bool.not b) (Bool.not c))) Bool.true)
-All3_spec Bool.true Bool.true = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
-All3_spec Bool.true Bool.false = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
-All3_spec Bool.false c = Equal.refl
-//  Goal: (Equal Bool Bool.true Bool.true)
+All3_spec (b: Data.Bool) (c: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.or (Data.Bool.and b c) (Data.Bool.or (Data.Bool.not b) (Data.Bool.not c))) Data.Bool.true)
+All3_spec Data.Bool.true Data.Bool.true = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+All3_spec Data.Bool.true Data.Bool.false = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+All3_spec Data.Bool.false c = Prop.Equal.refl
+//  Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
 
-Mult_plus_distr_r (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.mul (Nat.add n m) p) (Nat.add (Nat.mul n p) (Nat.mul m p)))
-Mult_plus_distr_r Nat.zero m p = Equal.refl
-// - Goal: (Equal Nat (Nat.mul m p) (Nat.mul m p))
-Mult_plus_distr_r (Nat.succ n.pred) m p = 
+Mult_plus_distr_r (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul (Data.Nat.add n m) p) (Data.Nat.add (Data.Nat.mul n p) (Data.Nat.mul m p)))
+Mult_plus_distr_r Data.Nat.zero m p = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.mul m p) (Data.Nat.mul m p))
+Mult_plus_distr_r (Data.Nat.succ n.pred) m p = 
                                     let ind = Mult_plus_distr_r n.pred m p
-                                    let app1 = Equal.apply (x => Nat.add x p) ind
-                                    let aux1 = Plus_comm (Nat.mul m p) p
-                                    let aux2 = Plus_assoc (Nat.mul n.pred p) p (Nat.mul m p)
-                                    let aux3 = Plus_assoc (Nat.mul n.pred p) (Nat.mul m p) p
-                                    let rrt1 = Equal.rewrite aux1 (x => (Equal Nat (Nat.add (Nat.mul n.pred p) (x)) (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p))) aux3
-                                    let mir1 = Equal.mirror rrt1
-                                    let chn1 = Equal.chain mir1 aux2
-                                    let chn2 = Equal.chain app1 chn1
+                                    let app1 = Prop.Equal.apply (x => Data.Nat.add x p) ind
+                                    let aux1 = Plus_comm (Data.Nat.mul m p) p
+                                    let aux2 = Plus_assoc (Data.Nat.mul n.pred p) p (Data.Nat.mul m p)
+                                    let aux3 = Plus_assoc (Data.Nat.mul n.pred p) (Data.Nat.mul m p) p
+                                    let rrt1 = Prop.Equal.rewrite aux1 (x => (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred p) (x)) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.mul m p)) p))) aux3
+                                    let mir1 = Prop.Equal.mirror rrt1
+                                    let chn1 = Prop.Equal.chain mir1 aux2
+                                    let chn2 = Prop.Equal.chain app1 chn1
                                     chn2
-// - ind : (Equal Nat (Nat.mul (Nat.add n.pred m) p) (Nat.add (Nat.mul n.pred p) (Nat.mul m p)))
-// - app1: (Equal Nat (Nat.add (Nat.mul (Nat.add n.pred m) p) p) (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p))
-// - aux1: (Equal Nat (Nat.add (Nat.mul m p) p) (Nat.add p (Nat.mul m p)))
-// - aux2: (Equal Nat (Nat.add (Nat.mul n.pred p) (Nat.add p (Nat.mul m p))) (Nat.add (Nat.add (Nat.mul n.pred p) p) (Nat.mul m p)))
-// - aux3: (Equal Nat (Nat.add (Nat.mul n.pred p) (Nat.add (Nat.mul m p) p)) (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p))
-// - rrt1: (Equal Nat (Nat.add (Nat.mul n.pred p) (Nat.add p (Nat.mul m p))) (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p))
-// - mir1: (Equal Nat (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p) (Nat.add (Nat.mul n.pred p) (Nat.add p (Nat.mul m p))))
-// - chn1: (Equal Nat (Nat.add (Nat.add (Nat.mul n.pred p) (Nat.mul m p)) p) (Nat.add (Nat.add (Nat.mul n.pred p) p) (Nat.mul m p)))
-// - chn2: (Equal Nat (Nat.add (Nat.mul (Nat.add n.pred m) p) p) (Nat.add (Nat.add (Nat.mul n.pred p) p) (Nat.mul m p)))
-// - Goal: (Equal Nat (Nat.add (Nat.mul (Nat.add n.pred m) p) p) (Nat.add (Nat.add (Nat.mul n.pred p) p) (Nat.mul m p)))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.mul (Data.Nat.add n.pred m) p) (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.mul m p)))
+// - app1: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul (Data.Nat.add n.pred m) p) p) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.mul m p)) p))
+// - aux1: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul m p) p) (Data.Nat.add p (Data.Nat.mul m p)))
+// - aux2: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.add p (Data.Nat.mul m p))) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) p) (Data.Nat.mul m p)))
+// - aux3: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.add (Data.Nat.mul m p) p)) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.mul m p)) p))
+// - rrt1: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.add p (Data.Nat.mul m p))) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.mul m p)) p))
+// - mir1: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.mul m p)) p) (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.add p (Data.Nat.mul m p))))
+// - chn1: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) (Data.Nat.mul m p)) p) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) p) (Data.Nat.mul m p)))
+// - chn2: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul (Data.Nat.add n.pred m) p) p) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) p) (Data.Nat.mul m p)))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul (Data.Nat.add n.pred m) p) p) (Data.Nat.add (Data.Nat.add (Data.Nat.mul n.pred p) p) (Data.Nat.mul m p)))
 
-Mult_assoc (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.mul n (Nat.mul m p)) (Nat.mul (Nat.mul n m) p))
-Mult_assoc Nat.zero m p = Equal.refl
-// - Goal: (Equal Nat Nat.zero Nat.zero)
-Mult_assoc (Nat.succ n.pred) m p = 
+Mult_assoc (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul n (Data.Nat.mul m p)) (Data.Nat.mul (Data.Nat.mul n m) p))
+Mult_assoc Data.Nat.zero m p = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat Data.Nat.zero Data.Nat.zero)
+Mult_assoc (Data.Nat.succ n.pred) m p = 
                             let ind = Mult_assoc n.pred m p 
-                            let aux = Mult_plus_distr_r (Nat.mul n.pred m) m p 
-                            let mir = Equal.mirror ind
-                            let rrt = Equal.rewrite mir (x => (Equal Nat (Nat.mul (Nat.add (Nat.mul n.pred m) m) p) (Nat.add (x) (Nat.mul m p)))) aux
-                            let mir = Equal.mirror rrt
+                            let aux = Mult_plus_distr_r (Data.Nat.mul n.pred m) m p 
+                            let mir = Prop.Equal.mirror ind
+                            let rrt = Prop.Equal.rewrite mir (x => (Prop.Equal Data.Nat (Data.Nat.mul (Data.Nat.add (Data.Nat.mul n.pred m) m) p) (Data.Nat.add (x) (Data.Nat.mul m p)))) aux
+                            let mir = Prop.Equal.mirror rrt
                             mir
-// - ind : (Equal Nat (Nat.mul n.pred (Nat.mul m p)) (Nat.mul (Nat.mul n.pred m) p))
-// - aux : (Equal Nat (Nat.mul (Nat.add (Nat.mul n.pred m) m) p) (Nat.add (Nat.mul (Nat.mul n.pred m) p) (Nat.mul m p)))
-// - mir : (Equal Nat (Nat.mul (Nat.mul n.pred m) p) (Nat.mul n.pred (Nat.mul m p)))
-// - rrt : (Equal Nat (Nat.mul (Nat.add (Nat.mul n.pred m) m) p) (Nat.add (Nat.mul n.pred (Nat.mul m p)) (Nat.mul m p)))
-// - mir : (Equal Nat (Nat.add (Nat.mul n.pred (Nat.mul m p)) (Nat.mul m p)) (Nat.mul (Nat.add (Nat.mul n.pred m) m) p))
-// - Goal: (Equal Nat (Nat.add (Nat.mul n.pred (Nat.mul m p)) (Nat.mul m p)) (Nat.mul (Nat.add (Nat.mul n.pred m) m) p))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.mul n.pred (Data.Nat.mul m p)) (Data.Nat.mul (Data.Nat.mul n.pred m) p))
+// - aux : (Prop.Equal Data.Nat (Data.Nat.mul (Data.Nat.add (Data.Nat.mul n.pred m) m) p) (Data.Nat.add (Data.Nat.mul (Data.Nat.mul n.pred m) p) (Data.Nat.mul m p)))
+// - mir : (Prop.Equal Data.Nat (Data.Nat.mul (Data.Nat.mul n.pred m) p) (Data.Nat.mul n.pred (Data.Nat.mul m p)))
+// - rrt : (Prop.Equal Data.Nat (Data.Nat.mul (Data.Nat.add (Data.Nat.mul n.pred m) m) p) (Data.Nat.add (Data.Nat.mul n.pred (Data.Nat.mul m p)) (Data.Nat.mul m p)))
+// - mir : (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred (Data.Nat.mul m p)) (Data.Nat.mul m p)) (Data.Nat.mul (Data.Nat.add (Data.Nat.mul n.pred m) m) p))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.add (Data.Nat.mul n.pred (Data.Nat.mul m p)) (Data.Nat.mul m p)) (Data.Nat.mul (Data.Nat.add (Data.Nat.mul n.pred m) m) p))
 
 // 3.0.3. Exercise: 2 stars, optional (beq_nat_refl).
 // Prove the following theorem. (Putting the True on the left-hand side of the equality
@@ -336,14 +336,14 @@ Mult_assoc (Nat.succ n.pred) m p =
 // so we follow suit. Rewriting works equally well in either direction, so we will have
 // no problem using the theorem no matter which way we state it.)
 
-Beq_nat_refl (n : Nat) : (Equal Bool Bool.true (Nat.equal n n)) //ok 
-Beq_nat_refl Nat.zero = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
-Beq_nat_refl (Nat.succ n.pred) = 
+Beq_nat_refl (n : Data.Nat) : (Prop.Equal Data.Bool Data.Bool.true (Data.Nat.equal n n)) //ok 
+Beq_nat_refl Data.Nat.zero = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+Beq_nat_refl (Data.Nat.succ n.pred) = 
                           let ind = Beq_nat_refl n.pred
                           ind
-// - ind : (Equal Bool Bool.true (Nat.equal n.pred n.pred))
-// - Goal: (Equal Bool Bool.true (Nat.equal n.pred n.pred))
+// - ind : (Prop.Equal Data.Bool Data.Bool.true (Data.Nat.equal n.pred n.pred))
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true (Data.Nat.equal n.pred n.pred))
 // 3.0.4. Exercise: 2 stars, optional (plus_swap’).
 
 // Kek : (a: U60) -> U60
@@ -361,7 +361,7 @@ Beq_nat_refl (Nat.succ n.pred) =
 // Use the replace tactic to do a proof of plus_swap', just like plus_swap but without
 // needing assert (n + m = m + n).
 
-// Plus_swap_plus_comm (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.add n (Nat.add p m)) (Nat.add m (Nat.add p m)))
+// Plus_swap_plus_comm (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n (Data.Nat.add p m)) (Data.Nat.add m (Data.Nat.add p m)))
 // Plus_swap_plus_comm n m p = ?
 
 // 3.0.5. Exercise: 3 stars, recommended (binary_commute). Recall the incr and

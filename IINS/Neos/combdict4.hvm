@@ -1,30 +1,118 @@
-// data BTree a = Leaf
-//              | Node (BTree a) a (BTree a)
+// data Tree a = Node (Tree a) a (Tree a) | Leaf 
 
 // insert : Ord a => a -> BTree a -> BTree a
 // insert x Leaf = Node Leaf x Leaf
 // insert x (Node l v r) = if (x < v) then (Node (insert x l) v r)
 //                                    else (Node l v (insert x r))
 
-// toList : BTree a -> List a
+(U60.if 0 t f) = f
+(U60.if n t f) = t
+
+(Insert x Leaf)         = (Node Leaf x Leaf)
+(Insert x (Node l v r)) = (U60.if (< x v) (Node (Insert x l) v r) (Node l v (Insert x r)))
+
+(ToList Leaf) = []
+(ToList (Node l v r)) = (List.concat (ToList l) (Data.List.cons v (ToList r)))
 // toList Leaf = []
 // toList (Node l v r) = Btree.toList l ++ (v :: Btree.toList r)
 
 // toTree : Ord a => List a -> BTree a
+(ToTree []) = Leaf
+(ToTree (Data.List.cons head tail)) = (Insert head (ToTree tail))
 // toTree [] = Leaf
 // toTree (x :: xs) = insert x (toTree xs)
+// Parallel QuickSort
+(Sort [])         = (Leaf)
+(Sort (Data.List.cons x xs)) =
+  ((Part x xs) λmin λmax
+    let lft = (Sort min)
+    let rgt = (Sort max)
+    (Node lft x rgt))
 
-(F.if 0.0 t f) = f
-(F.if v t f) = t
+  // Partitions a list in two halves, less-than-p and greater-than-p
+  (Part p [])         = λt (t [] [])
+  (Part p (Data.List.cons x xs)) = (Push (> x p) x (Part p xs))
 
-(FU 0.0) = 0
-(FU f )  = (F.if (<= f 1.0) (0) (+ 1 (FU (- f 1.0))))
+  // Pushes a value to the first or second list of a pair
+  (Push 0 x pair) = (pair λmin λmax λp (p (Data.List.cons x min) max))
+  (Push 1 x pair) = (pair λmin λmax λp (p min (Data.List.cons x max)))
+  
+// Generates a random list
+(Rnd 0 s) = ([])
+(Rnd n s) = (Data.List.cons s (Rnd (- n 1) (% (+ (* s 1664525) 1013904223) 4294967296)))
 
-(Main) = (FU 511111.7)
+// Sums all elements in a concatenation tree
+(Sum Leaf)         = 0
+(Sum (Node l v r)) = (+ v (+ (Sum l) (Sum r)))
+
+(Node.length Leaf)         = 0
+(Node.length (Node l v r)) = (+ 1 (+ (Node.length l) (Node.length r)))
 
 
+(List.map [] f) = []
+(List.map (Data.List.cons head tail) f) = (Data.List.cons (f head) (List.map tail f))
+
+(List.concat [] ys) = ys
+(List.concat (Data.List.cons head tail) ys) = (Data.List.cons head (List.concat tail ys))
+
+(List.length []) = 0
+(List.length (Data.List.cons head tail)) = (+ 1 (List.length tail))
+
+(Sum [])    = 0
+(Sum (Data.List.cons head tail)) = (+ head (Sum tail))
+
+(Loto []) = []
+(Loto (Data.List.cons head tail)) = 
+	let h = (Sum head); 
+	let t = (Loto tail); 
+	(Data.List.cons h t) 
 
 
-Prove (n: Nat) : 5n = 5n
-Prove n := 
-	let x := 0n
+(Node.Loto Leaf)         = 0
+(Node.Loto  (Node l v r)) = (Node (Node.Loto l) (Sum v) (Node.Loto r))
+
+
+(Combinations lst k) = (Combinations.aux lst k (+ 1 (List.length lst)) 0)
+(Combinations.aux lst 0 len 0) = [[]]
+// (Combinations.aux lst k 0 0) = []
+(Combinations.aux (Data.List.cons head tail) k len 0) = 
+	let l = (- len 1);
+	let v = (< l k);
+	let hd = (Combinations.aux tail k l v); 
+	let tl = (Combinations.aux tail (- k 1) l v); 
+	let mp = (List.map tl (@x (Data.List.cons head x)));
+	(List.concat mp hd)
+(Combinations.aux lst k len v) = []
+
+
+// Swaps distant values in parallel; corresponds to a Red Box
+(Warp s (Tea a)   (Tea b))   = (U60.swap (^ (> a b) s) (Tea a) (Tea b))
+(Warp s (Both a b) (Both c d)) = (Join (Warp s a c) (Warp s b d))
+
+// Rebuilds the warped tree in the original order
+(Join (Both a b) (Both c d)) = (Both (Both a c) (Both b d))
+
+// Recursively warps each sub-tree; corresponds to a Blue/Green Box
+(Flow s (Tea a))   = (Tea a)
+(Flow s (Both a b)) = (Down s (Warp s a b))
+
+// Propagates Flow downwards
+(Down s (Tea a))   = (Tea a)
+(Down s (Both a b)) = (Both (Flow s a) (Flow s b))
+
+// Bitonic Sort
+(Sorts s (Tea a))   = (Tea a)
+(Sorts s (Both a b)) = (Flow s (Both (Sorts 0 a) (Sorts 1 b)))
+
+// Generates a tree of depth `n`
+(Gen 0 x) = (Tea x)
+(Gen n x) = let m = (- n 1); (Both (Gen m (* x 2)) (Gen m (+ (* x 2) 1)))
+
+// Reverses a tree
+(Rev (Tea x))   = (Tea x)
+(Rev (Both a b)) = (Both (Rev b) (Rev a))
+
+(BOTH !l v !r) = (Node l v r)
+
+(Main) = (Node.length (Sort (Loto (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] 15))))
+// (Main) = (List.length (Loto (Combinations [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] 15)))

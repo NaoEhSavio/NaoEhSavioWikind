@@ -1,7 +1,13 @@
-(Rnd 0 s) = (List.nil)
-(Rnd n s) = (List.cons s (Rnd (- n 1) (% (+ (* s 1664525) 1013904223) 4294967296)))
-(Main n) = (Rnd (<< 1 14) 1)
+// (Rnd 0 s) = (List.nil)
+// (Rnd n s) = (List.cons s (Rnd (- n 1) (% (+ (* s 1664525) 1013904223) 4294967296)))
+// (Main n) = (Rnd (<< 1 14) 1)
 
+(U60.if 0 t f) = f
+(U60.if n t f) = t
+
+(Dbg x) = (HVM.log x x)
+(Gen x) = (U60.if (< x 1) [] (Data.List.cons x (Dbg (Gen (- x 1)))))
+(Main) = (Gen 10)
 
 // Index (List.cons v vs) Zero = v
 // Index (List.cons v vs) (Succ n) = Index vs n

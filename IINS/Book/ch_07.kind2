@@ -1,41 +1,1560 @@
-Rev_append <x> (l1: List x) (l2: List x) : List x
-Rev_append x List.nil l2 = l2
-Rev_append x (List.cons head tail) l2 = Rev_append tail (List.cons head l2)
-// rev_append : (l1, l2 : List x) ౏> List x
-// rev_append [] l2 = l2
-// rev_append (x ௝௞ xs) l2 = rev_append xs (x ௝௞ l2)
-Tr_rev <x> (l: List x) : List x
-Tr_rev x l = Rev_append l List.nil
 
-// Trev_trev_L <a> (xs: List a) : Equal (List a) (Tr_rev (Tr_rev xs)) xs
-// Trev_trev_L List.nil = Equal.refl
-// Trev_trev_L  (List.cons head tail) = 
-// 	let ind = Trev_trev_L tail 
-// 	// let app = Equal.apply (x => List.cons head x) ind 
-// 	let aux = Equal.apply (x => (Rev_append x [head])) ind 
-// 	let auy = Trev_trev_L (Rev_append [] tail) 
-// 	?
-	
-// • Expected: (Equal (Rev_append (Rev_append tail (List.cons head (List.nil))) (List.nil)) (List.cons head tail)) 
-//  •   ind  : (Equal (Rev_append (Rev_append tail (List.nil)) (List.nil)) tail) 
-//  •   app  : (Equal (List.cons head (Rev_append (Rev_append tail (List.nil)) (List.nil))) (List.cons head tail)) 
-//  •   aux  : (Equal (Rev_append (Rev_append (Rev_append (Rev_append tail (List.nil)) (List.nil)) (List.cons head (List.nil))) (List.nil)) (Rev_append (Rev_append tail (List.cons head (List.nil))) (List.nil))) 
+// CHAPTER 7
+// IndProp : Inductively Defined Propositions
+// module IndProp
+// import Basics
+// import Induction
+// import Tactics
+// import Logic
+// %hide Basics.Numbers.pred
+// %access public export
+// %default total
+// 1. Inductively Defined Propositions
+// In the Logic chapter, we looked at several ways of writing propositions, including
+// conjunction, disjunction, and quantifiers. In this chapter, we bring a new tool into
+// the mix: inductive definitions.
+// Recall that we have seen two ways of stating that a number n is even: We can say
+// (1) evenb n = True, or (2) (k ** n = double k). Yet another possibility is to say that n
+// is even if we can establish its evenness from the following rules:
+// • Rule ev_0: The number 0 is even.
+// • Rule ev_SS: If n is even, then S (S n) is even.
+// To illustrate how this definition of evenness works, let’s imagine using it to show
+// that 4 is even. By rule ev_SS, it suffices to show that 2 is even. This, in turn, is
+// again guaranteed by rule ev_SS, as long as we can show that 0 is even. But this last
+// fact follows directly from the ev_0 rule.
+// We will see many definitions like this one during the rest of the course. For purposes
+// of informal discussions, it is helpful to have a lightweight notation that makes them
+// easy to read and write. Inference rules are one such notation:
+// ev_0
+// ev 0
+// ev n ev_SS
+// ev (S (S n))
+// 91
+// 92 7. INDPROP : INDUCTIVELY DEFINED PROPOSITIONS
+// Each of the textual rules above is reformatted here as an inference rule; the intended reading is that, if the premises above the line all hold, then the conclusion
+// below the line follows. For example, the rule ev_SS says that, if n satisfies ev, then
+// S (S n) also does. If a rule has no premises above the line, then its conclusion holds
+// unconditionally.
+// We can represent a proof using these rules by combining rule applications into a
+// proof tree. Here’s how we might transcribe the above proof that 4 is even:
+// ev_0
+// ev 0
+// ev_SS
+// ev 2
+// ev_SS
+// ev 4
+// Why call this a “tree” (rather than a “stack”, for example)? Because, in general,
+// inference rules can have multiple premises. We will see examples of this below.
+// Putting all of this together, we can translate the definition of evenness into a formal
+// Idris definition using an data declaration, where each constructor corresponds to
+// an inference rule:
+type Ev ~ (n: Data.Nat) {
+	0  : Ev Data.Nat.zero
+	SS <n: Data.Nat> (pred: Ev n) : Ev (Data.Nat.succ (Data.Nat.succ n))
+}
+// data Ev : Nat ౏> Type where
+// Ev_0 : Ev Z
+// Ev_SS : {n : Nat} ౏> Ev n ౏> Ev (S (S n))
+// This definition is different in one crucial respect from previous uses of data: its
+// result is not a Type, but rather a function from Nat to Type – that is, a property
+// of numbers. Note that we’ve already seen other inductive definitions that result
+// in functions, such as List, whose type is Type ౏> Type. What is new here is that,
+// because the Nat argument of Ev appears unnamed, to the right of the colon, it is
+// allowed to take different values in the types of different constructors: Z in the type
+// of Ev_0 and S (S n) in the type of Ev_SS.
+// In contrast, the definition of List names the x parameter globally, forcing the result
+// of Nil and (௜௜) to be the same (List x). Had we tried to name Nat in defining Ev,
+// we would have seen an error:
+// data Wrong_ev : (n : Nat) ౏> Type where
+// Wrong_ev_0 : Wrong_ev Z
+// Wrong_ev_SS : n ౏> Wrong_ev n ౏> Wrong_ev (S (S n))
+// When checking type of IndType.Wrong_ev_SS:
+// When checking argument n to IndType.Wrong_ev:
+// Type mismatch between
+// Type (Type of n)
+// and
+// Nat (Expected type)
+// Edit the explanation, it works fine if you remove the first n ౏> in Wrong_ev_SS
+// 2. USING EVIDENCE IN PROOFS 93
+// (“Parameter” here is Idris jargon for an argument on the left of the colon in an
+// Inductive definition; “index” is used to refer to arguments on the right of the
+// colon.)
+// We can think of the definition of Ev as defining a Idris property Ev : Nat ౏> Type,
+// together with theorems Ev_0 : Ev Z and Ev_SS : n ౏> Ev n ౏> Ev (S (S n)). Such “constructor theorems” have the same status as proven theorems. In particular, we can
+// apply rule names as functions to each other to prove Ev for particular numbers…
+// ev_4 : Ev 4
+// ev_4 = Ev_SS {n=2} $ Ev_SS {n=0} Ev_0
+// We can also prove theorems that have hypotheses involving Ev.
+// ev_plus4 : Ev n ౏> Ev (4 + n)
+// ev_plus4 x = Ev_SS $ Ev_SS x
+// More generally, we can show that any number multiplied by 2 is even:
+// 1.0.1. Exercise: 1 star (ev_double).
+// ev_double : Ev (double n)
+// ev_double = ?ev_double_rhs
+// □
+// 2. Using Evidence in Proofs
+// Besides constructing evidence that numbers are even, we can also reason about
+// such evidence.
+// Introducing Ev with a data declaration tells Idris not only that the constructors Ev_0
+// and Ev_SS are valid ways to build evidence that some number is even, but also that
+// these two constructors are the only ways to build evidence that numbers are even
+// (in the sense of Ev).
+// In other words, if someone gives us evidence e for the assertion Ev n, then we know
+// that e must have one of two shapes:
+// • e is Ev_0 (and n is Z), or
+// • e is Ev_SS {n=n'} e' (and n is S (S n'), where e' is evidence for Ev n').
+// This suggests that it should be possible to analyze a hypothesis of the form Ev n
+// much as we do inductively defined data structures; in particular, it should be
+// possible to argue by induction and case analysis on such evidence. Let’s look at a
+// few examples to see what this means in practice.
+// 2.1. Pattern Matching on Evidence.
+// Edit the whole section to talk about dependent pattern matching
+// Suppose we are proving some fact involving a number n, and we are given Ev n
+// as a hypothesis. We already know how to perform case analysis on n using the
+// 94 7. INDPROP : INDUCTIVELY DEFINED PROPOSITIONS
+// inversion tactic, generating separate subgoals for the case where n = Z and the case
+// where n = S n' for some n'. But for some proofs we may instead want to analyze
+// the evidence that Ev n directly.
+// By the definition of Ev, there are two cases to consider:
+// • If the evidence is of the form Ev_0, we know that n = Z.
+// • Otherwise, the evidence must have the form Ev_SS {n=n'} e', where
+// n = S (S n') and e' is evidence for Ev n'.
+// We can perform this kind of reasoning in Idris, again using pattern matching.
+// Besides allowing us to reason about equalities involving constructors, inversion
+// provides a case-analysis principle for inductively defined propositions. When used
+// in this way, its syntax is similar to destruct: We pass it a list of identifiers separated
+// by | characters to name the arguments to each of the possible constructors.
+// ev_minus2 : Ev n ౏> Ev (pred (pred n))
+// ev_minus2 Ev_0 = Ev_0
+// ev_minus2 (Ev_SS e') = e'
+// In words, here is how the pattern match reasoning works in this proof:
+// • If the evidence is of the form Ev_0, we know that n = Z. Therefore, it
+// suffices to show that Ev (pred (pred Z)) holds. By the definition of pred,
+// this is equivalent to showing that Ev Z holds, which directly follows from
+// Ev_0.
+// • Otherwise, the evidence must have the form Ev_SS {n=n'} e', where
+// n = S (S n') and e' is evidence for Ev n'. We must then show that
+// Ev (pred (pred (S (S n')))) holds, which, after simplification, follows
+// directly from e'.
+// Suppose that we wanted to prove the following variation of ev_minus2:
+// evSS_ev : Ev (S (S n)) ౏> Ev n
+// Intuitively, we know that evidence for the hypothesis cannot consist just of the
+// Ev_0 constructor, since Z and S are different constructors of the type Nat; hence,
+// Ev_SS is the only case that applies. Unfortunately, destruct is not smart enough to
+// realize this, and it still generates two subgoals. Even worse, in doing so, it keeps
+// the final goal unchanged, failing to provide any useful information for completing
+// the proof.
+// The inversion tactic, on the other hand, can detect (1) that the first case does not
+// apply, and (2) that the n' that appears on the Ev_SS case must be the same as n.
+// This allows us to complete the proof
+// evSS_ev (Ev_SS e') = e'
+// By using dependent pattern matching, we can also apply the principle of explosion to “obviously contradictory” hypotheses involving inductive properties. For
+// example:
+// 2. USING EVIDENCE IN PROOFS 95
+// one_not_even : Not (Ev 1)
+// one_not_even Ev_0 impossible
+// one_not_even (Ev_SS _) impossible
+// 2.2. Exercise: 1 star (inversion_practice). Prove the following results
+// using pattern matching.
+// SSSSev__even : Ev (S (S (S (S n)))) ౏> Ev n
+// SSSSev__even e = ?SSSSev__even_rhs
+// even5_nonsense : Ev 5 ౏> 2 + 2 = 9
+// even5_nonsense e = ?even5_nonsense_rhs
+// □
+// Edit
+// The way we’ve used inversion here may seem a bit mysterious at first. Until
+// now, we’ve only used inversion on equality propositions, to utilize injectivity of
+// constructors or to discriminate between different constructors. But we see here
+// that inversion can also be applied to analyzing evidence for inductively defined
+// propositions.
+// Here’s how inversion works in general. Suppose the name I refers to an assumption
+// P in the current context, where P has been defined by an Inductive declaration.
+// Then, for each of the constructors of P, inversion I generates a subgoal in which I
+// has been replaced by the exact, specific conditions under which this constructor
+// could have been used to prove P. Some of these subgoals will be self-contradictory;
+// inversion throws these away. The ones that are left represent the cases that must
+// be proved to establish the original goal. For those, inversion adds all equations into
+// the proof context that must hold of the arguments given to P (e.g., S (S n') = n in
+// the proof of evSS_ev).
+// The ev_double exercise above shows that our new notion of evenness is implied by
+// the two earlier ones (since, by even_bool_prop in chapter Logic, we already know that
+// those are equivalent to each other). To show that all three coincide, we just need
+// the following lemma:
+// ev_even : Ev n ౏> (k ** n = double k)
+// We proceed by case analysis on Ev n. The first case can be solved trivially.
+// ev_even Ev_0 = (Z ** Refl)
+// Unfortunately, the second case is harder. We need to show (k ** S (S n') = double k,
+// but the only available assumption is e', which states that Ev n' holds. Since this
+// isn’t directly useful, it seems that we are stuck and that performing case analysis
+// on Ev n was a waste of time.
+// If we look more closely at our second goal, however, we can see that something
+// interesting happened: By performing case analysis on Ev n, we were able to reduce
+// 96 7. INDPROP : INDUCTIVELY DEFINED PROPOSITIONS
+// the original result to an similar one that involves a different piece of evidence for
+// Ev n: e'. More formally, we can finish our proof by showing that
+// (k' ** n' = double k')
+// which is the same as the original statement, but with n' instead of n. Indeed, it is
+// not difficult to convince Idris that this intermediate result suffices.
+// ev_even (Ev_SS e') = I $ ev_even e'
+// where
+// I : (k' ** n' = double k') ౏> (k ** S (S n') = double k)
+// I (k' ** prf) = (S k' ** cong {f=S} $ cong {f=S} prf)
+// 2.3. Induction on Evidence.
+// Edit, we’ve already just done an induction-style proof, the following is basically replacing ‘where‘ with ‘let‘
+// If this looks familiar, it is no coincidence: We’ve encountered similar problems
+// in the Induction chapter, when trying to use case analysis to prove results that
+// required induction. And once again the solution is… induction!
+// The behavior of induction on evidence is the same as its behavior on data: It
+// causes Idris to generate one subgoal for each constructor that could have used to
+// build that evidence, while providing an induction hypotheses for each recursive
+// occurrence of the property in question.
+// Let’s try our current lemma again:
+// ev_even' : Ev n ౏> (k ** n = double k)
+// ev_even' Ev_0 = (Z ** Refl)
+// ev_even' (Ev_SS e') =
+// let
+// (k**prf) = ev_even e'
+// cprf = cong {f=S} $ cong {f=S} prf
+// in
+// rewrite cprf in (S k ** Refl)
+// Here, we can see that Idris produced an IH that corresponds to E', the single
+// recursive occurrence of ev in its own definition. Since E’ mentions n’, the induction
+// hypothesis talks about n’, as opposed to n or some other number.
+// The equivalence between the second and third definitions of evenness now follows.
+// ev_even_iff : (Ev n) <౦> (k ** n = double k)
+// ev_even_iff = (ev_even, fro)
+// where
+// fro : (k ** n = double k) ౏> (Ev n)
+// fro (k ** prf) = rewrite prf in ev_double {n=k}
+// 3. INDUCTIVE RELATIONS 97
+// As we will see in later chapters, induction on evidence is a recurring technique
+// across many areas, and in particular when formalizing the semantics of programming languages, where many properties of interest are defined inductively.
+// The following exercises provide simple examples of this technique, to help you
+// familiarize yourself with it.
+// 2.3.1. Exercise: 2 stars (ev_sum).
+// ev_sum : Ev n ౏> Ev m ౏> Ev (n + m)
+// ev_sum x y = ?ev_sum_rhs
+// □
+// 2.4. Exercise: 4 stars, advanced, optional (ev_alternate). In general,
+// there may be multiple ways of defining a property inductively. For example, here’s
+// a (slightly contrived) alternative definition for Ev:
+// data Ev' : Nat ౏> Type where
+// Ev'_0 : Ev' Z
+// Ev'_2 : Ev' 2
+// Ev'_sum : Ev' n ౏> Ev' m ౏> Ev' (n + m)
+// Prove that this definition is logically equivalent to the old one. (You may want to
+// look at the previous theorem when you get to the induction step.)
+// ev'_ev : (Ev' n) <౦> Ev n
+// ev'_ev = ?ev__ev_rhs
+// □
+// 2.5. Exercise: 3 stars, advanced, recommended (ev_ev__ev). Finding the appropriate thing to do induction on is a bit tricky here:
+// ev_ev__ev : Ev (n+m) ౏> Ev n ౏> Ev m
+// ev_ev__ev x y = ?ev_ev__ev_rhs
+// □
+// 2.5.1. Exercise: 3 stars, optional (ev_plus_plus). This exercise just requires
+// applying existing lemmas. No induction or even case analysis is needed, though
+// some of the rewriting may be tedious.
+// ev_plus_plus : Ev (n+m) ౏> Ev (n+p) ౏> Ev (m+p)
+// ev_plus_plus x y = ?ev_plus_plus_rhs
+// □
 
 
-// Main : IO U60 {
-//   do IO {
-//     // Tests 2D Vectors
-//     let a = 2
-//     let b = 1
-//     IO.print "a + b = {}" 
 
-//     // Tests 3D Vectors
-//     let c = 1
-//     let d = 2
-//     IO.print "c + d = {}" 
-//   }
+// 3. Inductive Relations
+// A proposition parameterized by a number (such as Ev) can be thought of as a
+// property – i.e., it defines a subset of Nat, namely those numbers for which the
+// proposition is provable. In the same way, a two-argument proposition can be
+// 98 7. INDPROP : INDUCTIVELY DEFINED PROPOSITIONS
+// thought of as a relation – i.e., it defines a set of pairs for which the proposition is
+// provable.
+// One useful example is the “less than or equal to” relation on numbers.
+// The following definition should be fairly intuitive. It says that there are two ways
+// to give evidence that one number is less than or equal to another: either observe
+// that they are the same number, or give evidence that the first is less than or equal
+// to the predecessor of the second.
+
+// data Le : Nat -> Nat ౏> Type where
+// Le_n : Le n n
+// Le_S : Le n m -> Le n (S m)
+
+
+// syntax [m] ”<='” [n] = Le m n 
+#derive[match]
+type Le (n: Data.Nat) ~ (m: Data.Nat) {
+	n : Le n n
+	S <m: Data.Nat> (pred: (Le n m)) : (Le n (Data.Nat.succ m)) 
+}
+
+#derive[match]
+// type Lte ~ (n: Data.Nat) (m: Data.Nat) {
+// 	z : Lte Nat.zero n
+// 	S <n: Data.Nat> <m: Data.Nat> (pred: (Lte n m)) : (Lte (Data.Nat.succ m) (Data.Nat.succ m)) 
 // }
 
 
-Even_1000b : Sigma Nat (k => Equal 1000n (Nat.double k))
-Even_1000b = Sigma.new 500n Equal.refl
+// Proofs of facts about యర' using the constructors Le_n and Le_S follow the same
+// patterns as proofs about properties, like Ev above. We can apply the constructors
+// to prove యర' goals (e.g., to show that 3యర'3 or 3యర'6), and we can use pattern
+// matching to extract information from యర' hypotheses in the context (e.g., to prove
+// that (2యర'1) ౏> 2+2=5.)
+// Here are some sanity checks on the definition. (Notice that, although these are
+// the same kind of simple “unit tests” as we gave for the testing functions we wrote
+// in the first few lectures, we must construct their proofs explicitly – Refl doesn’t do
+// the job, because the proofs aren’t just a matter of simplifying computations.)
+Test_le1 : Le 3n 3n
+Test_le1 = Le.n 3n
+// test_le1 : 3 యర' 3
+// test_le1 = Le_n
+Test_le2 : Le 3n 6n
+Test_le2 = Le.S (Le.S (Le.S Le.n))
+// test_le2 : 3 యర' 6
+// test_le2 = Le_S $ Le_S $ Le_S Le_n
+
+
+Test_le3 (l: Le 2n 1n) : Prop.Equal (Data.Nat.add 2n 2n) 5n
+Test_le3 Le.n = Data.Empty.absurd _
+Test_le3 (Le.S Le.n) = Data.Empty.absurd _
+Test_le3 (Le.S (Le.S len)) = Data.Empty.absurd _
+// test_le3 : (2యర'1) ౏> 2+2=5
+// test_le3 (Le_S Le_n) impossible
+// test_le3 (Le_S (Le_S _)) impossible
+// The “strictly less than” relation n < m can now be defined in terms of Le.
+
+Lt (n: Data.Nat) (m: Data.Nat) : Type
+Lt n m = Le (Data.Nat.succ n) m
+
+// Lt : (n, m : Nat) ౏> Type
+// Lt n m = Le (S n) m
+
+// syntax [m] ”<'” [n] = Lt m n
+
+
+// Here are a few more simple relations on numbers:
+type Square_of ~ (n: Data.Nat) (m: Data.Nat) {
+	sq <n: Data.Nat> : Square_of n (Data.Nat.mul n n)
+}
+// data Square_of : Nat ౏> Nat ౏> Type where
+// Sq : Square_of n (n * n)
+type Next_Nat ~ (n: Data.Nat) (m: Data.Nat) {
+	Nn <n: Data.Nat> : Next_Nat n (Data.Nat.succ n)
+}
+// data Next_nat : Nat ౏> Nat ౏> Type where
+// Nn : Next_nat n (S n)
+// 3. INDUCTIVE RELATIONS 99
+type Next_even ~ (n: Data.Nat) (m: Data.Nat) {
+	1 <n: Data.Nat> (pred: Ev (Data.Nat.succ n)) : Next_even n (Data.Nat.succ n)
+	2 <n: Data.Nat> (pred: Ev (Data.Nat.succ (Data.Nat.succ n))) : Next_even n (Data.Nat.succ (Data.Nat.succ n))
+}
+// data Next_evenn : Nat ౏> Nat ౏> Type where
+// Ne_1 : Ev (S n) ౏> Next_even n (S n)
+// Ne_2 : Ev (S (S n)) ౏> Next_even n (S (S n))
+// 3.0.1. Exercise: 2 stars, optional (total_relation). Define an inductive binary
+// relation Total_relation that holds between every pair of natural numbers.
+
+// Total_relation 
+// □
+// 3.1. Exercise: 2 stars, optional (empty_relation). Define an inductive
+// binary relation Empty_relation (on numbers) that never holds.
+// Empty_relation
+// □
+// 3.1.1. Exercise: 3 stars, optional (le_exercises). Here are a number of facts
+// about the యర' and <' relations that we are going to need later in the course. The
+// proofs make good practice exercises.
+
+// le_trans : (m యర' n) ౏> (n యర' o) ౏> (m యర' o)
+// le_trans x y = ?le_trans_rhs
+Le.chain <n: Data.Nat> <m: Data.Nat> <o: Data.Nat> (l: Le m n) (r: Le n o) : Le m o 
+Le.chain n m o l (Le.n x) = l :: Le m x
+// Le.chain n m o l (Le.S x y (Le.n c)) = l :: Le m c
+// O_le_n : Z యర' n
+O_le_n (n: Data.Nat) : Le Data.Nat.zero n
+O_le_n Data.Nat.zero = Le.n 
+O_le_n (Data.Nat.succ n) = (Le.S (O_le_n n))
+// O_le_n = ?O_le_n_rhs
+// n_le_m__Sn_le_Sm : (n యర' m) ౏> ((S n) యర' (S m))
+// n_le_m__Sn_le_Sm x = ?n_le_m__Sn_le_Sm_rhs
+N_le_m_sn_le_sm (n: Data.Nat) (m: Data.Nat) (l: Le n m) : Le (Data.Nat.succ n) (Data.Nat.succ m)
+N_le_m_sn_le_sm Data.Nat.zero Data.Nat.zero (Le.n) = Le.n
+N_le_m_sn_le_sm (Data.Nat.succ n.pred) Data.Nat.zero (Le.n) = Data.Empty.absurd _
+N_le_m_sn_le_sm Data.Nat.zero (Data.Nat.succ m.pred) l = Le.S (Le_one_succ_n m.pred)
+N_le_m_sn_le_sm (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) (Le.S p) = Le.S (N_le_m_sn_le_sm (Data.Nat.succ n.pred) m.pred p)
+
+
+// Sn_le_Sm__n_le_m : ((S n) యర' (S m)) ౏> (n యర' m)
+// Sn_le_Sm__n_le_m x = ?Sn_le_Sm__n_le_m_rhs
+Sn_le_Sm__n_le_m (n: Data.Nat) (m: Data.Nat) (l: Le (Data.Nat.succ n) (Data.Nat.succ m)) : Le n m
+// Sn_le_Sm__n_le_m Data.Nat.zero Data.Nat.zero l = ?
+// Sn_le_Sm__n_le_m (Data.Nat.succ n.pred) Data.Nat.zero l = ?
+// Sn_le_Sm__n_le_m Data.Nat.zero (Data.Nat.succ m.pred) l = ?
+// Sn_le_Sm__n_le_m (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) l = 
+// 	let ind = Sn_le_Sm__n_le_m n.pred m.pred ?
+// 	?
+
+Le_one_succ_n (n: Data.Nat) : Le 1n (Data.Nat.succ n)
+Le_one_succ_n Data.Nat.zero = Le.n
+Le_one_succ_n (Data.Nat.succ n) = Le.S (Le_one_succ_n n)
+
+Le_plus_l (a: Data.Nat) (b: Data.Nat) : Le a (Data.Nat.add a b)
+Le_plus_l Data.Nat.zero b = O_le_n b
+Le_plus_l (Data.Nat.succ n.pred) b = N_le_m_sn_le_sm n.pred (Data.Nat.add n.pred b) (Le_plus_l n.pred b)
+// le_plus_l : a యర' (a + b)
+// le_plus_l = ?le_plus_l_rhs
+Plus_n_Z (n: Data.Nat) : (Prop.Equal Data.Nat n (Data.Nat.add n Data.Nat.zero))
+Plus_n_Sm (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n m)) (Data.Nat.add n (Data.Nat.succ m)))
+
+Plus_lt (n1: Data.Nat) (n2: Data.Nat) (m: Data.Nat) (lt: Lt (Data.Nat.add n1 n2) m) : Data.Pair (Lt n1 m) (Lt n2 m)
+Plus_lt Data.Nat.zero Data.Nat.zero Data.Nat.zero e = Data.Empty.absurd _ //TODO
+Plus_lt (Data.Nat.succ n1.pred) Data.Nat.zero Data.Nat.zero e = Data.Empty.absurd _  //TODO
+Plus_lt Data.Nat.zero (Data.Nat.succ n2.pred) Data.Nat.zero e = Data.Empty.absurd _ //TODO
+Plus_lt Data.Nat.zero Data.Nat.zero (Data.Nat.succ m.pred) e = Data.Pair.new e e
+Plus_lt (Data.Nat.succ n1.pred) (Data.Nat.succ n2.pred) Data.Nat.zero e = Data.Empty.absurd _ //TODO
+Plus_lt (Data.Nat.succ n1.pred) Data.Nat.zero (Data.Nat.succ m.pred) e = 
+	let rrt = Prop.Equal.rewrite (Prop.Equal.mirror (Plus_n_Z n1.pred))	(x => (Le (Data.Nat.succ (Data.Nat.succ x)) (Data.Nat.succ m.pred))) e 
+	Data.Pair.new rrt (Le_one_succ_n m.pred)
+Plus_lt Data.Nat.zero (Data.Nat.succ n2.pred) (Data.Nat.succ m.pred) e = Data.Pair.new (Le_one_succ_n m.pred) e
+Plus_lt (Data.Nat.succ n1.pred) (Data.Nat.succ n2.pred) (Data.Nat.succ m.pred) e = 
+	let s = Le.S e
+	let a = S_Lte_Lte (Data.Nat.succ (Data.Nat.add n1.pred (Data.Nat.succ n2.pred))) (Data.Nat.succ m.pred) s
+	let b = S_Lte_Lte (Data.Nat.add n1.pred (Data.Nat.succ n2.pred)) m.pred a
+	let rrt = Prop.Equal.rewrite (Prop.Equal.mirror (Plus_n_Sm n1.pred n2.pred)) (x=> (Le (x) m.pred)) b
+	let ind = Plus_lt n1.pred n2.pred m.pred rrt
+	Data.Pair.new (N_le_m_sn_le_sm (Data.Nat.succ n1.pred) m.pred (Data.Pair.fst ind)) (N_le_m_sn_le_sm (Data.Nat.succ n2.pred) m.pred (Data.Pair.snd ind))
+
+// plus_lt : ((n1 + n2) <' m) ౏> (n1 <' m, n2 <' m)
+// plus_lt x = ?plus_lt_rhs
+
+Lt_S (n: Data.Nat) (m: Data.Nat) (l: Lt n m) : (Lt n (Data.Nat.succ m))
+Lt_S n m l = Le.S l
+
+Lte_complete (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal (Data.Nat.lte n m) Data.Bool.true) :  (Le n m)
+Lte_complete Data.Nat.zero Data.Nat.zero Prop.Equal.refl = Le.n 
+Lte_complete (Data.Nat.succ n.pred) Data.Nat.zero e = Data.Empty.absurd (Data.Bool.false_not_true e)
+Lte_complete Data.Nat.zero (Data.Nat.succ m.pred) Prop.Equal.refl = Le.S (O_le_n m.pred)
+Lte_complete (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e = N_le_m_sn_le_sm n.pred m.pred (Lte_complete n.pred m.pred e)
+
+// Hint: The next one may be easiest to prove by induction on m.
+// lte_correct : (n యర' m) ౏> lte n m = True
+// lte_correct x = ?lte_correct_rhs
+
+Lte_correct (n: Data.Nat) (m: Data.Nat) (le: Le n m) : Prop.Equal Data.Bool (Data.Nat.lte n m) Data.Bool.true
+Lte_correct Data.Nat.zero Data.Nat.zero Le.n = Prop.Equal.refl
+Lte_correct (Data.Nat.succ n.pred) Data.Nat.zero e = Data.Empty.absurd (Data.Bool.false_not_true _) 
+Lte_correct Data.Nat.zero (Data.Nat.succ m.pred) Le.n = Prop.Equal.refl
+Lte_correct (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e = Lte_correct n.pred m.pred (S_Lte_Lte n.pred m.pred e)
+
+S_Lte_Lte (n: Data.Nat) (m: Data.Nat) (l:Le (Data.Nat.succ n) (Data.Nat.succ m)) : (Le n m) 
+S_Lte_Lte Data.Nat.zero Data.Nat.zero (Le.S x) = Le.n
+S_Lte_Lte Data.Nat.zero Data.Nat.zero Le.n = Le.n
+S_Lte_Lte (Data.Nat.succ n.pred) Data.Nat.zero (Le.n) = Data.Empty.absurd _
+S_Lte_Lte Data.Nat.zero (Data.Nat.succ m.pred) e = O_le_n (Data.Nat.succ m.pred)
+S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e = S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e
+
+// Lte_correct  Data.Nat.zero m Le.n = ?//////////////Nao reduz
+// Lte_correct (Data.Nat.succ n.pred) m (Le.S z) = ?
+	// let ind = Lte_correct n.pred m z
+	// ? 
+// Hint: This theorem can easily be proved without using induction.
+// 100 7. INDPROP : INDUCTIVELY DEFINED PROPOSITIONS
+// lte_true_trans : lte n m = True ౏> lte m o = True ౏> lte n o = True
+// lte_true_trans prf prf1 = ?lte_true_trans_rhs
+// Lte_true_trans (n: Data.Nat) (m: Data.Nat) (o: Data.Nat) 
+//   (l: Prop.Equal (Data.Nat.lte n m) Data.Bool.true) 
+//   (k: Prop.Equal (Data.Nat.lte m o) Data.Bool.true) 
+// : Prop.Equal (Data.Nat.lte n o) Data.Bool.true
+// Lte_true_trans n m o l (Prop.Equal.refl u x) = l :: Prop.Equal Data.Bool (Data.Nat.lte m o) x
+
+Iff <p> <q> : Type
+Iff p q = Data.Pair (p -> q) (q -> p)
+
+// 3.1.2. Exercise: 2 stars, optional (lte_iff).
+Lte_iff (n: Data.Nat) (m: Data.Nat) : Iff (Prop.Equal (Data.Nat.lte n m) Data.Bool.true) (Le n m)
+Lte_iff n m = Data.Pair.new ((x: (Prop.Equal (Data.Nat.lte n m) Data.Bool.true)) => Lte_complete n m x) ((x: (Le n m)) => Lte_correct n m x)
+// lte_iff : (lte n m = True) <౦> (n యర' m)
+// lte_iff = ?lte_iff_rhs
+
+// □
+// namespace R
+// 3.1.3. Exercise: 3 stars, recommended (R_provability). We can define threeplace relations, four-place relations, etc., in just the same way as binary relations.
+// For example, consider the following three-place relation on numbers:
+// data R : Nat ౏> Nat ౏> Nat ౏> Type where
+// C1 : R 0 0 0
+// C2 : R m n o ౏> R (S m) n (S o)
+// C3 : R m n o ౏> R m (S n) (S o)
+// C4 : R (S m) (S n) (S (S o)) ౏> R m n o
+// C5 : R m n o ౏> R n m o
+// Which of the following propositions are provable?
+// • R 1 1 2
+// • R 2 2 6
+// • If we dropped constructor C5 from the definition of R, would the set of
+// provable propositions change? Briefly (1 sentence) explain your answer.
+// • If we dropped constructor C4 from the definition of R, would the set of
+// provable propositions change? Briefly (1 sentence) explain your answer.
+// -- FILL IN HERE
+//
+// ```rust,ignore
+// record Equiv (p) (q) {
+//   lft: p -> q 
+//   rgt: q -> p
+// }
+
+// Equiv.mirror <p> <q> (e: Equiv p q) : Equiv q p
+// Equiv.mirror p q (Equiv.new lft rgt) = (Equiv.new rgt lft)
+
+// Equiv.refl <p> : Equiv p p
+// Equiv.refl p = (Equiv.new p p (p => p) (p => p))
+
+// F_R (m: Nat) (n: Nat) : Nat
+// F_R m n = Nat.add m n
+
+// R_equiv_fR (m: Nat) (n: Nat) (o: Nat) : Equiv (R m n o) (Equal (F_R m n) o)
+// R_equiv_fR m n o = Equiv.new (r => R_to_FR r) (eq => FR_to_R eq)
+
+// R_to_FR
+//   <m: Nat> <n: Nat> <o: Nat>
+//   (r: R m n o) :
+//   (Equal (F_R m n) o)
+// R_to_FR m n o R.C1 =
+//   let eq0 = Equal.refl :: Equal (Nat.add m n) (Nat.add m n)
+//   let eq1 = Equal.refl :: Equal m 0n
+//   let eq2 = Equal.refl :: Equal 0n o
+//   let eq3 = Equal.rewrite eq1 (x => Equal (Nat.add m n) (Nat.add x n)) eq0
+//   let eq4 = Equal.rewrite eq2 (x => Equal (Nat.add m n) x) eq3
+//   eq4
+//   R_to_FR m n o (R.C2 m_ _ o_ r_) =
+//   let ind = R_to_FR m_ n o_ r_
+//   let add_succ_eq = Add_succ_eq ind
+//   let prf = Equal.rewrite (Succ_add_eq_add_succ m m_ n (Equal.refl)) (x => Equal x o) add_succ_eq
+//   prf
+// R_to_FR m n o (R.C3 _ n_ o_ r_) =
+//   let ind = R_to_FR m n_ o_ r_
+//   let app = Equal.apply (x => Nat.succ x) ind
+//   let eq0 = Equal.mirror (Nat.add.comm.succ m n_)
+//   let aux = Equal.rewrite eq0 (x => Equal _ x o) app
+//   aux
+// R_to_FR m n o (R.C4 r_) =
+//   let ind = R_to_FR r_
+//   let app = Equal.apply (x => Nat.pred x) ind
+//   let eq0 = (Nat.add.comm.succ m n)
+//   let aux = Equal.rewrite eq0 (x => Equal _ x (Nat.succ o)) app
+//   let prf = Equal.apply (x => Nat.pred x) aux
+//   prf
+// R_to_FR m n o (R.C5 r) = R_to_FR r
+
+// Succ_add_eq_add_succ (m: Nat) (m_: Nat) (n: Nat)
+//   (eq: Equal m (Nat.succ m_)) :
+//   (Equal Nat
+//     (Nat.succ (Nat.add m_ n))
+//     (Nat.add m n))
+//     Succ_add_eq_add_succ m m_ n eq =
+//  let app = Equal.apply (x => Nat.add x n) eq
+//  let mir = Equal.mirror app
+//  mir
+
+// Add_succ_eq
+//   <m: Nat> <n: Nat> <o: Nat>
+//   (eq: Equal (Nat.add m n) o) :
+//   Equal (Nat.add (Nat.succ m) n) (Nat.succ o)
+// Add_succ_eq m n o eq =
+//   let app = Equal.apply (x => Nat.succ x) eq
+//   app
+
+// FR_to_R
+//   <m: Nat> <n: Nat> <o: Nat>
+//   (eq: Equal (F_R m n) o) :
+//   R m n o
+// FR_to_R Nat.zero Nat.zero Nat.zero eq = R.C1
+// FR_to_R (Nat.succ m) n (Nat.succ o) eq =
+// let ind = FR_to_R m n o (Equal.apply (x => Nat.pred x) eq)
+//   R.C2 ind
+// FR_to_R m (Nat.succ n) (Nat.succ o) eq =
+// let eq0 = (Nat.add.comm.succ m n)
+//   let aux = Equal.rewrite eq0 (x => Equal _ x (Nat.succ o)) eq
+//   let ind = FR_to_R m n o (Equal.apply (x => Nat.pred x) aux)
+//   R.C3 ind
+// FR_to_R Nat.zero Nat.zero (Nat.succ o) eq = Empty.absurd _ // impossible
+// FR_to_R Nat.zero (Nat.succ n) Nat.zero eq = Empty.absurd _ // impossible
+// FR_to_R (Nat.succ m) Nat.zero Nat.zero eq = Empty.absurd _ // impossible
+// FR_to_R (Nat.succ m) (Nat.succ n) Nat.zero eq = Empty.absurd _ // impossible
+// ```
+
+// 3.1.4. Exercise: 3 stars, optional (R_fact). The relation R above actually encodes a familiar function. Figure out which function; then state and prove this
+// equivalence in Idris?
+// fR : Nat ౏> Nat ౏> Nat
+// fR k j = ?fR_rhs
+// R_equiv_fR : (R m n o) <౦> (fR m n = o)
+// R_equiv_fR = ?R_equiv_fR_rhs
+// □
+// 3.2. Exercício: 4 estrelas, avançado (subsequência). Uma lista é uma subsequência de outra lista se todos os elementos da primeira lista ocorrem na mesma ordem na segunda lista, possivelmente com alguns elementos extras entre eles. Por exemplo, [1,2,3] é uma subsequência de cada uma das listas [1,2,3], [1,1,1,2,2,3], [1,2,7,3], [5,6,1,9,9,2,7,3,8], mas não é uma subsequência de nenhuma das listas [1,2], [1,3], [5,6,2,1,7,3,8].
+
+// • Defina um tipo indutivo Subseq em List Nat que capture o significado de ser uma subsequência. (Dica: Você precisará de três casos.)
+// • Prove subseq_refl, que a subsequência é reflexiva, ou seja, qualquer lista é uma subsequência de si mesma.
+// • Prove subseq_app, que para quaisquer listas l1, l2 e l3, se l1 é uma subsequência de l2, então l1 também é uma subsequência de (App l2 l3).
+// • (Opcional, mais difícil) Prove subseq_trans, que a subsequência é transitiva - ou seja, se l1 é uma subsequência de l2 e l2 é uma subsequência de l3, então l1 é uma subsequência de l3. Dica: escolha sua indução com cuidado!
+
+type Subseq ~ (lx: Data.List Data.Nat) (ly: Data.List Data.Nat) {
+	nil : Subseq [] [] 
+	cons <lx: Data.List Data.Nat> <ly: Data.List Data.Nat> (n: Data.Nat) (sub: Subseq lx ly) : Subseq (Data.List.cons n lx) (Data.List.cons n ly)
+	tail <lx: Data.List Data.Nat> <ly: Data.List Data.Nat> (n: Data.Nat) (sub: Subseq lx ly) : Subseq lx (Data.List.cons n ly)
+}
+
+Theorem_S1 : Subseq [1n,2n,3n] [1n,2n,3n]
+Theorem_S1 = Subseq_refl [1n,2n,3n]
+
+Theorem_S2 : Subseq [1n,2n,3n] [1n,1n,1n,2n,2n,3n]
+Theorem_S2 = Subseq.tail 1n (Subseq.tail 1n (Subseq.cons 1n (Subseq.tail 2n (Subseq_refl [2n,3n])))) 
+
+Theorem_S3 : Subseq [1n,2n,3n] [5n,6n,1n,9n,9n,2n,7n,3n,8n]
+Theorem_S3 = Subseq.tail 5n (Subseq.tail 6n (Subseq.cons 1n (Subseq.tail 9n (Subseq.tail 9n (Subseq.cons 2n (Subseq.tail 7n (Subseq.cons 3n (Subseq.tail 8n (Subseq.nil)))))))))
+
+Theorem_S4 : Subseq [1n,2n,3n] [1n,2n]
+Theorem_S4 = Subseq.cons 1n (Subseq.cons 2n (Data.Empty.absurd _))
+
+// Theorem_S5 : Subseq [1n,2n,3n] [1n,2n,3n]
+// Theorem_S5 = Subseq_refl [1n,2n,3n]
+
+// Theorem_S6 : Subseq [1n,2n,3n] [1n,2n,3n]
+// Theorem_S6 = Subseq_refl [1n,2n,3n]
+
+Subseq_refl (lx: Data.List Data.Nat) : Subseq lx lx 
+Subseq_refl Data.List.nil = Subseq.nil
+Subseq_refl (Data.List.cons head tail) = Subseq.cons head (Subseq_refl tail)
+
+App <a> (l1: Data.List a) (l2: Data.List a) : Data.List a
+App (Data.List.nil ) l2 = l2
+App (Data.List.cons x head tail) l2 = Data.List.cons head (App tail l2) 
+
+App_nil_r <x> (l: Data.List x) : Prop.Equal (Data.List x) (App l Data.List.nil) l
+
+Subseq_app (lx: Data.List Data.Nat) (ly: Data.List Data.Nat) (lw: Data.List Data.Nat) (sub: Subseq lx ly) : Subseq lx (App ly lw)
+Subseq_app lx ly Data.List.nil sub = 
+	let aux = App_nil_r ly
+	let rrt = Prop.Equal.rewrite (Prop.Equal.mirror aux) (x => (Subseq _ x)) sub
+	rrt
+Subseq_app lx ly (Data.List.cons Data.Nat head tail) sub = 
+	let ind = Subseq_app lx ly tail sub
+	let aux = Subseq.cons head ind
+	let auy = Subseq_app.aux (Data.List.cons _ head lx) (Data.List.cons _ head (App _ ly tail)) aux 
+	let rrt = Prop.Equal.rewrite (App_cons_cons_app [head] ly tail) (x => (Subseq lx x)) auy
+	rrt
+
+Subseq_app.aux (lx: Data.List Data.Nat) (ly: Data.List Data.Nat) (sub: Subseq lx ly) : Subseq (Data.List.tail lx) ly
+Subseq_app.aux Data.List.nil ly sub = sub
+Subseq_app.aux (Data.List.cons Data.Nat head tail) ly (Subseq.cons x y h t) = 
+	let e0 = Prop.Equal.refl :: Prop.Equal h head
+	let e1 = Prop.Equal.refl :: Prop.Equal x tail
+	let e2 = Prop.Equal.refl :: Prop.Equal (Data.List.cons Data.Nat h y) ly
+	let rrt = Prop.Equal.rewrite e1 (x => (Subseq x y)) t
+	let fin = Subseq.tail h rrt
+	let rrt = Prop.Equal.rewrite e2 (x => (Subseq _ x)) fin
+	rrt
+
+// App_cons_cons_app <a> (x: a) (lx: Data.List a) (ly: Data.List a) : Prop.Equal (Data.List.cons x (App lx ly)) (App lx (Data.List.cons x ly))
+App_cons_cons_app <a> (lx: Data.List a) (ly: Data.List a) (lw: Data.List a) : Prop.Equal (App lx (App ly lw)) (App ly (App lx lw))
+// App_cons_cons_app a Data.List.nil ly lw = Prop.Equal.refl
+// App_cons_cons_app a (Data.List.cons head tail) ly lw = 
+// 	let ind = App_cons_cons_app tail ly lw 
+// 	let app = Prop.Equal.apply (x => Data.List.cons head x) ind 
+// 	?
+// Subseq_trans (lx: Data.List Data.Nat) (ly: Data.List Data.Nat) (lw: Data.List Data.Nat) (sx: Subseq lx ly) (sy: Subseq ly lw) : (Subseq lx lw)
+// Subseq_trans lx ly lw sx (Subseq.nil) = 
+// // let ok = sx :: Subseq 
+// ?
+// App_cons_cons_app <a> (l: Data.List a) (m: Data.List a) (n: Data.List a) : (Prop.Equal (App l (App m n)) (App (App l m) n)) 
+// App_assoc4 <a> (l1: (Data.List a)) (l2: (Data.List a)) (l3: (Data.List a)) (l4: (Data.List a)) : (Prop.Equal (Data.List a) (App l1 (App l2 (App l3 l4))) (App (App (App l1 l2) l3) l4))
+
+// 3.2.1. Exercício: 2 estrelas, opcional (R_provability2). Suponha que demos a definição a seguir para o Idris:
+type R ~ (a: Data.Nat) (b: Data.Nat) (c: Data.Nat) {
+  C1 : R 0n 0n 0n
+  C2 <m: Data.Nat> <n: Data.Nat> <o: Data.Nat>
+    (r: R m n o) 
+		: R (Data.Nat.succ m) n (Data.Nat.succ o)
+  C3 <m: Data.Nat> <n: Data.Nat> <o: Data.Nat>
+    (r: R m n o) 
+		: R m (Data.Nat.succ n) (Data.Nat.succ o)
+  C4 <m: Data.Nat> <n: Data.Nat> <o: Data.Nat>
+    (r: R (Data.Nat.succ m) (Data.Nat.succ n) (Data.Nat.succ (Data.Nat.succ o))) 
+		: R m n o
+  C5 <m: Data.Nat> <n: Data.Nat> <o: Data.Nat>
+    (r: R m n o) 
+		: R n m o
+}
+
+
+
+type Rprovability ~ (n: Data.Nat) (l: Data.List Data.Nat) {
+	C1: Rprovability 0n []
+	C2 <n: Data.Nat> <l: Data.List Data.Nat> (r: Rprovability n l) : Rprovability (Data.Nat.succ n) (Data.List.cons n l)
+	C3 <n: Data.Nat> <l: Data.List Data.Nat> (r: Rprovability (Data.Nat.succ n) l)
+}
+// data R' : Nat -> List Nat -> Type where
+// C1' : R' 0 []
+// C2' : R' n l -> R' (S n) (n :: l)
+// C3' : R' (S n) l -> R' n l
+
+// Quais das seguintes proposições são prováveis?
+Theorem_R1 : Rprovability 2n [1n,0n]
+Theorem_R1 = Rprovability.C2 (Rprovability.C2 Rprovability.C1)
+Theorem_R2 : Rprovability 1n [1n,2n,1n,0n]
+Theorem_R2 = Rprovability.C3 (Rprovability.C2 (Rprovability.C3 (Rprovability.C3 (Rprovability.C2 (Rprovability.C2 (Rprovability.C2 Rprovability.C1))))))
+Theorem_R3 : Rprovability 6n [3n,2n,1n,0n]
+Theorem_R3 = Data.Empty.absurd _
+
+// • R' 2 [1,0]
+// • R' 1 [1,2,1,0] // 
+// • R' 6 [3,2,1,0]
+
+
+
+
+// Main {
+// 	S_Lte_Lte 2n 2n (Le.n 3n )
+// }
+
+
+
+
+
+// 4. Case Study: Regular Expressions
+// The Ev property provides a simple example for illustrating inductive definitions
+// and the basic techniques for reasoning about them, but it is not terribly exciting –
+// after all, it is equivalent to the two non-inductive of evenness that we had already
+// 102 7. INDPROP : INDUCTIVELY DEFINED PROPOSITIONS
+// seen, and does not seem to offer any concrete benefit over them. To give a better
+// sense of the power of inductive definitions, we now show how to use them to model
+// a classic concept in computer science: regular expressions.
+// Regular expressions are a simple language for describing strings, defined as follows:
+// data Reg_exp : (t : Type) ౏> Type where
+// EmptySet : Reg_exp t
+// EmptyStr : Reg_exp t
+// Chr : t ౏> Reg_exp t
+// App : Reg_exp t ౏> Reg_exp t ౏> Reg_exp t
+// Union : Reg_exp t ౏> Reg_exp t ౏> Reg_exp t
+// Star : Reg_exp t ౏> Reg_exp t
+
+type Regexp (t: Type) {
+	emptyset                              
+	emptystr                              
+	chr   (h: t)                          
+	app   (st1: Regexp t) (st2: Regexp t) 
+	union (st1: Regexp t) (st2: Regexp t) 
+	star  (st1: Regexp t)                 
+}
+// Note that this definition is polymorphic: Regular expressions in Reg_exp t describe
+// strings with characters drawn fromt – that is, lists of elements of t.
+// (We depart slightly from standard practice in that we do not require the type t to
+// be finite. This results in a somewhat different theory of regular expressions, but
+// the difference is not significant for our purposes.)
+// We connect regular expressions and strings via the following rules, which define
+// when a regular expression matches some string:
+// • The expression EmptySet does not match any string.
+// • The expression EmptyStr matches the empty string [].
+// • The expression Chr x matches the one-character string [x].
+// • If re1 matches s1, and re2 matches s2, then App re1 re2 matches s1 ++ s2.
+// • If at least one of re1 and re2 matches s, then Union re1 re2 matches s.
+// • Finally, if we can write some string s as the concatenation of a sequence
+// of strings s = s_1 ++ ... ++ s_k, and the expression re matches each one of
+// the strings s_i, then Star re matches s.
+// As a special case, the sequence of strings may be empty, so Star re always
+// matches the empty string [] no matter what re is.
+// We can easily translate this informal definition into a data one as follows:
+
+// data Exp_match : List t ౏> Reg_exp t ౏> Type where
+// MEmpty : Exp_match [] EmptyStr
+// MChar : Exp_match [x] (Chr x)
+// MApp : Exp_match s1 re1 ౏> Exp_match s2 re2 ౏>
+// Exp_match (s1 ++ s2) (App re1 re2)
+// MUnionL : Exp_match s1 re1 ౏>
+// Exp_match s1 (Union re1 re2)
+// MUnionR : Exp_match s2 re2 ౏>
+// Exp_match s2 (Union re1 re2)
+// MStar0 : Exp_match [] (Star re)
+// MStarApp : Exp_match s1 re ౏>
+// Exp_match s2 (Star re) ౏>
+// Exp_match (s1 ++ s2) (Star re)
+
+
+
+#derive[match]
+type Expmatch <t> ~(xs: Data.List t) (r: Regexp t) {
+mempty              : Expmatch t []   Regexp.emptystr 
+mchar (x: t)        : Expmatch t [x] (Regexp.chr x)
+mapp 
+  <s1: Data.List t>
+  <s2: Data.List t>
+  <re1: Regexp t>
+  <re2: Regexp t>
+  (e1: Expmatch t s1 re1)
+  (e2: Expmatch t s2 re2)
+  : Expmatch t (Data.List.concat t s1 s2) (Regexp.app re1 re2)
+munionl <s1: Data.List t> (re1: Regexp t) (re2: Regexp t)
+  (e1: Expmatch t s1 re1)
+  : Expmatch t s1 (Regexp.union re1 re2)
+munionr (re1: Regexp t) <s2: Data.List t> (re2: Regexp t)
+  (e1: Expmatch t s2 re2)
+  : Expmatch t s2 (Regexp.union re1 re2)
+mstarz (r: Regexp t) : Expmatch t [] (Regexp.star r)  
+mstarapp 
+  <s1: Data.List t> 
+  <s2: Data.List t>
+  <r1: Regexp t>
+  (e1: Expmatch s1 r1)
+  (e2: Expmatch s2 (Regexp.star r1))
+  : Expmatch t (Data.List.concat t s1 s2) (Regexp.star r1)
+}
+// Again, for readability, we can also display this definition using inference-rule notation. At the same time, let’s introduce a more readable infix notation.
+
+// Notice that these rules are not quite the same as the informal ones that we gave
+// at the beginning of the section. First, we don’t need to include a rule explicitly
+// stating that no string matches EmptySet; we just don’t happen to include any rule
+// that would have the effect of some string matching EmptySet. (Indeed, the syntax
+// of inductive definitions doesn’t even allow us to give such a “negative rule.”)
+// Second, the informal rules for Union and Star correspond to two constructors each:
+// MUnionL / MUnionR, and MStar0 / MStarApp. The result is logically equivalent to the
+// original rules but more convenient to use in Idris, since the recursive occurrences
+// of Exp_match are given as direct arguments to the constructors, making it easier to
+// perform induction on evidence. (The exp_match_ex1 and exp_match_ex2 exercises below
+// ask you to prove that the constructors given in the inductive declaration and the
+// ones that would arise from a more literal transcription of the informal rules are
+// indeed equivalent.)
+// Let’s illustrate these rules with a few examples.
+
+// reg_exp_ex1 : [1] =௼ (Chr 1)
+// reg_exp_ex1 = MChar
+Regexp_ex1 : Expmatch [1] (Regexp.chr 1)
+// Regexp_ex1 = Expmatch.mchar 1 
+
+// reg_exp_ex2 : [1,2] =௼ (App (Chr 1) (Chr 2))
+// reg_exp_ex2 = MApp {s1=[1]} {s2=[2]} MChar MChar
+Regexp_ex2 : Expmatch [1, 2] (Regexp.app (Regexp.chr 1) (Regexp.chr 2))
+// Regexp_ex2 = Expmatch.mapp [1] (Regexp.chr 1) (Expmatch.mchar 1) [2] (Regexp.chr 2) (Expmatch.mchar 2)
+
+// 104 7. INDPROP : INDUCTIVELY DEFINED PROPOSITIONS
+// Notice how the last example applies MApp to the strings [1] and [2] directly. While
+// the goal mentions [1,2] instead of [1] ++ [2], Idris is able to figure out how to split
+// the string on its own, so we can drop the implicits:
+
+// Using pattern matching, we can also show that certain strings do not match a
+// regular expression:
+Regexp_ex3 : Prop.Not (Expmatch [1, 2] (Regexp.chr 1))
+Regexp_ex3 = Data.Empty.absurd _
+// reg_exp_ex3 : Not ([1,2] =௼ (Chr 1))
+// reg_exp_ex3 MEmpty impossible
+// reg_exp_ex3 MChar impossible
+// reg_exp_ex3 (MApp _ _) impossible
+// reg_exp_ex3 (MUnionL _) impossible
+// reg_exp_ex3 (MUnionR _) impossible
+// reg_exp_ex3 MStar0 impossible
+// reg_exp_ex3 (MStarApp _ _) impossible
+
+
+// We can define helper functions to help write down regular expressions. The
+// reg_exp_of_list function constructs a regular expression that matches exactly the
+// list that it receives as an argument:
+// reg_exp_of_list : List t ౏> Reg_exp t
+// reg_exp_of_list [] = EmptyStr
+// reg_exp_of_list (x ௝௞ xs) = App (Chr x) (reg_exp_of_list xs)
+
+Regexp_of_list <t> (xs: Data.List t)        : Regexp t
+Regexp_of_list t Data.List.nil              = Regexp.emptystr
+Regexp_of_list t (Data.List.cons xs.h xs.t) = Regexp.app (Regexp.chr xs.h) (Regexp_of_list t xs.t)
+
+Regexp_of_list2 <t> (xs: Data.List t)        : Regexp t
+Regexp_of_list2 t Data.List.nil              = Regexp.emptyset
+Regexp_of_list2 t (Data.List.cons xs.h xs.t) = Regexp.app (Regexp.chr xs.h) (Regexp_of_list t xs.t)
+// reg_exp_ex4 : [1,2,3] =௼ (reg_exp_of_list [1,2,3])
+// reg_exp_ex4 = MApp MChar $ MApp MChar $ MApp MChar MEmpty
+
+Regexp_ex4 : Expmatch [1, 2, 3] (Regexp_of_list [1, 2, 3])
+// Regexp_ex4 = 
+  // (Expmatch.mapp 
+  //   [1] 
+  //   (Regexp.chr 1) 
+  //   (Expmatch.mchar 1) 
+  //   [2, 3] 
+  //   (Regexp_of_list [2, 3])
+  //   (Expmatch.mapp
+  //     [2]
+  //     (Regexp.chr 2)
+  //     (Expmatch.mchar 2) 
+  //     [3]
+  //     (Regexp_of_list [3])
+  //     (Expmatch.mapp
+  //       [3]
+  //       (Regexp.chr 3)
+  //       (Expmatch.mchar 3)
+  //       []
+  //       (Regexp_of_list [])
+  //       (Expmatch.mempty)
+  //     )
+  //   )
+  // )
+// We can also prove general facts about Exp_match. For instance, the following lemma
+// shows that every string s that matches re also matches Star re.
+// MStar1 : (s =௼ re) ౏> (s =௼ Star re)
+// MStar1 {s} h =
+// rewrite sym $ appendNilRightNeutral s in
+// MStarApp h MStar0
+Mstar1 <t> <s: Data.List t> <re: Regexp t> (e: Expmatch s re) : Expmatch s (Regexp.star re)  
+Mstar1 t s re e = 
+  let msz = Expmatch.mstarz re
+  let mss = Expmatch.mstarapp  e msz
+  let lst = List_concat s
+  let rwt = Prop.Equal.rewrite lst (x => (Expmatch t x (Regexp.star re))) mss
+  rwt
+// (Note the use of appendNilRightNeutral to change the goal of the theorem to exactly
+// the same shape expected by MStarApp.)
+// 4.0.1. Exercise: 3 stars (exp_match_ex1). The following lemmas show that
+// the informal matching rules given at the beginning of the chapter can be obtained
+// from the formal inductive definition.
+// empty_is_empty : Not (s =௼ EmptySet)
+// empty_is_empty = ?empty_is_empty_rhs
+List_concat <t> (xs: Data.List t)         : Prop.Equal (Data.List.concat xs Data.List.nil) xs
+List_concat t Data.List.nil               = Prop.Equal.refl
+List_concat t (Data.List.cons xs.h xs.t)  = 
+  let ind = List_concat t xs.t
+  let app = Prop.Equal.apply (x => Data.List.cons xs.h x) ind
+  app
+
+// empty_is_empty : Not (s =~ EmptySet)
+// empty_is_empty = ?empty_is_empty_rhs
+// Empty.is_empty <t> <s: Data.List t> : Prop.Not (Expmatch s Regexp.emptyset)
+// Empty.is_empty t s =
+ // (emp =>
+    // let proof
+ // )
+ // ?
+
+// MUnion' : (s =௼ re1, s =௼ re2) ౏> s =௼ Union re1 re2
+// MUnion' m = ?MUnion__rhs
+Munion 
+  <t> 
+  <s: Data.List t> 
+  <re1:  Regexp t> 
+  <re2:  Regexp t> 
+  (p: Data.Pair (Expmatch s re1) (Expmatch s re2))
+  : Expmatch s (Regexp.union re1 re2)
+// Munion t s re1 re2 (Data.Pair.new fst snd) =
+  // Expmatch.munionl t s [] re1 re2
+
+// 4. CASE STUDY: REGULAR EXPRESSIONS 105
+// The next lemma is stated in terms of the fold function from the Poly chapter: If
+// ss : List (List t) represents a sequence of strings s1, ..., sn, then fold (++) ss []
+// is the result of concatenating them all together.
+// Copied from Poly, cannot import it due to tuple sugar issues
+
+// fold : (f : x ౏> y ౏> y) ౏> (l : List x) ౏> (b : y) ౏> y
+// fold f [] b = b
+// fold f (h௝௞t) b = f h (fold f t b)
+
+Fold <x> <y> (f: x -> y -> y) (l: Data.List x) (b: y) : y
+Fold x y f Data.List.nil b = b
+Fold x y f (Data.List.cons xs.h xs.t) b = f xs.h (Fold f xs.t b) 
+
+In <a> (x: a) (l: Data.List a) : Type
+In a x Data.List.nil = Data.Empty
+In a x (Data.List.cons head tail) = Data.Either (Prop.Equal a x head) (In a x tail) 
+  
+DDl (t: Type): Type
+DDl t= Data.List t
+
+FoldStar 
+  <t> 
+  (ss: Data.List (Data.List t)) 
+  (s: Data.List t) 
+  (re: Regexp t)
+  : (Expmatch  (Fold (Data.List t) (Data.List t) (x => (y => (Data.List.concat t x y))) ss (Data.List.nil t)) (Regexp.star re)) 
+FoldStar Data.List.nil s re = Expmatch.mstarz re
+// FoldStar (Data.List.cons xs.h xs.t) s re =
+//  Expmatch.mstarapp (?) (FoldStar xs.t s re)
+// • Got      : (Expmatch _                            (Fold _ _ (x => (y => (Data.List.concat x_4 x y))) xs.t (Data.List.nil x_4))  (Regexp.star _ re))
+// • Expected : (Expmatch _ (Data.List.concat x_4 xs.h (Fold _ _ (x => (y => (Data.List.concat x_4 x y))) xs.t (Data.List.nil x_4))) (Regexp.star _ re))
+
+InHead <t> <xs: Data.List t> (x: t) : In x (Data.List.cons x xs)
+InHead x = Data.Either.left Prop.Equal.refl
+
+
+Concat <t> (xs: DDl t) : Prop.Equal (Data.List.concat xs []) xs 
+Concat Data.List.nil = Prop.Equal.refl
+Concat (Data.List.cons xs.h xs.t) = 
+  let ind = Concat xs.t
+  let app = Prop.Equal.apply (x => Data.List.cons xs.h x) ind
+  app
+// MStar' : ((s : List t) ౏> (In s ss) ౏> (s =௼ re)) ౏>
+// (fold (++) ss []) =௼ Star re
+// MStar' f = ?MStar__rhs
+
+
+// 4.0.2. Exercise: 4 stars (reg_exp_of_list). Prove that reg_exp_of_list satisfies
+// the following specification:
+// reg_exp_of_list_spec : (s1 =௼ reg_exp_of_list s2) <౦> (s1 = s2)
+// reg_exp_of_list_spec = ?reg_exp_of_list_spec_rhs
+
+// Reg_exp_of_list_spec <t> (s1: Data.List t) (s2: Data.List t) : Iff (Expmatch s1 (Regexp_of_list s2)) (Prop.Equal s1 s2)
+// Reg_exp_of_list_spec s1 s2 = Data.Pair.new ((x: (Expmatch s1 (Regexp_of_list s2))) => Fro s1 s2 x) ((y: (Prop.Equal s1 s2)) => To s1 s2 y)
+
+// Fro <t> (s1: Data.List t) (s2: Data.List t) (x: (Expmatch s1 (Regexp_of_list s2))) : (Prop.Equal s1 s2)
+
+// Fro t (Data.List.nil) (Data.List.nil) x = Prop.Equal.refl 
+// // Fro t (Data.List.cons head tail) (Data.List.nil) x = ?
+// // Fro t (Data.List.nil) (Data.List.cons head tail) x = ?
+// Fro t (Data.List.cons head tail) (Data.List.cons head_ tail_) (Expmatch.mapp _ (Data.List.cons ms1h ms1t) s2 (Regexp.chr mh) re2 (Expmatch.mchar h_) m2)  =   
+// //   let ind = Fro tail tail_ ?
+//   ?
+
+// Data.List.equals <t> (x: Data.List t) (y: Data.List t) : Prop.Decidable (Prop.Equal x y)
+// Data.List.equals t (Data.List.nil) (Data.List.nil) = Prop.Decidable.yep Prop.Equal.refl
+// Data.List.equals t (Data.List.cons head tail) (Data.List.nil) = Prop.Decidable.nop (x => (List.cons_not_nil head tail x))
+// Data.List.equals t (Data.List.nil) (Data.List.cons head_ tail_) = Prop.Decidable.nop (x => (List.nil_not_cons head_ tail_ x))
+// Data.List.equals t (Data.List.cons head tail) (Data.List.cons head_ tail_) =  
+//   let ind = Data.List.equals tail tail_
+//   // let app = Prop.Equal.apply (x => (Data.List.cons head x)) ?
+//   // let e0 = Prop.Decidable.yep Prop.Equal.refl :: Prop.Equal
+//   match Prop.Decidable  ind {
+//     yep proof => Prop.Decidable.yep (
+//       let aux = Prop.Equal.apply (x => (Data.List.cons head x)) proof
+//       let auy = Prop.Equal.apply (x => (Data.List.cons head_ x)) proof
+//       ?
+//     )
+//     nop proof => Prop.Decidable.nop (x => _)
+//   }
+
+// #derive[match]
+// type Equality <t> (a: t) (b: t) {
+//   e (eq: Prop.Decidable (Prop.Equal a b))
+// }
+
+// Equal <t> (a: t) (b: t) (e0: Equality t a b): Prop.Decidable (Prop.Equal a b)
+// Equal t a b (Equality.e eq) = eq
+
+// Prop.Decidable.extract_yep <t> <f : t> (dec: Prop.Decidable t) (eq: Prop.Equal dec (Prop.Decidable.yep f)) : t
+// Prop.Decidable.extract_yep (Prop.Decidable.yep f) Prop.Equal.refl = f
+// Prop.Decidable.extract_yep _ _ = Data.Empty.absurd _
+
+// List.cons_not_nil <t> (head: t) (tail: Data.List t) (e0: (Prop.Equal (Data.List.cons head tail) (Data.List.nil))) : Data.Empty
+// List.cons_not_nil t head tail e = 
+//   let e = Prop.Equal.apply (x => Data.List.is_nil x) e
+//   Data.Bool.false_not_true e
+
+
+// List.nil_not_cons <t> (head: t) (tail: Data.List t) (e0: (Prop.Equal (Data.List.nil) (Data.List.cons head tail))) : Data.Empty
+// List.nil_not_cons t head tail e = 
+//   let e = Prop.Equal.apply (x => Data.List.is_nil x) e
+//   Data.Bool.true_not_false e
+  
+
+// To <t> (s1: Data.List t) (s2: Data.List t) (x: (Prop.Equal s1 s2)) : (Expmatch s1 (Regexp_of_list s2))
+Regexp_of_list_spec <t>
+  (s1 : Data.List t) (s2: Data.List t)
+  : Iff (Expmatch s1 (Regexp_of_list s2)) (Prop.Equal s1 s2)
+Regexp_of_list_spec s1 s2 = Data.Pair.new ((x: (Expmatch s1 (Regexp_of_list s2))) => Expmatch_Regexp_of_list_to_Eq s1 s2 x) ((x: (Prop.Equal s1 s2))=> Eq_to_Expmatch_Regexp_of_list s1 s2 x)
+
+Eq_to_Expmatch_Regexp_of_list <t> (s1: Data.List t) (s2: Data.List t) (eq: Prop.Equal s1 s2) : (Expmatch s1 (Regexp_of_list s2))
+Eq_to_Expmatch_Regexp_of_list t s1 s2 eq =
+  let s1_match = Expmatch_Regexp_of_list s1
+  let rwt = Prop.Equal.rewrite eq (x => Expmatch s1 (Regexp_of_list x)) s1_match
+  rwt
+
+Expmatch_Regexp_of_list <t> (s: Data.List t) : Expmatch s (Regexp_of_list s)
+Expmatch_Regexp_of_list Data.List.nil = Expmatch.mempty
+Expmatch_Regexp_of_list (Data.List.cons h t) =
+  let ind = Expmatch_Regexp_of_list t
+  Expmatch.mapp (Expmatch.mchar h) ind 
+
+Expmatch_Regexp_of_list_to_Eq <t> (s1: Data.List t) (s2: Data.List t) (m: Expmatch s1 (Regexp_of_list s2)) : (Prop.Equal s1 s2)
+Expmatch_Regexp_of_list_to_Eq t s1 Data.List.nil Expmatch.mempty = Prop.Equal.refl
+Expmatch_Regexp_of_list_to_Eq t (Data.List.cons h1 t1) (Data.List.cons h2 t2) (Expmatch.mapp _ (Data.List.cons ms1h ms1t) s2 (Regexp.chr mh) re2 (Expmatch.mchar h_) m2) =
+  let eq0 = Prop.Equal.refl :: Prop.Equal ms1t Data.List.nil
+  let eq1 = Prop.Equal.refl :: Prop.Equal t1 (Data.List.concat ms1t s2)
+  let eq2 = Prop.Equal.rewrite eq0 (x => Prop.Equal t1 (Data.List.concat x s2)) eq1
+  let m2_ = Prop.Equal.rewrite (Prop.Equal.mirror eq2) (x => Expmatch x re2) m2
+  let ind = Expmatch_Regexp_of_list_to_Eq t1 t2 m2_
+  
+  let a0 = Prop.Equal.refl :: Prop.Equal mh h2
+  let a1 = Prop.Equal.refl :: Prop.Equal mh h_
+  let a2 = Prop.Equal.right a0 a1
+  let a3 = Prop.Equal.refl :: Prop.Equal h_ ms1h
+  let a4 = Prop.Equal.refl :: Prop.Equal ms1h h1
+  let a5 = Prop.Equal.chain a3 a4
+  let h2_eq_h1 = Prop.Equal.chain a2 a5
+
+  let app = Prop.Equal.apply (lst => Data.List.cons h2 lst) ind
+  let rwt = Prop.Equal.rewrite h2_eq_h1 (x => Prop.Equal (Data.List.cons x t1) (Data.List.cons h2 t2)) app
+  rwt
+Expmatch_Regexp_of_list_to_Eq _ _ _ _ = Data.Empty.absurd _ // impossible
+
+
+
+// Since the definition of Exp_match has a recursive structure, we might expect that
+// proofs involving regular expressions will often require induction on evidence. For
+// example, suppose that we wanted to prove the following intuitive result: If a
+// regular expression re matches some string s, then all elements of s must occur
+// somewhere in re. To state this theorem, we first define a function re_chars that
+// lists all characters that occur in a regular expression:
+Re_chars <t> (re: Regexp t) : Data.List t
+Re_chars t Regexp.emptyset  = []
+Re_chars t Regexp.emptystr  = []
+Re_chars t (Regexp.chr x)   = [x]
+Re_chars t (Regexp.app r0 r1) = Data.List.concat (Re_chars r0) (Re_chars r1)
+Re_chars t (Regexp.union r0 r1) = Data.List.concat (Re_chars r0) (Re_chars r1)
+Re_chars t (Regexp.star r0) = Re_chars r0
+
+// emptyset                              
+// emptystr                              
+// chr   (h: t)                          
+// app   (st1: Regexp t) (st2: Regexp t) 
+// union (st1: Regexp t) (st2: Regexp t) 
+// star  (st1: Regexp t) 
+// re_chars : (re : Reg_exp t) ౏> List t
+// re_chars EmptySet = []
+// re_chars EmptyStr = []
+// re_chars (Chr x) = [x]
+// re_chars (App re1 re2) = re_chars re1 ++ re_chars re2
+// re_chars (Union re1 re2) = re_chars re1 ++ re_chars re2
+// re_chars (Star re) = re_chars re
+
+Re_star <t> (re: Regexp t) : Prop.Equal (Re_chars (Regexp.star re)) (Re_chars re)
+Re_star e re = Prop.Equal.refl
+// re_star : re_chars (Star re) = re_chars re
+// re_star = Refl
+
+
+// Iff <p> <q> : Type
+// Iff p q = Data.Pair (p -> q) (q -> p)
+
+In_app_iff <a> (x: a) (lx: Data.List a) (ly: Data.List a) : Iff (In x (Data.List.concat lx ly)) (Data.Either (In x lx) (In x ly))  
+
+// We can then phrase our theorem as follows:
+// Some unfortunate implicit plumbing
+Destruct <a> (x: a) (lx: Data.List a) (ly: Data.List a) (i: In x (Data.List.concat a lx ly)) : (Data.Either (In x lx) (In x ly))
+Destruct a x lx ly i =  
+  let Data.Pair.new fst snd = (In_app_iff x lx ly) 
+  // let f = fst i // erro
+  let f = (fst :: (_) -> (_)) i // funcional 
+  f
+// destruct : In x (s1 ++ s2) ౏> (In x s1) `Either` (In x s2)
+// destruct {x} {s1} {s2} = fst $ in_app_iff {a=x} {l=s1} {l'=s2}
+
+Construct <a> (x: a) (lx: Regexp a) (ly: Regexp a) (e: Data.Either (In x (Re_chars lx)) (In x (Re_chars ly))) : In x (Data.List.concat (Re_chars lx) (Re_chars ly))
+Construct a x lx ly e = (Data.Pair.snd ( In_app_iff x (Re_chars lx) (Re_chars ly)) :: (_) -> (_)) e
+
+// construct : (In x (re_chars re1)) `Either` (In x (re_chars re2)) ౏>
+// In x ((re_chars re1) ++ (re_chars re2))
+// construct {x} {re1} {re2} =
+// snd $ in_app_iff {a=x} {l=(re_chars re1)} {l'=(re_chars re2)}
+Empty.is_empty <t> <s: Data.List t> : Prop.Not (Expmatch s Regexp.emptyset)
+
+In_re_match <a> (x: a) (re: Regexp a) (s: Data.List a) (e: Expmatch s re) (i: In x s) : In x (Re_chars re)
+In_re_match a x (Regexp.emptyset) Data.List.nil e i = i
+In_re_match a x (Regexp.emptyset) (Data.List.cons head tail) e i = Data.Empty.absurd _
+In_re_match a x (Regexp.emptystr) (Data.List.nil) Expmatch.mempty i = i
+// In_re_match a x Regexp.emptystr Data.List.nil (Expmatch.mchar h) i = ?
+In_re_match a x (Regexp.chr u s)  (Data.List.cons t re (Data.List.nil _)) (Expmatch.mchar c) i = 
+  let e0 = Prop.Equal.refl :: Prop.Equal c re
+  let e1 = Prop.Equal.refl :: Prop.Equal s c
+  let chn = Prop.Equal.chain e1 e0
+  let rrt = Prop.Equal.rewrite (Prop.Equal.mirror chn) (y => (Data.Either (Prop.Equal _ x y) _)) i 
+  rrt
+// In_re_match a x (Regexp.app t z y) (Data.List.concat u l1 l2) e i = 
+//   let e0 = Prop.Equal.refl :: Prop.Equal u a
+//   let l3 = l1 :: Data.List a
+//   let l4 = l2 :: Data.List a
+//   let e1 = Prop.Equal.refl :: Prop.Equal l1 l3
+//   let e2 = Prop.Equal.refl :: Prop.Equal l2 l4
+//   let e3 = Prop.Equal.refl :: Prop.Equal  (Data.List.concat u l1 l2) (Data.List.concat a l3 l4) 
+//   let i = i :: (In a x (Data.List.concat u l1 l2))
+//   let rrt = Prop.Equal.rewrite e3 ((k: (Data.List a))=> (In a x k)) i 
+//   let des = Destruct x l3 l4 ?
+//   ?
+// In_re_match a x (Regexp.union _ r1 r2) s (Expmatch.munionl  c b r3 r4 ml ) i = 
+//   let ind = In_re_match a x r1 s ml i
+//   let con = Construct x r1 r2 ?
+//   ?
+// In_re_match a x (Regexp.union _ r1 r2) s (Expmatch.munionr  c b r3 r4 mr ) i =
+
+// ?
+In_re_match a x re Data.List.nil (Expmatch.mstarz z) i = Data.Empty.absurd _
+// In_re_match a x (Regexp.star d e) (Data.List.concat u l1 l2) (Expmatch.mstarapp (Data.List.concat t s1 s2) (Regexp.star r1)) i = 
+//   let des = Destruct a x ? ? i
+//   ?
+// In_re_match  Expmatch.mempty i = ? 
+// In_re_match  Expmatch.mempty i = ? 
+// In_re_match  Expmatch.mempty i = ? 
+// In_re_match  Expmatch.mempty i = ? 
+// In_re_match  Expmatch.mempty i = ? 
+
+// in_re_match : (s =௼ re) ౏> In x s ౏> In x (re_chars re)
+// in_re_match MEmpty prf = prf
+
+// in_re_match MChar prf = prf
+
+// in_re_match (MApp m1 m2) prf = construct $ case destruct prf of
+// Left prf1 ౬> Left $ in_re_match m1 prf1
+// Right prf2 ౬> Right $ in_re_match m2 prf2
+// in_re_match (MUnionL ml) prf = construct $ Left $ in_re_match ml prf
+// in_re_match (MUnionR mr) prf = construct $ Right $ in_re_match mr prf
+// in_re_match MStar0 prf = absurd prf
+// in_re_match (MStarApp m ms) prf = case destruct prf of
+// Edit
+// Something interesting happens in the MStarApp case. We obtain two induction hypotheses: One that applies when x occurs in s1 (which matches re), and a second
+// one that applies when x occurs in s2 (which matches Star re). This is a good illustration of why we need induction on evidence for Exp_match, as opposed to re: The
+// latter would only provide an induction hypothesis for strings that match re, which
+// would not allow us to reason about the case In x s2.
+
+// Left prf' ౬> in_re_match m prf'
+// Right prfs ౬> in_re_match ms prfs
+
+// 4.0.3. Exercise: 4 stars (re_not_empty). Write a recursive function
+// re_not_empty that tests whether a regular expression matches some string. Prove
+// that your function is correct.
+// re_not_empty : (re : Reg_exp t) ౏> Bool
+// re_not_empty re = ?re_not_empty_rhs
+// re_not_empty_correct : (s ** s =௼ re) <౦> re_not_empty re = True
+// re_not_empty_correct = ?re_not_empty_correct_rhs
+// □
+// 4.1. The remember Tactic.
+// Rewrite the section, dependent pattern matching figures all of this out
+// One potentially confusing feature of the induction tactic is that it happily lets you
+// try to set up an induction over a term that isn’t sufficiently general. The effect
+// of this is to lose information (much as destruct can do), and leave you unable to
+// complete the proof. Here’s an example:
+App_assoc <a> (l: Data.List a) (m: Data.List a) (n: Data.List a) : (Prop.Equal (Data.List a) (Data.List.concat l (Data.List.concat m n)) (Data.List.concat (Data.List.concat l m) n)) 
+
+Star_app  <a> (re: Regexp a) (s1: Data.List a) (s2: Data.List a) (exp0: Expmatch a s1 (Regexp.star re)) (exp1: Expmatch a s2 (Regexp.star re)) :  (Expmatch (Data.List.concat s1 s2) (Regexp.star re))
+Star_app a re (Data.List.nil _) s2 (Expmatch.mstarz e) exp1 = exp1
+Star_app a re s1 s2 (Expmatch.mstarapp t r s r1 m ms) exp1 = 
+  let e0 = Prop.Equal.refl :: Prop.Equal r1 re
+  let e1 = Prop.Equal.refl :: Prop.Equal (Data.List.concat r s) s1
+  let ind = Expmatch.mstarapp m (Star_app r1 s s2 ms exp1)
+  let rrt = Prop.Equal.rewrite e0 (x => (Expmatch _ _ (Regexp.star _ x))) ind
+  let aux = App_assoc r s s2
+  let rrt = Prop.Equal.rewrite aux (x => (Expmatch _ (x) (_))) rrt
+  let rrt = Prop.Equal.rewrite e1 (x => (Expmatch t (Data.List.concat _ x s2) (Regexp.star t re))) rrt
+  rrt
+// star_app : (s1 =௼ Star re) ౏> (s2 =௼ Star re) ౏> (s1 ++ s2) =௼ Star re
+// star_app MStar0 m2 = m2
+
+
+// star_app {s2} (MStarApp {s1=s11} {s2=s21} m ms) m2 
+
+
+// rewrite sym $ appendAssociative s11 s21 s2 in
+
+// MStarApp m (star_app ms m2)
+// #partial
+// Mapp_extract 
+//   <t> 
+//   <s1: Data.List t> 
+//   <s2: Data.List t>
+//   <re1: Regexp t>
+//   <re2: Regexp t>
+//   (m: Expmatch (Data.List.concat t s1 s2) (Regexp.app t re1 re2))
+//   : Data.Pair (Expmatch t s1 re1) (Expmatch t s2 re2)
+// Mapp_extract (Expmatch.mapp m1 m2) = Data.Pair.new m1 m2
+
+// 4.1.1. Exercise: 4 stars (exp_match_ex2). The MStar'' lemma below (combined with its converse, the MStar' exercise above), shows that our definition of
+// Exp_match for Star is equivalent to the informal one given previously.
+MStar2 <t> (re: Regexp t) (s: Data.List t) (ss: Data.List (Data.List t)) (exp: Expmatch s (Regexp.star re)) : (Data.Pair (Prop.Equal s (Fold (x => y => Data.List.concat x y ) ss [])) ((s2: Data.List t) -> (In s2 ss) -> (Expmatch s2 re)))
+// MStar2 t re Data.List.nil Data.List.nil exp = Data.Pair.new (Prop.Equal.refl) ((s2: Data.List t) => (i: (In Data.List.nil Data.List.nil)) => ?)
+// MStar'' : (s =௼ Star re) ౏>
+// (ss : List (List t) **
+//         (s = fold (++) ss [],  (s': List t) ౏> In s' ss ౏> s' =௼ re)
+// )
+// MStar'' m = ?MStar___rhs
+// □
+// 4.1.2. Exercise: 5 stars, advanced (pumping). One of the first really interesting
+// theorems in the theory of regular expressions is the so-called pumping lemma, which
+// states, informally, that any sufficiently long string s matching a regular expression
+// re can be “pumped” by repeating some middle section of s an arbitrary number of
+// times to produce a new string also matching re.
+// To begin, we need to define “sufficiently long.” Since we are working in a constructive logic, we actually need to be able to calculate, for each regular expression re,
+// the minimum length for strings s to guarantee “pumpability.”
+// namespace Pumping
+// pumping_constant : (re : Reg_exp t) ౏> Nat
+// pumping_constant EmptySet = 0
+// pumping_constant EmptyStr = 1
+// pumping_constant (Chr _) = 2
+// pumping_constant (App re1 re2) =
+// pumping_constant re1 + pumping_constant re2
+// pumping_constant (Union re1 re2) =
+// pumping_constant re1 + pumping_constant re2
+// pumping_constant (Star _) = 1
+// Next, it is useful to define an auxiliary function that repeats a string (appends it
+// to itself) some number of times.
+// napp : (n : Nat) ౏> (l : List t) ౏> List t
+// napp Z _ = []
+// napp (S k) l = l ++ napp k l
+// napp_plus: (n, m : Nat) ౏> (l : List t) ౏>
+// napp (n + m) l = napp n l ++ napp m l
+// napp_plus Z _ _ = Refl
+// napp_plus (S k) m l =
+// rewrite napp_plus k m l in
+// appendAssociative l (napp k l) (napp m l)
+// Now, the pumping lemma itself says that, if s =௼ re and if the length of s is at least
+// the pumping constant of re, then s can be split into three substrings s1 ++ s2 ++ s3
+// in such a way that s2 can be repeated any number of times and the result, when
+// combined with s1 and s3 will still match re. Since s2 is also guaranteed not to be
+// the empty string, this gives us a (constructive!) way to generate strings matching
+// re that are as long as we like.
+// pumping : (s =௼ re) ౏> ((pumping_constant re) యర' (length s)) ౏>
+// (s1 ** s2 ** s3 ** ( s = s1 ++ s2 ++ s3
+// , Not (s2 = [])
+// , (m:Nat) ౏> (s1 ++ napp m s2 ++ s3) =௼ re
+// ))
+// Edit hint
+// To streamline the proof (which you are to fill in), the omega tactic, which is enabled
+// by the following Require, is helpful in several places for automatically completing
+// tedious low-level arguments involving equalities or inequalities over natural numbers. We’ll return to omega in a later chapter, but feel free to experiment with it
+// now if you like. The first case of the induction gives an example of how it is used.
+// pumping m le = ?pumping_rhs
+// 5. Case Study: Improving Reflection
+// We’ve seen in the Logic chapter that we often need to relate boolean computations
+// to statements in Type. But performing this conversion in the way we did it there
+// can result in tedious proof scripts. Consider the proof of the following theorem:
+// filter_not_empty_In : {n : Nat} ౏> Not (filter ((తథ) n) l = []) ౏> In n l
+// filter_not_empty_In {l=[]} contra = contra Refl
+// filter_not_empty_In {l=(x௝௞_)} {n} contra with (n తథ x) proof h
+// filter_not_empty_In contra | True =
+// Left $ sym $ beq_nat_true $ sym h
+// filter_not_empty_In contra | False =
+// Right $ filter_not_empty_In contra
+// In the second case we explicitly apply the beq_nat_true lemma to the equation generated by doing a dependent match on n తథ x, to convert the assumption n తథ x = True
+// into the assumption n = m.
+// We can streamline this by defining an inductive proposition that yields a better case-analysis principle for n తథ m. Instead of generating an equation such as
+// n తథ m = True, which is generally not directly useful, this principle gives us right
+// away the assumption we really need: n = m.
+// We’ll actually define something a bit more general, which can be used with arbitrary properties (and not just equalities):
+// Update the text: seems that additional (b=...) constructor parameter is needed
+// for this to work in Idris.
+// data Reflect : Type ౏> Bool ౏> Type where
+// ReflectT : (p : Type) ౏> (b=True) ౏> Reflect p b
+// ReflectF : (p : Type) ౏> (Not p) ౏> (b=False) ౏> Reflect p b
+// 5. CASE STUDY: IMPROVING REFLECTION 111
+// Before explaining this, let’s rearrange it a little: Since the types of both ReflectT
+// and ReflectF begin with (p : Type), we can make the definition a bit more readable
+// and easier to work with by making p a parameter of the whole data declaration.
+// data Reflect : (p : Type) ౏> (b : Bool) ౏> Type where
+// ReflectT : p ౏> (b=True) ౏> Reflect p b
+// ReflectF : (Not p) ౏> (b=False) ౏> Reflect p b
+// The reflect property takes two arguments: a proposition p and a boolean b. Intuitively, it states that the property p is reflected in (i.e., equivalent to) the boolean
+// b: p holds if and only if b = True. To see this, notice that, by definition, the only
+// way we can produce evidence that Reflect p True holds is by showing that p is true
+// and using the ReflectT constructor. If we invert this statement, this means that it
+// should be possible to extract evidence for p from a proof of Reflect p True. Conversely, the only way to show Reflect p False is by combining evidence for Not p
+// with the ReflectF constructor.
+// It is easy to formalize this intuition and show that the two statements are indeed
+// equivalent:
+// iff_reflect : (p <౦> (b = True)) ౏> Reflect p b
+// iff_reflect {b = False} (pb, _) = ReflectF (uninhabited . pb) Refl
+// iff_reflect {b = True} (_, bp) = ReflectT (bp Refl) Refl
+// 5.0.1. Exercise: 2 stars, recommended (reflect_iff).
+// reflect_iff : Reflect p b ౏> (p <౦> (b = True))
+// reflect_iff x = ?reflect_iff_rhs
+// □
+// The advantage of Reflect over the normal “if and only if” connective is that, by
+// destructing a hypothesis or lemma of the form Reflect p b, we can perform case
+// analysis on b while at the same time generating appropriate hypothesis in the two
+// branches (p in the first subgoal and Not p in the second).
+// beq_natP : {n, m : Nat} ౏> Reflect (n = m) (n తథ m)
+// beq_natP {n} {m} = iff_reflect $ iff_sym $ beq_nat_true_iff n m
+// Edit - we basically trade the invocation of beq_nat_true in Left for an indirect
+// rewrite in Right
+// The new proof of filter_not_empty_In now goes as follows. Notice how the calls to
+// destruct and apply are combined into a single call to destruct.
+// (To see this clearly, look at the two proofs of filter_not_empty_In with Idris and
+// observe the differences in proof state at the beginning of the first case of the
+// destruct.)
+// filter_not_empty_In' : {n : Nat} ౏> Not (filter ((తథ) n) l = []) ౏> In n l
+// filter_not_empty_In' {l=[]} contra = contra Refl
+// filter_not_empty_In' {n} {l=(x௝௞xs)} contra with (beq_natP {n} {m=x})
+// filter_not_empty_In' _ | (ReflectT eq _) = Left $ sym eq
+// 112 7. INDPROP : INDUCTIVELY DEFINED PROPOSITIONS
+// filter_not_empty_In' {n} {l=(x௝௞xs)} contra | (ReflectF _ notbeq) =
+// let
+// How to rewrite more neatly here?
+// contra' = replace notbeq contra
+// {P = \a ౬>
+// Not ((if a
+// then x ௝௞ filter ((తథ) n) xs
+// else filter ((తథ) n) xs) = [])}
+// in
+// Right $ filter_not_empty_In' contra'
+// 5.0.2. Exercise: 3 stars, recommended (beq_natP_practice). Use beq_natP as
+// above to prove the following:
+// count : (n : Nat) ౏> (l : List Nat) ౏> Nat
+// count _ [] = 0
+// count n (x ௝௞ xs) = (if n తథ x then 1 else 0) + count n xs
+// beq_natP_practice : count n l = 0 ౏> Not (In n l)
+// beq_natP_practice prf = ?beq_natP_practice_rhs
+// □
+// This technique gives us only a small gain in convenience for the proofs we’ve seen
+// here, but using Reflect consistently often leads to noticeably shorter and clearer
+// scripts as proofs get larger. We’ll see many more examples in later chapters.
+// Add http://math-comp.github.io/math-comp/ as a link
+// The use of the reflect property was popularized by SSReflect, a Coq library that
+// has been used to formalize important results in mathematics, including as the
+// 4-color theorem and the Feit-Thompson theorem. The name SSReflect stands for
+// small-scale reflection, i.e., the pervasive use of reflection to simplify small proof
+// steps with boolean computations.
+// 6. Additional Exercises
+// 6.0.1. Exercise: 3 stars, recommended (nostutter). Formulating inductive definitions of properties is an important skill you’ll need in this course. Try to solve
+// this exercise without any help at all.
+// We say that a list “stutters” if it repeats the same element consecutively. The
+// property “Nostutter mylist” means that mylist does not stutter. Formulate an inductive definition for Nostutter. (This is different from the NoDup property in the
+// exercise below; the sequence [1,4,1] repeats but does not stutter.)
+// data Nostutter : List t ౏> Type where
+// -- FILL IN HERE
+// RemoveMe : Nostutter [] -- needed for typechecking, data shouldn't be empty
+// 6. ADDITIONAL EXERCISES 113
+// Make sure each of these tests succeeds, but feel free to change the suggested proof
+// (in comments) if the given one doesn’t work for you. Your definition might be
+// different from ours and still be correct, in which case the examples might need a
+// different proof. (You’ll notice that the suggested proofs use a number of tactics
+// we haven’t talked about, to make them more robust to different possible ways of
+// defining Nostutter. You can probably just uncomment and use them as-is, but you
+// can also prove each example with more basic tactics.)
+// test_nostutter_1 : Nostutter [3,1,4,1,5,6]
+// test_nostutter_1 = ?test_nostutter_1_rhs
+// (*
+// Proof. repeat constructor; apply beq_nat_false_iff; auto.
+// Qed.
+// *)
+// test_nostutter_2 : Nostutter []
+// test_nostutter_2 = ?test_nostutter_2_rhs
+// (*
+// Proof. repeat constructor; apply beq_nat_false_iff; auto.
+// Qed.
+// *)
+// test_nostutter_3 : Nostutter [5]
+// test_nostutter_3 = ?test_nostutter_3_rhs
+// (*
+// Proof. repeat constructor; apply beq_nat_false; auto. Qed.
+// *)
+// test_nostutter_4 : Not (Nostutter [3,1,1,4])
+// test_nostutter_4 = ?test_nostutter_4_rhs
+// (*
+// Proof. intro.
+// repeat match goal with
+// h: nostutter _ |- _ ౬> inversion h; clear h; subst
+// end.
+// contradiction H1; auto. Qed.
+// *)
+// □
+// 6.0.2. Exercise: 4 stars, advanced (filter_challenge). Let’s prove that our definition of filter from the Poly chapter matches an abstract specification. Here is
+// the specification, written out informally in English:
+// A list l is an “in-order merge” of l1 and l2 if it contains all the same elements as
+// l1 and l2, in the same order as l1 and l2, but possibly interleaved. For example,
+// [1,4,6,2,3]
+// 114 7. INDPROP : INDUCTIVELY DEFINED PROPOSITIONS
+// is an in-order merge of
+// [1,6,2]
+// and
+// [4,3]
+// Now, suppose we have a set t, a function test : t౏>Bool, and a list l of type List t.
+// Suppose further that l is an in-order merge of two lists, l1 and l2, such that every
+// item in l1 satisfies test and no item in l2 satisfies test. Then filter test l = l1.
+// Translate this specification into a Idris theorem and prove it. (You’ll need to begin
+// by defining what it means for one list to be a merge of two others. Do this with
+// an inductive data type, not a function.)
+// -- FILL IN HERE
+// □
+// 6.0.3. Exercise: 5 stars, advanced, optional (filter_challenge_2). A different
+// way to characterize the behavior of filter goes like this: Among all subsequences
+// of l with the property that test evaluates to True on all their members, filter test l
+// is the longest. Formalize this claim and prove it.
+// -- FILL IN HERE
+// □
+// 6.0.4. Exercise: 4 stars, optional (palindromes). A palindrome is a sequence
+// that reads the same backwards as forwards.
+// • Define an inductive proposition Pal on List t that captures what it means
+// to be a palindrome. (Hint: You’ll need three cases. Your definition should
+// be based on the structure of the list; just having a single constructor like
+// C : (l : List t) ౏> l = rev l ౏> Pal l
+// may seem obvious, but will not work very well.)
+// • Prove (pal_app_rev) that
+// (l : List t) ౏> Pal (l ++ rev l)
+// • Prove (pal_rev) that
+// (l : List t) ౏> Pal l ౏> l = rev l
+// -- FILL IN HERE
+// □
+// 6.0.5. Exercise: 5 stars, optional (palindrome_converse). Again, the converse
+// direction is significantly more difficult, due to the lack of evidence. Using your
+// definition of Pal from the previous exercise, prove that
+// (l : List t) ౏> l = rev l ౏> Pal l
+// 6. ADDITIONAL EXERCISES 115
+// -- FILL IN HERE
+// □
+// 6.1. Exercise: 4 stars, advanced, optional (NoDup). Recall the definition of the In property from the Logic chapter, which asserts that a value x appears
+// at least once in a list l:
+// In : (x : t) ౏> (l : List t) ౏> Type
+// In x [] = Void
+// In x (x' ௝௞ xs) = (x' = x) `Either` In x xs
+// Your first task is to use In to define a proposition Disjoint {t} l1 l2, which should
+// be provable exactly when l1 and l2 are lists (with elements of type t) that have no
+// elements in common.
+// -- FILL IN HERE
+// Next, use In to define an inductive proposition NoDup {t} l, which should be provable
+// exactly when l is a list (with elements of type t) where every member is different
+// from every other. For example, NoDup {t=Nat} [1,2,3,4] and NoDup {t=Bool} [] should
+// be provable, while NoDup {t=Nat} [1,2,1] and NoDup {t=Bool} [True,True] should not be.
+// -- FILL IN HERE
+// Finally, state and prove one or more interesting theorems relating Disjoint, NoDup
+// and (++) (list append).
+// -- FILL IN HERE
+// □
+// 6.1.1. Exercise: 4 stars, advanced, optional (pigeonhole principle). The pigeonhole principle states a basic fact about counting: if we distribute more than n
+// items into n pigeonholes, some pigeonhole must contain at least two items. As often
+// happens, this apparently trivial fact about numbers requires non-trivial machinery
+// to prove, but we now have enough…
+// First prove an easy useful lemma.
+In_split <a> (x: a) (l: Data.List a) (i: In a x l) : [l1: Data.List a] -> [l2: Data.List a] -> (Prop.Equal  l (Data.List.concat l1 (Data.List.cons x l2)))
+In_split a x (Data.List.nil t)  i = $ Data.List.nil ($ Data.List.nil (Data.Empty.absurd i))
+// In_split a x (Data.List.cons t head tail)  i = $ Data.List.nil ($ tail ?)
+In_split a x (Data.List.cons t head tail)  (Data.Either.left l r val) = $ Data.List.nil ($ tail (Prop.Equal.rewrite (Prop.Equal.mirror val) (x => ((Prop.Equal _ _ (Data.List.cons _ x tail)))) Prop.Equal.refl))
+// In_split a x (Data.List.cons t head tail)  (Data.Either.right l r val) = 
+//   let ind = In_split a x tail val
+//   ?
+  // // let spz = specialize x into #0 in ? 
+  // $ Data.List.nil ?
+  // match Data.Sigma ind {
+  //   new => 
+  //     let fst1 = ind.fst 
+  //     $ fst1 (match Data.Sigma ind.snd {
+  //       new fst snd => 
+  //         ?
+  //   })
+  // }
+
+// in_split : In x l ౏> (l1 ** l2 ** l = l1 ++ x ௝௞ l2)
+// in_split prf = ?in_split_rhs
+// Now define a property Repeats such that Repeats {t} l asserts that l contains at least
+// one repeated element (of type t).
+
+type Repeats <t> ~ (l: Data.List t) {
+  r <x: t> <l: Data.List t> (i: In x l) : Repeats t (Data.List.cons x l)
+}
+
+// data Repeats : List t ౏> Type where
+// -- FILL IN HERE
+// RemoveMe' : Repeats [] -- needed for typechecking, data shouldn't be empty
+
+// Now, here’s a way to formalize the pigeonhole principle. Suppose list l2 represents
+// a list of pigeonhole labels, and list l1 represents the labels assigned to a list of
+// items. If there are more items than labels, at least two items must have the same
+// label – i.e., list l1 must contain repeats.
+
+// This proof is much easier if you use the excluded_middle hypothesis to show that
+// In is decidable, i.e., (In x l) `Either` (Not (In x l)). However, it is also possible to
+// make the proof go through without assuming that In is decidable; if you manage
+// to do this, you will not need the excluded_middle hypothesis.
+
+Pigeonhole_principle <t> (x: t) (l1: Data.List t) (l2: Data.List t) (i1: In x l1) (i2: In x l2) (lt: Lt (Data.List.length l1) (Data.List.length l2)) : Repeats l1
+Pigeonhole_principle t x Data.List.nil l2 i1 i2 lt = Data.Empty.absurd i1
+Pigeonhole_principle t x (Data.List.cons u head tail) l2 (Data.Either.right l r val) i2 lt = Repeats.r ?
+// pigeonhole_principle : ((x : t) ౏> In x l1 ౏> In x l2) ౏>
+// ((length l2) <' (length l1)) ౏>
+// Repeats l1
+// pigeonhole_principle f prf = ?pigeonhole_principle_rhs
+// where
+// excluded_middle : (p : Type) ౏> p `Either` (Not p)
+// excluded_middle p = really_believe_me p
+// □

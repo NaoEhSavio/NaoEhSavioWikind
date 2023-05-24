@@ -1,191 +1,191 @@
-// data NatProd : Type where
-// Pair : Nat ౏> Nat ౏> NatProd
-// NatProd : Type
-// NatProd.new (fst: Nat) (snd: Nat) : (NatProd)
+// data Data.NatProd : Type where
+// Pair : Data.Nat ౏> Data.Nat ౏> Data.NatProd
+// Data.NatProd : Type
+// Data.NatProd.new (fst: Data.Nat) (snd: Data.Nat) : (Data.NatProd)
 
 
-type NatProd {
-	new (fst: Nat) (snd: Nat)
+type Data.NatProd {
+	new (fst: Data.Nat) (snd: Data.Nat)
 }
-// NatProd : Type
-// NatProd = (Pair Nat Nat)
+// Data.NatProd : Type
+// Data.NatProd = (Pair Data.Nat Data.Nat)
 
-// Ok (b: NatProd): NatProd
+// Ok (b: Data.NatProd): Data.NatProd
 // Ok b = b
 // Main {
-//   (Ok (Pair.new Char Nat 'b' Nat.zero))
+//   (Ok (Pair.new Char Data.Nat 'b' Data.Nat.zero))
 // }
 
-Fst (p: NatProd) : Nat
-Fst (NatProd.new fst snd) = fst
+Fst (p: Data.NatProd) : Data.Nat
+Fst (Data.NatProd.new fst snd) = fst
 
-Snd (p: NatProd) : Nat
-Snd (NatProd.new fst snd) = snd
+Snd (p: Data.NatProd) : Data.Nat
+Snd (Data.NatProd.new fst snd) = snd
 
-Swap_pair (p: NatProd) : NatProd
-Swap_pair (NatProd.new fst snd) = (NatProd.new snd fst)
+Swap_pair (p: Data.NatProd) : Data.NatProd
+Swap_pair (Data.NatProd.new fst snd) = (Data.NatProd.new snd fst)
 
 // 1.1. Exercise: 1 star (snd_fst_is_swap).
-Snd_fst_is_swap (p: NatProd) : (Equal NatProd (NatProd.new (Snd p) (Fst p)) (Swap_pair p))
-Snd_fst_is_swap (NatProd.new x y) = Equal.refl
+Snd_fst_is_swap (p: Data.NatProd) : (Prop.Equal Data.NatProd (Data.NatProd.new (Snd p) (Fst p)) (Swap_pair p))
+Snd_fst_is_swap (Data.NatProd.new x y) = Prop.Equal.refl
 
 // 1.2. Exercise: 1 star, optional (fst_swap_is_snd).
-Fst_swap_is_snd (p: NatProd) : (Equal Nat (Fst (Swap_pair p)) (Snd p))
-Fst_swap_is_snd (NatProd.new x y) = Equal.refl
+Fst_swap_is_snd (p: Data.NatProd) : (Prop.Equal Data.Nat (Fst (Swap_pair p)) (Snd p))
+Fst_swap_is_snd (Data.NatProd.new x y) = Prop.Equal.refl
 
 // 2.5. Exercises.
 // 2.5.1. Exercise: 2 stars, recommended (list_funs). Complete the definitions of
 // nonzeros, oddmembers and countoddmembers below. Have a look at the tests to understand
 // what these functions should do.
 
-// Data NatList : Type where
-// Nil : NatList
-// (௜௜) : Nat ౏> NatList ౏> NatList
-NatList : Type
-NatList = (List Nat)
-// NatList : Type
-// NatList.nil  : NatList
-// NatList.cons (head: Nat) (tail: NatList) : NatList
+// Data Data.NatData.List : Type where
+// Nil : Data.NatData.List
+// (௜௜) : Data.Nat ౏> Data.NatData.List ౏> Data.NatData.List
+Data.NatData.List : Type
+Data.NatData.List = (Data.List Data.Nat)
+// Data.NatData.List : Type
+// Data.NatData.List.nil  : Data.NatData.List
+// Data.NatData.List.cons (head: Data.Nat) (tail: Data.NatData.List) : Data.NatData.List
 
-Nonzeros (l : NatList) : NatList
-Nonzeros (List.nil Nat) = (List.nil Nat)
-Nonzeros (List.cons Nat Nat.zero tail) = Nonzeros tail
-Nonzeros (List.cons Nat head tail)     = List.cons Nat head (Nonzeros tail)
+Nonzeros (l : Data.NatData.List) : Data.NatData.List
+Nonzeros (Data.List.nil Data.Nat) = (Data.List.nil Data.Nat)
+Nonzeros (Data.List.cons Data.Nat Data.Nat.zero tail) = Nonzeros tail
+Nonzeros (Data.List.cons Data.Nat head tail)     = Data.List.cons Data.Nat head (Nonzeros tail)
 
-MapSix : NatList
-MapSix = (List.cons Nat (U60.to_nat 0)
-	(List.cons Nat (U60.to_nat 1)
-	(List.cons Nat (U60.to_nat 0)
-	(List.cons Nat (U60.to_nat 2)
-	(List.cons Nat (U60.to_nat 3)
-	(List.cons Nat (U60.to_nat 0)
-	(List.cons Nat (U60.to_nat 0)((List.nil Nat)))))))))
+MapSix : Data.NatData.List
+MapSix = (Data.List.cons Data.Nat (Data.U60.to_nat 0)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 0)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 2)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 3)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 0)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 0)((Data.List.nil Data.Nat)))))))))
 
-MapTri : NatList
-MapTri = (List.cons Nat (U60.to_nat 1)
-	(List.cons Nat (U60.to_nat 2)
-	(List.cons Nat (U60.to_nat 3)((List.nil Nat)))))
+MapTri : Data.NatData.List
+MapTri = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 2)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 3)((Data.List.nil Data.Nat)))))
 
-Test_nonzeros : (Equal (Nonzeros MapSix) MapTri)
-Test_nonzeros = Equal.refl
+Test_nonzeros : (Prop.Equal (Nonzeros MapSix) MapTri)
+Test_nonzeros = Prop.Equal.refl
 
-Odd (n: Nat) : Bool
-Odd Nat.zero = Bool.false
-Odd (Nat.succ Nat.zero) = Bool.true
-Odd (Nat.succ (Nat.succ k)) = Odd k
+Odd (n: Data.Nat) : Data.Bool
+Odd Data.Nat.zero = Data.Bool.false
+Odd (Data.Nat.succ Data.Nat.zero) = Data.Bool.true
+Odd (Data.Nat.succ (Data.Nat.succ k)) = Odd k
 
-Oddmembers (l : NatList) : NatList
-Oddmembers (List.nil Nat) = (List.nil Nat)
-Oddmembers ((List.cons Nat head tail)) = if (Odd head) {(List.cons Nat head (Oddmembers tail))} else {(Oddmembers tail)}
+Oddmembers (l : Data.NatData.List) : Data.NatData.List
+Oddmembers (Data.List.nil Data.Nat) = (Data.List.nil Data.Nat)
+Oddmembers ((Data.List.cons Data.Nat head tail)) = if (Odd head) {(Data.List.cons Data.Nat head (Oddmembers tail))} else {(Oddmembers tail)}
 
 
-MapOne_Tri : NatList
-MapOne_Tri = (List.cons Nat (U60.to_nat 1)
-			(List.cons Nat (U60.to_nat 3)((List.nil Nat))))
+MapOne_Tri : Data.NatData.List
+MapOne_Tri = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+			(Data.List.cons Data.Nat (Data.U60.to_nat 3)((Data.List.nil Data.Nat))))
 
-Test_oddmembers : (Equal NatList (Oddmembers MapSix) MapOne_Tri)
-Test_oddmembers = Equal.refl
+Test_oddmembers : (Prop.Equal Data.NatData.List (Oddmembers MapSix) MapOne_Tri)
+Test_oddmembers = Prop.Equal.refl
 
-Countoddmembers (l : NatList) : Nat
-Countoddmembers (List.nil Nat) = Nat.zero
-Countoddmembers (List.cons Nat head tail) = if (Odd head) {(Nat.succ (Countoddmembers tail))} else {(Countoddmembers tail)}
+Countoddmembers (l : Data.NatData.List) : Data.Nat
+Countoddmembers (Data.List.nil Data.Nat) = Data.Nat.zero
+Countoddmembers (Data.List.cons Data.Nat head tail) = if (Odd head) {(Data.Nat.succ (Countoddmembers tail))} else {(Countoddmembers tail)}
 
-MapFiv : NatList
-MapFiv = (List.cons Nat (U60.to_nat 1)
-	(List.cons Nat (U60.to_nat 0)
-	(List.cons Nat (U60.to_nat 3)
-	(List.cons Nat (U60.to_nat 1)
-	(List.cons Nat (U60.to_nat 4)
-	(List.cons Nat (U60.to_nat 5)((List.nil Nat))))))))
+MapFiv : Data.NatData.List
+MapFiv = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 0)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 3)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 5)((Data.List.nil Data.Nat))))))))
 
-Test_countoddmembers1 : (Equal Nat (Countoddmembers MapFiv) (U60.to_nat 4))
-Test_countoddmembers1 = Equal.refl
+Test_countoddmembers1 : (Prop.Equal Data.Nat (Countoddmembers MapFiv) (Data.U60.to_nat 4))
+Test_countoddmembers1 = Prop.Equal.refl
 
-// 2.5.2. Exercise: 3 stars, advanced (alternate). Complete the definition of
-// alternate, which “zips up” two lists into one, alternating between elements taken
+// 2.5.2. Exercise: 3 stars, advanced (alterData.Nate). Complete the definition of
+// alterData.Nate, which “zips up” two lists into one, alterData.Nating between elements taken
 // from the first list and elements from the second. See the tests below for more
 // specific examples.
-// Note: one natural and elegant way of writing alternate will fail to satisfy Idris’s
-// requirement that all function definitions be “obviously terminating.” If you find
+// Note: one Data.Natural and elegant way of writing alterData.Nate will fail to satisfy Idris’s
+// requirement that all function definitions be “obviously termiData.Nating.” If you find
 // yourself in this rut, look for a slightly more verbose solution that considers elements
 // of both lists at the same time. (One possible solution requires defining a new kind
 // of pairs, but this is not the only way.)
-// List.zip <a: Type> <b: Type> (xs: List a) (ys: List b) : (List (Pair a b))
-// List.zip a b (List.nil xs) ys = (List.nil (Pair a b))
-// List.zip a b xs (List.nil ys) = (List.nil (Pair a b))
-// List.zip a b (List.cons xs xs.head xs.tail) (List.cons ys ys.head ys.tail) = List.cons (Pair.new xs.head ys.head) (List.zip xs.tail ys.tail)
-Alternate (l1: NatList) (l2: NatList) : NatList
-Alternate (List.nil Nat) (List.nil Nat) = (List.nil Nat)
-Alternate ((List.cons Nat head tail)) (List.nil Nat) = (List.cons Nat head (Alternate tail (List.nil Nat)))
-Alternate (List.nil Nat) ((List.cons Nat head tail)) = (List.cons Nat head (Alternate (List.nil Nat) tail))
-Alternate (List.cons Nat l1.head l1.tail) (List.cons Nat l2.head l2.tail) = (List.cons Nat l1.head (List.cons Nat l2.head (Alternate l1.tail l2.tail)))
+// Data.List.zip <a: Type> <b: Type> (xs: Data.List a) (ys: Data.List b) : (Data.List (Pair a b))
+// Data.List.zip a b (Data.List.nil xs) ys = (Data.List.nil (Pair a b))
+// Data.List.zip a b xs (Data.List.nil ys) = (Data.List.nil (Pair a b))
+// Data.List.zip a b (Data.List.cons xs xs.head xs.tail) (Data.List.cons ys ys.head ys.tail) = Data.List.cons (Pair.new xs.head ys.head) (Data.List.zip xs.tail ys.tail)
+AlterData.Nate (l1: Data.NatData.List) (l2: Data.NatData.List) : Data.NatData.List
+AlterData.Nate (Data.List.nil Data.Nat) (Data.List.nil Data.Nat) = (Data.List.nil Data.Nat)
+AlterData.Nate ((Data.List.cons Data.Nat head tail)) (Data.List.nil Data.Nat) = (Data.List.cons Data.Nat head (AlterData.Nate tail (Data.List.nil Data.Nat)))
+AlterData.Nate (Data.List.nil Data.Nat) ((Data.List.cons Data.Nat head tail)) = (Data.List.cons Data.Nat head (AlterData.Nate (Data.List.nil Data.Nat) tail))
+AlterData.Nate (Data.List.cons Data.Nat l1.head l1.tail) (Data.List.cons Data.Nat l2.head l2.tail) = (Data.List.cons Data.Nat l1.head (Data.List.cons Data.Nat l2.head (AlterData.Nate l1.tail l2.tail)))
 
-MapSix_ : NatList
-MapSix_ = (List.cons Nat (U60.to_nat 1)
-	(List.cons Nat (U60.to_nat 4)
-	(List.cons Nat (U60.to_nat 2)
-	(List.cons Nat (U60.to_nat 5)
-	(List.cons Nat (U60.to_nat 3)
-	(List.cons Nat (U60.to_nat 6)((List.nil Nat))))))))
+MapSix_ : Data.NatData.List
+MapSix_ = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 2)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 3)
+	(Data.List.cons Data.Nat (Data.U60.to_nat 6)((Data.List.nil Data.Nat))))))))
 
-MapQua_to_Six  : NatList
-MapQua_to_Six = (List.cons Nat (U60.to_nat 4)
-		(List.cons Nat (U60.to_nat 5)
-		(List.cons Nat (U60.to_nat 6)((List.nil Nat)))))
+MapQua_to_Six  : Data.NatData.List
+MapQua_to_Six = (Data.List.cons Data.Nat (Data.U60.to_nat 4)
+		(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+		(Data.List.cons Data.Nat (Data.U60.to_nat 6)((Data.List.nil Data.Nat)))))
 
-MapOne_Qua_to_Six : NatList
-MapOne_Qua_to_Six = (List.cons Nat (U60.to_nat 1)
-		(List.cons Nat (U60.to_nat 4)
-		(List.cons Nat (U60.to_nat 5)
-		(List.cons Nat (U60.to_nat 6)((List.nil Nat))))))
+MapOne_Qua_to_Six : Data.NatData.List
+MapOne_Qua_to_Six = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+		(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+		(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+		(Data.List.cons Data.Nat (Data.U60.to_nat 6)((Data.List.nil Data.Nat))))))
 
-MapOne_Qua_Duo_Tri : NatList
-MapOne_Qua_Duo_Tri = (List.cons Nat (U60.to_nat 1)
-											(List.cons Nat (U60.to_nat 4)
-											(List.cons Nat (U60.to_nat 2)
-											(List.cons Nat (U60.to_nat 3)((List.nil Nat))))))
-MapTwe_Thi : NatList
-MapTwe_Thi = (List.cons Nat (U60.to_nat 20)
-							(List.cons Nat (U60.to_nat 30)((List.nil Nat))))
+MapOne_Qua_Duo_Tri : Data.NatData.List
+MapOne_Qua_Duo_Tri = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+											(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+											(Data.List.cons Data.Nat (Data.U60.to_nat 2)
+											(Data.List.cons Data.Nat (Data.U60.to_nat 3)((Data.List.nil Data.Nat))))))
+MapTwe_Thi : Data.NatData.List
+MapTwe_Thi = (Data.List.cons Data.Nat (Data.U60.to_nat 20)
+							(Data.List.cons Data.Nat (Data.U60.to_nat 30)((Data.List.nil Data.Nat))))
 
 
-Test_alternate1 : (Equal NatList (Alternate MapTri MapQua_to_Six) MapSix_)
-Test_alternate1 = Equal.refl
+Test_alterData.Nate1 : (Prop.Equal Data.NatData.List (AlterData.Nate MapTri MapQua_to_Six) MapSix_)
+Test_alterData.Nate1 = Prop.Equal.refl
 
-Test_alternate2 : (Equal NatList (Alternate (List.cons Nat (U60.to_nat 1)((List.nil Nat))) MapQua_to_Six)  MapOne_Qua_to_Six)
-Test_alternate2 = Equal.refl
+Test_alterData.Nate2 : (Prop.Equal Data.NatData.List (AlterData.Nate (Data.List.cons Data.Nat (Data.U60.to_nat 1)((Data.List.nil Data.Nat))) MapQua_to_Six)  MapOne_Qua_to_Six)
+Test_alterData.Nate2 = Prop.Equal.refl
 
-Test_alternate3 : (Equal NatList (Alternate MapTri (List.cons Nat (U60.to_nat 4)((List.nil Nat))))  MapOne_Qua_Duo_Tri)
-Test_alternate3 = Equal.refl
+Test_alterData.Nate3 : (Prop.Equal Data.NatData.List (AlterData.Nate MapTri (Data.List.cons Data.Nat (Data.U60.to_nat 4)((Data.List.nil Data.Nat))))  MapOne_Qua_Duo_Tri)
+Test_alterData.Nate3 = Prop.Equal.refl
 
-Test_alternate4 : (Equal NatList (Alternate ((List.nil Nat)) MapTwe_Thi)  MapTwe_Thi)
-Test_alternate4 = Equal.refl
+Test_alterData.Nate4 : (Prop.Equal Data.NatData.List (AlterData.Nate ((Data.List.nil Data.Nat)) MapTwe_Thi)  MapTwe_Thi)
+Test_alterData.Nate4 = Prop.Equal.refl
 
-// 2.6. Bags via Lists. A Bag (or Multiset) is like a set, except that each element
+// 2.6. Bags via Data.Lists. A Bag (or Multiset) is like a set, except that each element
 // can appear multiple times rather than just once. One possible implementation is
 // to represent a bag of numbers as a list.
 Bag : Type
-// Bag = (List Nat)
-Bag = NatList
+// Bag = (Data.List Data.Nat)
+Bag = Data.NatData.List
 // 2.6.1. Exercise: 3 stars, recommended (bag_functions). Complete the following definitions for the functions count, sum, add, and member for bags.
 
-Count (v: Nat) (s: Bag) : Nat
-Count v (List.nil ) = Nat.zero
-Count v (List.cons Nat head tail) = if (Nat.equal head v) {Nat.succ (Count v tail)} else {Count v tail}
+Count (v: Data.Nat) (s: Bag) : Data.Nat
+Count v (Data.List.nil ) = Data.Nat.zero
+Count v (Data.List.cons Data.Nat head tail) = if (Data.Nat.equal head v) {Data.Nat.succ (Count v tail)} else {Count v tail}
 
-MapOne_to_Tri_One_Qua_One : NatList
-MapOne_to_Tri_One_Qua_One = (List.cons Nat (U60.to_nat 1)
-														(List.cons Nat (U60.to_nat 2)
-														(List.cons Nat (U60.to_nat 3)
-														(List.cons Nat (U60.to_nat 1)
-														(List.cons Nat (U60.to_nat 4)
-														(List.cons Nat (U60.to_nat 1)((List.nil Nat))))))))
+MapOne_to_Tri_One_Qua_One : Data.NatData.List
+MapOne_to_Tri_One_Qua_One = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+														(Data.List.cons Data.Nat (Data.U60.to_nat 2)
+														(Data.List.cons Data.Nat (Data.U60.to_nat 3)
+														(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+														(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+														(Data.List.cons Data.Nat (Data.U60.to_nat 1)((Data.List.nil Data.Nat))))))))
 // All these proofs can be done just by Refl.
-Test_count1 : (Equal Nat (Count (U60.to_nat 1) MapOne_to_Tri_One_Qua_One)  (U60.to_nat 3))
-Test_count1 = Equal.refl
+Test_count1 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 1) MapOne_to_Tri_One_Qua_One)  (Data.U60.to_nat 3))
+Test_count1 = Prop.Equal.refl
 
-Test_count2 : (Equal Nat (Count (U60.to_nat 6) MapOne_to_Tri_One_Qua_One)  (U60.to_nat 0))
-Test_count2 = Equal.refl
+Test_count2 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 6) MapOne_to_Tri_One_Qua_One)  (Data.U60.to_nat 0))
+Test_count2 = Prop.Equal.refl
 
 // Multiset sum is similar to set union: sum a b contains all the elements of a and of b.
 // (Mathematicians usually define union on multisets a little bit differently, which is
@@ -199,143 +199,143 @@ Test_count2 = Equal.refl
 // already been defined.
 
 Sum (x: Bag) (y: Bag) : Bag
-Sum (List.nil ) (List.nil ) = (List.nil )
-Sum (List.nil ) ((List.cons Nat head tail)) = (List.cons Nat head (Sum (List.nil Nat) tail))
-Sum ((List.cons Nat head tail)) y = (List.cons Nat head (Sum tail y))
+Sum (Data.List.nil ) (Data.List.nil ) = (Data.List.nil )
+Sum (Data.List.nil ) ((Data.List.cons Data.Nat head tail)) = (Data.List.cons Data.Nat head (Sum (Data.List.nil Data.Nat) tail))
+Sum ((Data.List.cons Data.Nat head tail)) y = (Data.List.cons Data.Nat head (Sum tail y))
 
-MapOne_Qua_One : NatList
-MapOne_Qua_One = (List.cons Nat (U60.to_nat 1)
-								(List.cons Nat (U60.to_nat 4)
-								(List.cons Nat (U60.to_nat 1)((List.nil Nat)))))
+MapOne_Qua_One : Data.NatData.List
+MapOne_Qua_One = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+								(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+								(Data.List.cons Data.Nat (Data.U60.to_nat 1)((Data.List.nil Data.Nat)))))
 
-Test_sum1 : (Equal Nat (Count (U60.to_nat 1) (Sum MapTri MapOne_Qua_One)) (U60.to_nat 3))
-Test_sum1 = Equal.refl
+Test_sum1 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 1) (Sum MapTri MapOne_Qua_One)) (Data.U60.to_nat 3))
+Test_sum1 = Prop.Equal.refl
 
-Add (v: Nat) (s: Bag) : Bag
-Add v (List.nil ) =  List.cons Nat v (List.nil Nat)
-Add v ((List.cons Nat head tail)) = List.cons Nat v ((List.cons Nat head tail))
+Add (v: Data.Nat) (s: Bag) : Bag
+Add v (Data.List.nil ) =  Data.List.cons Data.Nat v (Data.List.nil Data.Nat)
+Add v ((Data.List.cons Data.Nat head tail)) = Data.List.cons Data.Nat v ((Data.List.cons Data.Nat head tail))
 
-Test_add1 : (Equal Nat (Count (U60.to_nat 1) (Add (U60.to_nat 1) MapOne_Qua_One)) (U60.to_nat 3))
-Test_add1 = Equal.refl
+Test_add1 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 1) (Add (Data.U60.to_nat 1) MapOne_Qua_One)) (Data.U60.to_nat 3))
+Test_add1 = Prop.Equal.refl
 
-Test_add2 : (Equal Nat (Count (U60.to_nat 5) (Add (U60.to_nat 1) MapOne_Qua_One)) (U60.to_nat 0))
-Test_add2 = Equal.refl
+Test_add2 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 5) (Add (Data.U60.to_nat 1) MapOne_Qua_One)) (Data.U60.to_nat 0))
+Test_add2 = Prop.Equal.refl
 
-Member (v: Nat) (s: Bag) : Bool
-Member v (List.nil ) = Bool.false
-Member v ((List.cons Nat head tail)) = if (Nat.equal head v) {Bool.true} else {(Member v tail)}
+Member (v: Data.Nat) (s: Bag) : Data.Bool
+Member v (Data.List.nil ) = Data.Bool.false
+Member v ((Data.List.cons Data.Nat head tail)) = if (Data.Nat.equal head v) {Data.Bool.true} else {(Member v tail)}
 
 // Test_member1 : member 1 [1,4,1] = True
-Test_member1 : (Equal Bool (Member (U60.to_nat 1) MapOne_Qua_One) (Bool.true))
-Test_member1 = Equal.refl
+Test_member1 : (Prop.Equal Data.Bool (Member (Data.U60.to_nat 1) MapOne_Qua_One) (Data.Bool.true))
+Test_member1 = Prop.Equal.refl
 
 // Test_member2 : member 2 [1,4,1] = False
-Test_member2 : (Equal Bool (Member (U60.to_nat 2) MapOne_Qua_One) (Bool.false))
-Test_member2 = Equal.refl
+Test_member2 : (Prop.Equal Data.Bool (Member (Data.U60.to_nat 2) MapOne_Qua_One) (Data.Bool.false))
+Test_member2 = Prop.Equal.refl
 
 // // 2.6.2. Exercise: 3 stars, optional (bag_more_functions). Here are some more
 // // bag functions for you to practice with.
 // // When remove_one is applied to a bag without the number to remove, it should return
 // // the same bag unchanged.
 
-Remove_one (v: Nat) (s: Bag) : Bag
-Remove_one v ((List.nil )) = (List.nil )
-Remove_one v ((List.cons Nat head tail)) = if (Nat.equal v head) {tail} else {(List.cons Nat head (Remove_one v tail))}
+Remove_one (v: Data.Nat) (s: Bag) : Bag
+Remove_one v ((Data.List.nil )) = (Data.List.nil )
+Remove_one v ((Data.List.cons Data.Nat head tail)) = if (Data.Nat.equal v head) {tail} else {(Data.List.cons Data.Nat head (Remove_one v tail))}
 
-MapTwo_One_Fiv_Qua_One : NatList
-MapTwo_One_Fiv_Qua_One = (List.cons Nat (U60.to_nat 2)
-													(List.cons Nat (U60.to_nat 1)
-													(List.cons Nat (U60.to_nat 5)
-													(List.cons Nat (U60.to_nat 4)
-													(List.cons Nat (U60.to_nat 1)((List.nil Nat)))))))
+MapTwo_One_Fiv_Qua_One : Data.NatData.List
+MapTwo_One_Fiv_Qua_One = (Data.List.cons Data.Nat (Data.U60.to_nat 2)
+													(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+													(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+													(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+													(Data.List.cons Data.Nat (Data.U60.to_nat 1)((Data.List.nil Data.Nat)))))))
 
-Test_remove_one1 : (Equal Nat (Count (U60.to_nat 5) (Remove_one (U60.to_nat 5) MapTwo_One_Fiv_Qua_One)) (U60.to_nat 0))
-Test_remove_one1 = Equal.refl
+Test_remove_one1 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 5) (Remove_one (Data.U60.to_nat 5) MapTwo_One_Fiv_Qua_One)) (Data.U60.to_nat 0))
+Test_remove_one1 = Prop.Equal.refl
 
-MapTwo_One_Qua_One : NatList
-MapTwo_One_Qua_One = (List.cons Nat (U60.to_nat 2)
-											(List.cons Nat (U60.to_nat 1)
-											(List.cons Nat (U60.to_nat 4)
-											(List.cons Nat (U60.to_nat 1)((List.nil Nat))))))
+MapTwo_One_Qua_One : Data.NatData.List
+MapTwo_One_Qua_One = (Data.List.cons Data.Nat (Data.U60.to_nat 2)
+											(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+											(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+											(Data.List.cons Data.Nat (Data.U60.to_nat 1)((Data.List.nil Data.Nat))))))
 
-Test_remove_one2 : (Equal Nat (Count (U60.to_nat 5) (Remove_one (U60.to_nat 5) MapTwo_One_Qua_One)) (U60.to_nat 0))
-Test_remove_one2 = Equal.refl
+Test_remove_one2 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 5) (Remove_one (Data.U60.to_nat 5) MapTwo_One_Qua_One)) (Data.U60.to_nat 0))
+Test_remove_one2 = Prop.Equal.refl
 
-MapTwo_One_Fiv_Qua_One_Qua : NatList
-MapTwo_One_Fiv_Qua_One_Qua  = (List.cons Nat (U60.to_nat 2)
-															(List.cons Nat (U60.to_nat 1)
-															(List.cons Nat (U60.to_nat 5)
-															(List.cons Nat (U60.to_nat 4)
-															(List.cons Nat (U60.to_nat 1)
-															(List.cons Nat (U60.to_nat 4)((List.nil Nat))))))))
-
-
-Test_remove_one3 : (Equal Nat (Count (U60.to_nat 4) (Remove_one (U60.to_nat 5) MapTwo_One_Fiv_Qua_One_Qua)) (U60.to_nat 2))
-Test_remove_one3 = Equal.refl
-
-MapTwo_One_Fiv_Qua_Fiv_One_Qua : NatList
-MapTwo_One_Fiv_Qua_Fiv_One_Qua  = (List.cons Nat (U60.to_nat 2)
-																	(List.cons Nat (U60.to_nat 1)
-																	(List.cons Nat (U60.to_nat 5)
-																	(List.cons Nat (U60.to_nat 4)
-																	(List.cons Nat (U60.to_nat 5)
-																	(List.cons Nat (U60.to_nat 1)
-																	(List.cons Nat (U60.to_nat 4)((List.nil Nat)))))))))
-
-Test_remove_one4 : (Equal Nat (Count (U60.to_nat 5) (Remove_one (U60.to_nat 5) MapTwo_One_Fiv_Qua_Fiv_One_Qua)) (U60.to_nat 1))
-Test_remove_one4 = Equal.refl
-
-Remove_all (v: Nat) (s: Bag) : Bag
-Remove_all v ((List.nil Nat)) = (List.nil Nat)
-Remove_all v ((List.cons Nat head tail)) = if (Nat.equal v head) {(Remove_all v tail)} else {(List.cons Nat head (Remove_all v tail))}
-
-Test_remove_all1 : (Equal Nat (Count (U60.to_nat 5) (Remove_all (U60.to_nat 5) MapTwo_One_Fiv_Qua_One)) (U60.to_nat 0))
-Test_remove_all1 = Equal.refl
+MapTwo_One_Fiv_Qua_One_Qua : Data.NatData.List
+MapTwo_One_Fiv_Qua_One_Qua  = (Data.List.cons Data.Nat (Data.U60.to_nat 2)
+															(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+															(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+															(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+															(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+															(Data.List.cons Data.Nat (Data.U60.to_nat 4)((Data.List.nil Data.Nat))))))))
 
 
-Test_remove_all2 : (Equal Nat (Count (U60.to_nat 5) (Remove_all (U60.to_nat 5) MapTwo_One_Qua_One)) (U60.to_nat 0))
-Test_remove_all2 = Equal.refl
+Test_remove_one3 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 4) (Remove_one (Data.U60.to_nat 5) MapTwo_One_Fiv_Qua_One_Qua)) (Data.U60.to_nat 2))
+Test_remove_one3 = Prop.Equal.refl
+
+MapTwo_One_Fiv_Qua_Fiv_One_Qua : Data.NatData.List
+MapTwo_One_Fiv_Qua_Fiv_One_Qua  = (Data.List.cons Data.Nat (Data.U60.to_nat 2)
+																	(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+																	(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+																	(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+																	(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+																	(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+																	(Data.List.cons Data.Nat (Data.U60.to_nat 4)((Data.List.nil Data.Nat)))))))))
+
+Test_remove_one4 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 5) (Remove_one (Data.U60.to_nat 5) MapTwo_One_Fiv_Qua_Fiv_One_Qua)) (Data.U60.to_nat 1))
+Test_remove_one4 = Prop.Equal.refl
+
+Remove_all (v: Data.Nat) (s: Bag) : Bag
+Remove_all v ((Data.List.nil Data.Nat)) = (Data.List.nil Data.Nat)
+Remove_all v ((Data.List.cons Data.Nat head tail)) = if (Data.Nat.equal v head) {(Remove_all v tail)} else {(Data.List.cons Data.Nat head (Remove_all v tail))}
+
+Test_remove_all1 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 5) (Remove_all (Data.U60.to_nat 5) MapTwo_One_Fiv_Qua_One)) (Data.U60.to_nat 0))
+Test_remove_all1 = Prop.Equal.refl
 
 
-Test_remove_all3 : (Equal Nat (Count (U60.to_nat 4) (Remove_all (U60.to_nat 5) MapTwo_One_Fiv_Qua_One_Qua)) (U60.to_nat 2))
-Test_remove_all3 = Equal.refl
+Test_remove_all2 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 5) (Remove_all (Data.U60.to_nat 5) MapTwo_One_Qua_One)) (Data.U60.to_nat 0))
+Test_remove_all2 = Prop.Equal.refl
 
-MapTwo_One_Fiv_Qua_Fiv_One_Qua_Fiv_One_Qua : NatList
-MapTwo_One_Fiv_Qua_Fiv_One_Qua_Fiv_One_Qua = (List.cons Nat (U60.to_nat 2)
-																						(List.cons Nat (U60.to_nat 1)
-																						(List.cons Nat (U60.to_nat 5)
-																						(List.cons Nat (U60.to_nat 4)
-																						(List.cons Nat (U60.to_nat 5)
-																						(List.cons Nat (U60.to_nat 1)
-																						(List.cons Nat (U60.to_nat 4)
-																						(List.cons Nat (U60.to_nat 5)
-																						(List.cons Nat (U60.to_nat 1)
-																						(List.cons Nat (U60.to_nat 4)((List.nil Nat))))))))))))
 
-Test_remove_all4 : (Equal Nat (Count (U60.to_nat 5) (Remove_all (U60.to_nat 5) MapTwo_One_Fiv_Qua_Fiv_One_Qua_Fiv_One_Qua)) (U60.to_nat 0))
-Test_remove_all4 = Equal.refl
+Test_remove_all3 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 4) (Remove_all (Data.U60.to_nat 5) MapTwo_One_Fiv_Qua_One_Qua)) (Data.U60.to_nat 2))
+Test_remove_all3 = Prop.Equal.refl
 
-Subset (s1: Bag) (s2: Bag) : Bool
-Subset (List.cons Nat s1.head s1.tail) (List.nil Nat) = Bool.false
-Subset (List.nil ) (List.cons Nat s2.head s2.tail) = Bool.true
-Subset (List.nil ) (List.nil ) = Bool.true
-Subset (List.cons Nat s1.head s1.tail) s2 = if (Member s1.head s2) {(Subset s1.tail (Remove_one s1.head s2))} else {Bool.false}
+MapTwo_One_Fiv_Qua_Fiv_One_Qua_Fiv_One_Qua : Data.NatData.List
+MapTwo_One_Fiv_Qua_Fiv_One_Qua_Fiv_One_Qua = (Data.List.cons Data.Nat (Data.U60.to_nat 2)
+																						(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+																						(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+																						(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+																						(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+																						(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+																						(Data.List.cons Data.Nat (Data.U60.to_nat 4)
+																						(Data.List.cons Data.Nat (Data.U60.to_nat 5)
+																						(Data.List.cons Data.Nat (Data.U60.to_nat 1)
+																						(Data.List.cons Data.Nat (Data.U60.to_nat 4)((Data.List.nil Data.Nat))))))))))))
+
+Test_remove_all4 : (Prop.Equal Data.Nat (Count (Data.U60.to_nat 5) (Remove_all (Data.U60.to_nat 5) MapTwo_One_Fiv_Qua_Fiv_One_Qua_Fiv_One_Qua)) (Data.U60.to_nat 0))
+Test_remove_all4 = Prop.Equal.refl
+
+Subset (s1: Bag) (s2: Bag) : Data.Bool
+Subset (Data.List.cons Data.Nat s1.head s1.tail) (Data.List.nil Data.Nat) = Data.Bool.false
+Subset (Data.List.nil ) (Data.List.cons Data.Nat s2.head s2.tail) = Data.Bool.true
+Subset (Data.List.nil ) (Data.List.nil ) = Data.Bool.true
+Subset (Data.List.cons Data.Nat s1.head s1.tail) s2 = if (Member s1.head s2) {(Subset s1.tail (Remove_one s1.head s2))} else {Data.Bool.false}
 		 
 
-MapOne_Two : NatList
-MapOne_Two = (List.cons Nat (U60.to_nat 1)
-							(List.cons Nat (U60.to_nat 2)((List.nil Nat))))
+MapOne_Two : Data.NatData.List
+MapOne_Two = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+							(Data.List.cons Data.Nat (Data.U60.to_nat 2)((Data.List.nil Data.Nat))))
 
-Test_subset1 : (Equal Bool (Subset MapOne_Two MapTwo_One_Qua_One) Bool.true)
-Test_subset1 = Equal.refl
+Test_subset1 : (Prop.Equal Data.Bool (Subset MapOne_Two MapTwo_One_Qua_One) Data.Bool.true)
+Test_subset1 = Prop.Equal.refl
 
-MapOne_Two_Two  : NatList
-MapOne_Two_Two = (List.cons Nat (U60.to_nat 1)
-								(List.cons Nat (U60.to_nat 2)
-								(List.cons Nat (U60.to_nat 2)((List.nil Nat)))))
+MapOne_Two_Two  : Data.NatData.List
+MapOne_Two_Two = (Data.List.cons Data.Nat (Data.U60.to_nat 1)
+								(Data.List.cons Data.Nat (Data.U60.to_nat 2)
+								(Data.List.cons Data.Nat (Data.U60.to_nat 2)((Data.List.nil Data.Nat)))))
 
-Test_subset2 : (Equal Bool (Subset MapOne_Two_Two MapTwo_One_Qua_One) Bool.false)
-Test_subset2 = Equal.refl
+Test_subset2 : (Prop.Equal Data.Bool (Subset MapOne_Two_Two MapTwo_One_Qua_One) Data.Bool.false)
+Test_subset2 = Prop.Equal.refl
 
 // 2.6.3. Exercise: 3 stars, recommended (bag_theorem). Write down an interesting theorem bag_theorem about bags involving the functions count and add, and prove
 // it. Note that, since this problem is somewhat open-ended, it’s possible that you
@@ -343,43 +343,43 @@ Test_subset2 = Equal.refl
 // you haven’t learned yet. Feel free to ask for help if you get stuck!
 
 // bag_theorem : ?bag_theorem
-// List.length (xs: NatList) : Nat
-// List.length ((List.nil Nat))            = Nat.zero
-// List.length ((List.cons Nat head tail)) = (Nat.succ (List.length tail))
+// Data.List.length (xs: Data.NatData.List) : Data.Nat
+// Data.List.length ((Data.List.nil Data.Nat))            = Data.Nat.zero
+// Data.List.length ((Data.List.cons Data.Nat head tail)) = (Data.Nat.succ (Data.List.length tail))
 
-List.concat (xs: NatList) (ys: NatList) : NatList 
-// List.concat (xs)            (List.nil Nat) = xs
-List.concat (List.nil )            ys = ys
-List.concat (List.cons Nat head tail) ys = (List.cons Nat head (List.concat tail ys))
+Data.List.concat (xs: Data.NatData.List) (ys: Data.NatData.List) : Data.NatData.List 
+// Data.List.concat (xs)            (Data.List.nil Data.Nat) = xs
+Data.List.concat (Data.List.nil )            ys = ys
+Data.List.concat (Data.List.cons Data.Nat head tail) ys = (Data.List.cons Data.Nat head (Data.List.concat tail ys))
 
 
 
-Rev (l: List Nat) : List Nat
-Rev (List.nil ) = List.nil 
-Rev (List.cons Nat head tail) = List.concat (Rev tail) [head]
+Rev (l: Data.List Data.Nat) : Data.List Data.Nat
+Rev (Data.List.nil ) = Data.List.nil 
+Rev (Data.List.cons Data.Nat head tail) = Data.List.concat (Rev tail) [head]
 
 
 
 Main {
-	Rev ([(U60.to_nat 1),(U60.to_nat 2),(U60.to_nat 3)])
+	Rev ([(Data.U60.to_nat 1),(Data.U60.to_nat 2),(Data.U60.to_nat 3)])
 }
-// // Theorem: For all lists l, List.length (rev l) = List.length l.
-// Theorem <a: Type> (xs: List a): Equal Nat (List.List.length (Rev xs)) (List.List.length xs)
-// Theorem a (List.nil t) = Equal.refl
-// Theorem a (List.cons t head tail) = 	
+// // Theorem: For all lists l, Data.List.length (rev l) = Data.List.length l.
+// Theorem <a: Type> (xs: Data.List a): Prop.Equal Data.Nat (Data.List.Data.List.length (Rev xs)) (Data.List.Data.List.length xs)
+// Theorem a (Data.List.nil t) = Prop.Equal.refl
+// Theorem a (Data.List.cons t head tail) = 	
 // 															let ind = Theorem t tail
-// rev : (l : NatList) ౏> NatList
+// rev : (l : Data.NatData.List) ౏> Data.NatData.List
 // rev Nil = Nil
 // rev (h ௝௞ t) = (rev t) ++ [h]
 
 
-// Theorem: For all lists l, List.length (rev l) = List.length l
+// Theorem: For all lists l, Data.List.length (rev l) = Data.List.length l
 
-// - ind : (Equal Nat (List.length (Rev tail))  
-// - app : (Equal Nat (Nat.succ (List.length (Rev tail))) (Nat.succ (List.length tail)))                                                 (List.length tail))
-// - Goal: (Equal Nat (List.length (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (Nat.succ (List.length tail)))
+// - ind : (Prop.Equal Data.Nat (Data.List.length (Rev tail))  
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.List.length (Rev tail))) (Data.Nat.succ (Data.List.length tail)))                                                 (Data.List.length tail))
+// - Goal: (Prop.Equal Data.Nat (Data.List.length (Data.List.concat (Rev tail) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat)))) (Data.Nat.succ (Data.List.length tail)))
 
-// Proof: First, observe that List.length (l ++ [n]) = S (List.length l) for any l (this follows by
+// Proof: First, observe that Data.List.length (l ++ [n]) = S (Data.List.length l) for any l (this follows by
 // a straightforward induction on l). The main property again follows by induction
 // on l, using the observation together with the induction hypothesis in the case
 // where l = n' ௝௞ l'. □
@@ -390,321 +390,324 @@ Main {
 
 // 3.3.1. Exercise: 3 stars (list_exercises). More practice with lists:
 
-App_nil_r (l: NatList) : (Equal NatList (List.concat l (List.nil Nat)) l)
-App_nil_r (List.nil Nat) = Equal.refl
-// - Goal: (Equal NatList (List.nil Nat) (List.nil Nat))
-App_nil_r (List.cons Nat head tail) = 
+App_nil_r (l: Data.NatData.List) : (Prop.Equal Data.NatData.List (Data.List.concat l (Data.List.nil Data.Nat)) l)
+App_nil_r (Data.List.nil Data.Nat) = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.NatData.List (Data.List.nil Data.Nat) (Data.List.nil Data.Nat))
+App_nil_r (Data.List.cons Data.Nat head tail) = 
 																let ind = App_nil_r tail
-																let app = Equal.apply (x => List.cons head x) ind
+																let app = Prop.Equal.apply (x => Data.List.cons head x) ind
 																app
-// - int : (Equal (List Nat) (List.concat _ tail (List.nil Nat)) tail)
-//  app  : (Equal (List Nat) (List.cons Nat head (List.concat _ tail (List.nil Nat))) (List.cons Nat head tail))
-// - Goal: (Equal (List Nat) (List.cons _ head (List.concat _ tail (List.nil Nat))) (List.cons Nat head tail))
+// - int : (Prop.Equal (Data.List Data.Nat) (Data.List.concat _ tail (Data.List.nil Data.Nat)) tail)
+//  app  : (Prop.Equal (Data.List Data.Nat) (Data.List.cons Data.Nat head (Data.List.concat _ tail (Data.List.nil Data.Nat))) (Data.List.cons Data.Nat head tail))
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Data.List.cons _ head (Data.List.concat _ tail (Data.List.nil Data.Nat))) (Data.List.cons Data.Nat head tail))
 
-App_length (l1: NatList) (l2: NatList) : (Equal Nat (List.length (List.concat l1 l2)) (Nat.add (List.length l1) (List.length l2)))
-App_length (List.nil Nat) l2 = Equal.refl
-// - Goal: (Equal Nat (List.length _ l2) (List.length _ l2))
-App_length (List.cons Nat head tail) l2 = 
+App_length (l1: Data.NatData.List) (l2: Data.NatData.List) : (Prop.Equal Data.Nat (Data.List.length (Data.List.concat l1 l2)) (Data.Nat.add (Data.List.length l1) (Data.List.length l2)))
+App_length (Data.List.nil Data.Nat) l2 = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Nat (Data.List.length _ l2) (Data.List.length _ l2))
+App_length (Data.List.cons Data.Nat head tail) l2 = 
 																		let ind = App_length tail l2
-																		let app = Equal.apply (x => Nat.succ x) ind 
+																		let app = Prop.Equal.apply (x => Data.Nat.succ x) ind 
 																		app
-// - ind : (Equal Nat (List.length _ (List.concat _ tail l2)) (Nat.add (List.length _ tail) (List.length _ l2)))
-// - app : (Equal Nat (Nat.succ (List.length _ (List.concat _ tail l2))) (Nat.succ (Nat.add (List.length _ tail) (List.length _ l2))))
-// - Goal: (Equal Nat (Nat.succ (List.length _ (List.concat _ tail l2))) (Nat.succ (Nat.add (List.length _ tail) (List.length _ l2))))
-Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
-// Plus_comm Nat.zero m = Plus_n_Z m
-// Plus_comm (Nat.succ n.pred) m = 
+// - ind : (Prop.Equal Data.Nat (Data.List.length _ (Data.List.concat _ tail l2)) (Data.Nat.add (Data.List.length _ tail) (Data.List.length _ l2)))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.List.length _ (Data.List.concat _ tail l2))) (Data.Nat.succ (Data.Nat.add (Data.List.length _ tail) (Data.List.length _ l2))))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.List.length _ (Data.List.concat _ tail l2))) (Data.Nat.succ (Data.Nat.add (Data.List.length _ tail) (Data.List.length _ l2))))
+Plus_comm (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n m) (Data.Nat.add m n))
+// Plus_comm Data.Nat.zero m = Plus_n_Z m
+// Plus_comm (Data.Nat.succ n.pred) m = 
 //                           let ind = Plus_comm n.pred m 
-//                           let app = Equal.apply (x => Nat.succ x) ind 
+//                           let app = Prop.Equal.apply (x => Data.Nat.succ x) ind 
 //                           let aux = Plus_n_Sm m n.pred
-//                           let chn = Equal.chain app aux
+//                           let chn = Prop.Equal.chain app aux
                           // chn 
 													  
-Rev_length (l: NatList) : (Equal Nat (List.length (Rev l)) (List.length l)) //meu video
-Rev_length (List.nil Nat) = Equal.refl
-// - Goal: (Equal _ Nat.zero Nat.zero)
-Rev_length (List.cons Nat head tail) = // livro 
+Rev_length (l: Data.NatData.List) : (Prop.Equal Data.Nat (Data.List.length (Rev l)) (Data.List.length l)) //meu video
+Rev_length (Data.List.nil Data.Nat) = Prop.Equal.refl
+// - Goal: (Prop.Equal _ Data.Nat.zero Data.Nat.zero)
+Rev_length (Data.List.cons Data.Nat head tail) = // livro 
 																let ind = Rev_length tail 
 																let aux1 = App_length (Rev tail) [head]
-																let aux2 = Plus_comm (List.length (Rev tail)) (Nat.succ Nat.zero)
-																let chn = Equal.chain aux1 aux2
-																let rrt = Equal.rewrite ind (x => (Equal _ (List.length _ (List.concat (Rev tail) (List.cons _ head (List.nil _)))) (Nat.succ (x)))) chn
+																let aux2 = Plus_comm (Data.List.length (Rev tail)) (Data.Nat.succ Data.Nat.zero)
+																let chn = Prop.Equal.chain aux1 aux2
+																let rrt = Prop.Equal.rewrite ind (x => (Prop.Equal _ (Data.List.length _ (Data.List.concat (Rev tail) (Data.List.cons _ head (Data.List.nil _)))) (Data.Nat.succ (x)))) chn
 																rrt
 															
-// - ind : (Equal _ (List.length _ (Rev tail)) (List.length _ tail))
-// - aux1: (Equal Nat (List.length _ (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (Nat.add (List.length _ (Rev tail)) (Nat.succ Nat.zero)))
-// - aux2: (Equal Nat (Nat.add (List.length Nat (Rev tail)) (Nat.succ Nat.zero)) (Nat.succ (List.length Nat (Rev tail))))
-// - rrt : (Equal Nat (List.length Nat (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (Nat.succ (List.length _ tail)))
-// - Goal: (Equal _ (List.length _ (List.concat (Rev tail) (List.cons _ head (List.nil _)))) (Nat.succ (List.length _ tail)))
+// - ind : (Prop.Equal _ (Data.List.length _ (Rev tail)) (Data.List.length _ tail))
+// - aux1: (Prop.Equal Data.Nat (Data.List.length _ (Data.List.concat (Rev tail) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat)))) (Data.Nat.add (Data.List.length _ (Rev tail)) (Data.Nat.succ Data.Nat.zero)))
+// - aux2: (Prop.Equal Data.Nat (Data.Nat.add (Data.List.length Data.Nat (Rev tail)) (Data.Nat.succ Data.Nat.zero)) (Data.Nat.succ (Data.List.length Data.Nat (Rev tail))))
+// - rrt : (Prop.Equal Data.Nat (Data.List.length Data.Nat (Data.List.concat (Rev tail) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat)))) (Data.Nat.succ (Data.List.length _ tail)))
+// - Goal: (Prop.Equal _ (Data.List.length _ (Data.List.concat (Rev tail) (Data.List.cons _ head (Data.List.nil _)))) (Data.Nat.succ (Data.List.length _ tail)))
 
-App_assoc (l1: NatList) (l2: NatList) (l3: NatList) : (Equal (List Nat) (List.concat (List.concat l1 l2) l3) (List.concat l1 (List.concat l2 l3))) 
-App_assoc List.nil l2 l3  = Equal.refl
-// - Goal: (Equal (List Nat) (List.concat l2 l3) (List.concat l2 l3))
-App_assoc (List.cons Nat head tail) l2 l3  = 
+App_assoc (l1: Data.NatData.List) (l2: Data.NatData.List) (l3: Data.NatData.List) : (Prop.Equal (Data.List Data.Nat) (Data.List.concat (Data.List.concat l1 l2) l3) (Data.List.concat l1 (Data.List.concat l2 l3))) 
+App_assoc Data.List.nil l2 l3  = Prop.Equal.refl
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Data.List.concat l2 l3) (Data.List.concat l2 l3))
+App_assoc (Data.List.cons Data.Nat head tail) l2 l3  = 
 																			let ind = App_assoc tail l2 l3
-																			let app = Equal.apply (x => List.cons _ head x) ind
+																			let app = Prop.Equal.apply (x => Data.List.cons _ head x) ind
 																			app
 
-// - ind : (Equal _ (List.concat _ (List.concat _ tail l2) l3) (List.concat _ tail (List.concat _ l2 l3)))
-// - app : (Equal (List Nat) (List.cons Nat head (List.concat _ (List.concat _ tail l2) l3)) (List.cons Nat head (List.concat _ tail (List.concat _ l2 l3))))
-// - Goal: (Equal (List Nat) (List.cons _ head (List.concat _ (List.concat _ tail l2) l3)) (List.cons _ head (List.concat _ tail (List.concat _ l2 l3))))
-// Rev_app_distr <x: Type> (l1: List x) (l2: List x) : (Equal (List x) (List.rev (List.concat l1 l2)) (List.concat (List.rev l2) (List.rev l1)))
-Rev_app_distr (l1: NatList) (l2: NatList) : (Equal NatList (Rev (List.concat l1 l2)) (List.concat (Rev l2) (Rev l1)))
-Rev_app_distr (List.nil Nat) l2 = 
+// - ind : (Prop.Equal _ (Data.List.concat _ (Data.List.concat _ tail l2) l3) (Data.List.concat _ tail (Data.List.concat _ l2 l3)))
+// - app : (Prop.Equal (Data.List Data.Nat) (Data.List.cons Data.Nat head (Data.List.concat _ (Data.List.concat _ tail l2) l3)) (Data.List.cons Data.Nat head (Data.List.concat _ tail (Data.List.concat _ l2 l3))))
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Data.List.cons _ head (Data.List.concat _ (Data.List.concat _ tail l2) l3)) (Data.List.cons _ head (Data.List.concat _ tail (Data.List.concat _ l2 l3))))
+// Rev_app_distr <x: Type> (l1: Data.List x) (l2: Data.List x) : (Prop.Equal (Data.List x) (Data.List.rev (Data.List.concat l1 l2)) (Data.List.concat (Data.List.rev l2) (Data.List.rev l1)))
+Rev_app_distr (l1: Data.NatData.List) (l2: Data.NatData.List) : (Prop.Equal Data.NatData.List (Rev (Data.List.concat l1 l2)) (Data.List.concat (Rev l2) (Rev l1)))
+Rev_app_distr (Data.List.nil Data.Nat) l2 = 
 														let aux = App_nil_r (Rev l2)
-														let mir = Equal.mirror aux
+														let mir = Prop.Equal.mirror aux
 														mir
-// - aux : (Equal (List Nat) (List.concat _ l2 (List.nil Nat)) l2)
-// - aux : (Equal (List Nat) (List.concat _ (Rev l2) (List.nil Nat)) (Rev l2))
-// - mir : (Equal (List Nat) (Rev l2) (List.concat _ (Rev l2) (List.nil Nat)))
-// - Goal: (Equal (List Nat) (Rev l2) (List.concat _ (Rev l2) (List.nil Nat)))
-Rev_app_distr (List.cons Nat head tail) l2 = 
+// - aux : (Prop.Equal (Data.List Data.Nat) (Data.List.concat _ l2 (Data.List.nil Data.Nat)) l2)
+// - aux : (Prop.Equal (Data.List Data.Nat) (Data.List.concat _ (Rev l2) (Data.List.nil Data.Nat)) (Rev l2))
+// - mir : (Prop.Equal (Data.List Data.Nat) (Rev l2) (Data.List.concat _ (Rev l2) (Data.List.nil Data.Nat)))
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Rev l2) (Data.List.concat _ (Rev l2) (Data.List.nil Data.Nat)))
+Rev_app_distr (Data.List.cons Data.Nat head tail) l2 = 
 																						let ind = Rev_app_distr tail l2
-																						let app1 = Equal.apply (x => List.concat x [head]) ind
+																						let app1 = Prop.Equal.apply (x => Data.List.concat x [head]) ind
 																						let aux1 = App_assoc (Rev l2) (Rev tail) [head] 
-																						let chn = Equal.chain app1 aux1 
-																						chn
+																						let chn = Prop.Equal.chain app1 aux1 
 
-// - ind : (Equal (List Nat) (Rev (List.concat _ tail l2)) (List.concat _ (Rev l2) (Rev tail)))
-// - app1: (Equal (List Nat) (List.concat (Rev (List.concat tail l2)) (List.cons Nat head (List.nil Nat))) (List.concat (List.concat (Rev l2) (Rev tail)) (List.cons Nat head (List.nil Nat)))) 
-// - aux1: (Equal (List Nat) (List.concat (List.concat (Rev l2) (Rev tail)) (List.cons Nat head (List.nil Nat))) (List.concat (Rev l2) (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))))
-// - chn : (Equal (List Nat) (List.concat (Rev (List.concat tail l2)) (List.cons Nat head (List.nil Nat))) (List.concat (Rev l2) (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))))
-// - Goal: (Equal (List Nat) (List.concat (Rev (List.concat tail l2)) (List.cons _ head (List.nil _))) (List.concat (Rev l2) (List.concat (Rev tail) (List.cons _ head (List.nil _)))
+// - ind : (Prop.Equal (Data.List Data.Nat) (Rev (Data.List.concat _ tail l2)) (Data.List.concat _ (Rev l2) (Rev tail)))
+// - app1: (Prop.Equal (Data.List Data.Nat) (Data.List.concat (Rev (Data.List.concat tail l2)) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat))) (Data.List.concat (Data.List.concat (Rev l2) (Rev tail)) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat)))) 
+// - aux1: (Prop.Equal (Data.List Data.Nat) (Data.List.concat (Data.List.concat (Rev l2) (Rev tail)) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat))) (Data.List.concat (Rev l2) (Data.List.concat (Rev tail) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat)))))
+// - chn : (Prop.Equal (Data.List Data.Nat) (Data.List.concat (Rev (Data.List.concat tail l2)) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat))) (Data.List.concat (Rev l2) (Data.List.concat (Rev tail) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat)))))
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Data.List.concat (Rev (Data.List.concat tail l2)) (Data.List.cons _ head (Data.List.nil _))) (Data.List.concat (Rev l2) (Data.List.concat (Rev tail) (Data.List.cons _ head (Data.List.nil _)))
 
-Rev_involutive (l: NatList) : (Equal NatList (Rev (Rev l)) l)
-Rev_involutive (List.nil Nat) = Equal.refl
-Rev_involutive (List.cons Nat head tail) = 
+Rev_involutive (l: Data.NatData.List) : (Prop.Equal Data.NatData.List (Rev (Rev l)) l)
+Rev_involutive (Data.List.nil Data.Nat) = Prop.Equal.refl
+Rev_involutive (Data.List.cons Data.Nat head tail) = 
 																		let ind = Rev_involutive tail 
 																		let aux = Rev_app_distr (Rev tail) [head]
-																		let rrt = Equal.rewrite ind (x => (Equal (List Nat) (Rev (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (List.concat (List.cons _ head (List.nil _)) (x)))) aux
+																		let rrt = Prop.Equal.rewrite ind (x => (Prop.Equal (Data.List Data.Nat) (Rev (Data.List.concat (Rev tail) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat)))) (Data.List.concat (Data.List.cons _ head (Data.List.nil _)) (x)))) aux
 												  					rrt
-// - ind : (Equal (List Nat) (Rev (Rev tail)) tail)
-// - aux : (Equal (List Nat) (Rev (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (List.concat (List.cons _ head (List.nil _)) (Rev (Rev tail))))
-// - rrt : (Equal (List Nat) (Rev (List.concat (Rev tail) (List.cons Nat head (List.nil Nat)))) (List.cons Nat head tail))
-// - Goal: (Equal (List Nat) (Rev (List.concat (Rev tail) (List.cons _ head (List.nil _)))) (List.cons Nat head tail))
+// - ind : (Prop.Equal (Data.List Data.Nat) (Rev (Rev tail)) tail)
+// - aux : (Prop.Equal (Data.List Data.Nat) (Rev (Data.List.concat (Rev tail) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat)))) (Data.List.concat (Data.List.cons _ head (Data.List.nil _)) (Rev (Rev tail))))
+// - rrt : (Prop.Equal (Data.List Data.Nat) (Rev (Data.List.concat (Rev tail) (Data.List.cons Data.Nat head (Data.List.nil Data.Nat)))) (Data.List.cons Data.Nat head tail))
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Rev (Data.List.concat (Rev tail) (Data.List.cons _ head (Data.List.nil _)))) (Data.List.cons Data.Nat head tail))
 
 // There is a short solution to the next one. If you find yourself getting tangled up,
 // step back and try to look for a simpler way.
-App_assoc4 (l1: NatList) (l2: NatList) (l3: NatList) (l4: NatList) : (Equal NatList (List.concat l1 (List.concat l2 (List.concat l3 l4))) (List.concat (List.concat (List.concat l1 l2) l3) l4))
-App_assoc4 (List.nil Nat) l2 l3 l4 = 
+App_assoc4 (l1: Data.NatData.List) (l2: Data.NatData.List) (l3: Data.NatData.List) (l4: Data.NatData.List) : (Prop.Equal Data.NatData.List (Data.List.concat l1 (Data.List.concat l2 (Data.List.concat l3 l4))) (Data.List.concat (Data.List.concat (Data.List.concat l1 l2) l3) l4))
+App_assoc4 (Data.List.nil Data.Nat) l2 l3 l4 = 
 															let ind = App_assoc l2 l3 l4
-															let mir = Equal.mirror ind
+															let mir = Prop.Equal.mirror ind
 															mir
 
-// - ind : (Equal (List Nat) (List.concat _ (List.concat _ l2 l3) l4) (List.concat _ l2 (List.concat _ l3 l4)))	
-// - mir : (Equal (List Nat) (List.concat _ l2 (List.concat _ l3 l4)) (List.concat _ (List.concat _ l2 l3) l4))														
-// - Goal: (Equal (List Nat) (List.concat _ l2 (List.concat _ l3 l4)) (List.concat _ (List.concat _ l2 l3) l4))
-App_assoc4 (List.cons Nat head tail) l2 l3 l4 = 
+// - ind : (Prop.Equal (Data.List Data.Nat) (Data.List.concat _ (Data.List.concat _ l2 l3) l4) (Data.List.concat _ l2 (Data.List.concat _ l3 l4)))	
+// - mir : (Prop.Equal (Data.List Data.Nat) (Data.List.concat _ l2 (Data.List.concat _ l3 l4)) (Data.List.concat _ (Data.List.concat _ l2 l3) l4))														
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Data.List.concat _ l2 (Data.List.concat _ l3 l4)) (Data.List.concat _ (Data.List.concat _ l2 l3) l4))
+App_assoc4 (Data.List.cons Data.Nat head tail) l2 l3 l4 = 
 																					let ind = App_assoc4 tail l2 l3 l4
-																					let app = Equal.apply (x => List.cons _ head x) ind
+																					let app = Prop.Equal.apply (x => Data.List.cons _ head x) ind
 																					app
-// - ind : (Equal (List Nat) (List.concat _ tail (List.concat _ l2 (List.concat _ l3 l4))) (List.concat _ (List.concat _ (List.concat _ tail l2) l3) l4))
-// - app : (Equal (List Nat) (List.cons Nat head (List.concat _ tail (List.concat _ l2 (List.concat _ l3 l4)))) (List.cons Nat head (List.concat _ (List.concat _ (List.concat _ tail l2) l3) l4)))
-// - Goal: (Equal (List Nat) (List.cons _ head (List.concat _ tail (List.concat _ l2 (List.concat _ l3 l4)))) (List.cons _ head (List.concat _ (List.concat _ (List.concat _ tail l2) l3) l4))
+// - ind : (Prop.Equal (Data.List Data.Nat) (Data.List.concat _ tail (Data.List.concat _ l2 (Data.List.concat _ l3 l4))) (Data.List.concat _ (Data.List.concat _ (Data.List.concat _ tail l2) l3) l4))
+// - app : (Prop.Equal (Data.List Data.Nat) (Data.List.cons Data.Nat head (Data.List.concat _ tail (Data.List.concat _ l2 (Data.List.concat _ l3 l4)))) (Data.List.cons Data.Nat head (Data.List.concat _ (Data.List.concat _ (Data.List.concat _ tail l2) l3) l4)))
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Data.List.cons _ head (Data.List.concat _ tail (Data.List.concat _ l2 (Data.List.concat _ l3 l4)))) (Data.List.cons _ head (Data.List.concat _ (Data.List.concat _ (Data.List.concat _ tail l2) l3) l4))
 
 // An exercise about your implementation of nonzeros:
 
-// Nonzeros_app : (l1, l2: NatList) ౏> Nonzeros (l1 ++ l2) = (Nonzeros l1) ++ (Nonzeros l2)
-Nonzeros_app (l1: NatList) (l2: NatList) : (Equal NatList (Nonzeros (List.concat l1 l2)) (List.concat (Nonzeros l1) (Nonzeros l2)))
-Nonzeros_app (List.nil Nat) l2 = Equal.refl
-// - Goal: (Equal (List Nat) (Nonzeros l2) (Nonzeros l2))
-Nonzeros_app (List.cons Nat head tail) l2 = 
+// Nonzeros_app : (l1, l2: Data.NatData.List) ౏> Nonzeros (l1 ++ l2) = (Nonzeros l1) ++ (Nonzeros l2)
+Nonzeros_app (l1: Data.NatData.List) (l2: Data.NatData.List) : (Prop.Equal Data.NatData.List (Nonzeros (Data.List.concat l1 l2)) (Data.List.concat (Nonzeros l1) (Nonzeros l2)))
+Nonzeros_app (Data.List.nil Data.Nat) l2 = Prop.Equal.refl
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Nonzeros l2) (Nonzeros l2))
+Nonzeros_app (Data.List.cons Data.Nat head tail) l2 = 
 																			let ind = Nonzeros_app tail l2
 																			?
-// - ind : (Equal (List Nat) (Nonzeros (List.concat tail l2)) (List.concat (Nonzeros tail) (Nonzeros l2))																		
-// - Goal: (Equal (List Nat) (Nonzeros (List.cons Nat head (List.concat tail l2))) (List.concat (Nonzeros (List.cons Nat head tail)) (Nonzeros l2)))
-// 3.3.2. Exercise: 2 stars (beq_NatList). Fill in the definition of beq_NatList,
-// which compares lists of numbers for equality. Prove that beq_NatList l l yields True
+// - ind : (Prop.Equal (Data.List Data.Nat) (Nonzeros (Data.List.concat tail l2)) (Data.List.concat (Nonzeros tail) (Nonzeros l2))																		
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Nonzeros (Data.List.cons Data.Nat head (Data.List.concat tail l2))) (Data.List.concat (Nonzeros (Data.List.cons Data.Nat head tail)) (Nonzeros l2)))
+// 3.3.2. Exercise: 2 stars (beq_Data.NatData.List). Fill in the definition of beq_Data.NatData.List,
+// which compares lists of numbers for equality. Prove that beq_Data.NatData.List l l yields True
 // for every list l.
 
-Beq_NatList (l1: NatList) (l2: NatList) : Bool
-Beq_NatList (List.nil ) (List.nil ) = Bool.true
-Beq_NatList (List.cons l1.head l1.tail) (List.cons l2.head l2.tail) = 
-(Bool.and (Nat.equal l1.head l2.head) (Beq_NatList l1.tail l2.tail))
-// (if (Nat.equal l1.head l2.head) {(Beq_NatList l1.tail l2.tail)} else {Bool.false})
-Beq_NatList l1 l2 = Bool.false
+Beq_Data.NatData.List (l1: Data.NatData.List) (l2: Data.NatData.List) : Data.Bool
+Beq_Data.NatData.List (Data.List.nil ) (Data.List.nil ) = Data.Bool.true
+Beq_Data.NatData.List (Data.List.cons l1.head l1.tail) (Data.List.cons l2.head l2.tail) = 
+(Data.Bool.and (Data.Nat.equal l1.head l2.head) (Beq_Data.NatData.List l1.tail l2.tail))
+// (if (Data.Nat.equal l1.head l2.head) {(Beq_Data.NatData.List l1.tail l2.tail)} else {Data.Bool.false})
+Beq_Data.NatData.List l1 l2 = Data.Bool.false
 
-Test_beq_NatList1 : (Equal Bool (Beq_NatList (List.nil Nat) (List.nil Nat)) Bool.true)
-Test_beq_NatList1 = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
-Test_beq_NatList2 : (Equal Bool (Beq_NatList [(U60.to_nat 1),(U60.to_nat 2),(U60.to_nat 3)] [(U60.to_nat 1),(U60.to_nat 2),(U60.to_nat 3)]) Bool.true)
-Test_beq_NatList2 = Equal.refl
-// - Goal: (Equal Bool Bool.false Bool.false)
-Test_beq_NatList3 : (Equal Bool (Beq_NatList ([(U60.to_nat 1),(U60.to_nat 2),(U60.to_nat 3)]) ([(U60.to_nat 1),(U60.to_nat 2),(U60.to_nat 4)])) Bool.false)
-Test_beq_NatList3 = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
-Beq_NatList_refl (l: NatList) : (Equal Bool Bool.true (Beq_NatList l l))
-Beq_NatList_refl (List.nil Nat) = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
-Beq_NatList_refl (List.cons Nat head tail) = 
-																			let ind = Beq_NatList_refl tail
-																			let prf = Nat.equal.refl head 
-																			let app = Equal.apply (x => (Bool.and (Nat.equal head head) x)) ind
-																			let rrt = Equal.rewrite prf (x =>  (Equal Bool (Bool.and (x) Bool.true) (Bool.and (Nat.equal head head) (Beq_NatList tail tail)))) app
+Test_beq_Data.NatData.List1 : (Prop.Equal Data.Bool (Beq_Data.NatData.List (Data.List.nil Data.Nat) (Data.List.nil Data.Nat)) Data.Bool.true)
+Test_beq_Data.NatData.List1 = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+Test_beq_Data.NatData.List2 : (Prop.Equal Data.Bool (Beq_Data.NatData.List [(Data.U60.to_nat 1),(Data.U60.to_nat 2),(Data.U60.to_nat 3)] [(Data.U60.to_nat 1),(Data.U60.to_nat 2),(Data.U60.to_nat 3)]) Data.Bool.true)
+Test_beq_Data.NatData.List2 = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.false Data.Bool.false)
+Test_beq_Data.NatData.List3 : (Prop.Equal Data.Bool (Beq_Data.NatData.List ([(Data.U60.to_nat 1),(Data.U60.to_nat 2),(Data.U60.to_nat 3)]) ([(Data.U60.to_nat 1),(Data.U60.to_nat 2),(Data.U60.to_nat 4)])) Data.Bool.false)
+Test_beq_Data.NatData.List3 = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+Beq_Data.NatData.List_refl (l: Data.NatData.List) : (Prop.Equal Data.Bool Data.Bool.true (Beq_Data.NatData.List l l))
+Beq_Data.NatData.List_refl (Data.List.nil Data.Nat) = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+Beq_Data.NatData.List_refl (Data.List.cons Data.Nat head tail) = 
+																			let ind = Beq_Data.NatData.List_refl tail
+																			let prf = Data.Nat.equal.refl head 
+																			let app = Prop.Equal.apply (x => (Data.Bool.and (Data.Nat.equal head head) x)) ind
+																			let rrt = Prop.Equal.rewrite prf (x =>  (Prop.Equal Data.Bool (Data.Bool.and (x) Data.Bool.true) (Data.Bool.and (Data.Nat.equal head head) (Beq_Data.NatData.List tail tail)))) app
 																			rrt
-// - ind : (Equal Bool Bool.true (Beq_NatList tail tail))
-// - prf : (Equal _ (Nat.equal head head) Bool.true)
-// - app : (Equal Bool (Bool.and (Nat.equal head head) Bool.true) (Bool.and (Nat.equal head head) (Beq_NatList tail tail)))
-// - rrt : (Equal Bool Bool.true (Bool.and (Nat.equal head head) (Beq_NatList tail tail)))
-// - Goal: (Equal Bool Bool.true (Bool.and (Nat.equal head head) (Beq_NatList tail tail)))
+// - ind : (Prop.Equal Data.Bool Data.Bool.true (Beq_Data.NatData.List tail tail))
+// - prf : (Prop.Equal _ (Data.Nat.equal head head) Data.Bool.true)
+// - app : (Prop.Equal Data.Bool (Data.Bool.and (Data.Nat.equal head head) Data.Bool.true) (Data.Bool.and (Data.Nat.equal head head) (Beq_Data.NatData.List tail tail)))
+// - rrt : (Prop.Equal Data.Bool Data.Bool.true (Data.Bool.and (Data.Nat.equal head head) (Beq_Data.NatData.List tail tail)))
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true (Data.Bool.and (Data.Nat.equal head head) (Beq_Data.NatData.List tail tail)))
 
 // 3.4.1. Exercise: 3 stars, advanced (bag_proofs). Here are a couple of little
 // theorems to prove about your definitions about bags above.
-Lte (n: Nat) (m: Nat) : Bool
-Lte Nat.zero m = Bool.true
-Lte n Nat.zero = Bool.false
-Lte (Nat.succ k) (Nat.succ j) = Lte k j
+Lte (n: Data.Nat) (m: Data.Nat) : Data.Bool
+Lte Data.Nat.zero m = Data.Bool.true
+Lte n Data.Nat.zero = Data.Bool.false
+Lte (Data.Nat.succ k) (Data.Nat.succ j) = Lte k j
+
+// Data.Nat.lte (a: Data.Nat) (b: Data.Nat) : Data.Bool
+// Data.Nat.lte  Data.Nat.zero     b           = Data.Bool.true
+// Data.Nat.lte  a            Data.Nat.zero    = Data.Bool.false
+// Data.Nat.lte (Data.Nat.succ a) (Data.Nat.succ b) = Data.Nat.lte a b
 
 
-
-Lte_z_n (n: Nat) : Equal Bool (Lte Nat.zero n) Bool.true
-Lte_z_n Nat.zero = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
-Lte_z_n (Nat.succ n.pred) = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
+Lte_z_n (n: Data.Nat) : Prop.Equal Data.Bool (Data.Nat.lte Data.Nat.zero n) Data.Bool.true
+Lte_z_n Data.Nat.zero = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+Lte_z_n (Data.Nat.succ n.pred) = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
 
 // Count_member_nonzero (s: Bag) : lte 1 (Count 1 (1 ௝௞ s)) = True
-Count_member_nonzero (s: Bag) : (Equal Bool (Lte (Nat.succ Nat.zero) (Count (Nat.succ Nat.zero) (List.cons Nat (Nat.succ Nat.zero) s))) Bool.true)
-Count_member_nonzero s = 
-									let aux = Lte_z_n (Count (Nat.succ Nat.zero) s)
-									aux
-// - Goal: (Equal Bool (Lte Nat.zero (Count (Nat.succ Nat.zero) s)) Bool.true)
-// - Goal: (Equal Bool (Lte Nat.zero (Count (Nat.succ Nat.zero) s)) Bool.true)
+// Count_member_nonzero (s: Bag) : (Prop.Equal Data.Bool (Lte (Data.Nat.succ Data.Nat.zero) (Count (Data.Nat.succ Data.Nat.zero) (Data.List.cons Data.Nat (Data.Nat.succ Data.Nat.zero) s))) Data.Bool.true)
+// Count_member_nonzero s = 
+// 									let aux = Lte_z_n (Count (Data.Nat.succ Data.Nat.zero) s)
+// 									aux
+// - Goal: (Prop.Equal Data.Bool (Lte Data.Nat.zero (Count (Data.Nat.succ Data.Nat.zero) s)) Data.Bool.true)
+// - Goal: (Prop.Equal Data.Bool (Lte Data.Nat.zero (Count (Data.Nat.succ Data.Nat.zero) s)) Data.Bool.true)
 
-Ble_n_Sn (n: Nat) : Equal Bool (Lte n (Nat.succ n)) Bool.true
-Ble_n_Sn Nat.zero = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
-Ble_n_Sn (Nat.succ n.pred) = 
+Ble_n_Sn (n: Data.Nat) : Prop.Equal Data.Bool (Lte n (Data.Nat.succ n)) Data.Bool.true
+Ble_n_Sn Data.Nat.zero = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+Ble_n_Sn (Data.Nat.succ n.pred) = 
 											let ind = Ble_n_Sn n.pred
 											ind
-// - ind : (Equal Bool (Lte n.pred (Nat.succ n.pred)) Bool.true)
-// - Goal: (Equal Bool (Lte n.pred (Nat.succ n.pred)) Bool.true)
+// - ind : (Prop.Equal Data.Bool (Lte n.pred (Data.Nat.succ n.pred)) Data.Bool.true)
+// - Goal: (Prop.Equal Data.Bool (Lte n.pred (Data.Nat.succ n.pred)) Data.Bool.true)
 
 // Remove_decreases_count : (s : Bag) ౏> lte (Count 0 (Remove_one 0 s)) (Count 0 s) = True
-Remove_decreases_count (s: Bag) : (Equal Bool (Lte (Count Nat.zero (Remove_one Nat.zero s)) (Count Nat.zero s)) Bool.true) 
+Remove_decreases_count (s: Bag) : (Prop.Equal Data.Bool (Lte (Count Data.Nat.zero (Remove_one Data.Nat.zero s)) (Count Data.Nat.zero s)) Data.Bool.true) 
 Remove_decreases_count s = 
-										let aux1 = Ble_n_Sn (Count Nat.zero (Remove_one Nat.zero s))
-										let aux2 = Lte_z_n (Count Nat.zero (Remove_one Nat.zero s))
+										let aux1 = Ble_n_Sn (Count Data.Nat.zero (Remove_one Data.Nat.zero s))
+										let aux2 = Lte_z_n (Count Data.Nat.zero (Remove_one Data.Nat.zero s))
 										?
-// - aux : (Equal Bool (Lte (Count Nat.zero (Remove_one Nat.zero s)) (Nat.succ (Count Nat.zero (Remove_one Nat.zero s)))) Bool.true)
-// - Goal: (Equal Bool (Lte (Count Nat.zero (Remove_one Nat.zero s)) (Count Nat.zero s)) Bool.true)
+// - aux : (Prop.Equal Data.Bool (Lte (Count Data.Nat.zero (Remove_one Data.Nat.zero s)) (Data.Nat.succ (Count Data.Nat.zero (Remove_one Data.Nat.zero s)))) Data.Bool.true)
+// - Goal: (Prop.Equal Data.Bool (Lte (Count Data.Nat.zero (Remove_one Data.Nat.zero s)) (Count Data.Nat.zero s)) Data.Bool.true)
 // 3.4.2. Exercise: 3 stars, optional (bag_count_sum). Write down an interesting theorem bag_count_sum about bags involving the functions count and sum, and
 // prove it. (You may find that the difficulty of the proof depends on how you defined count!)
 // bag_count_sum : ?bag_count_su
 
 // 3.4.3. Exercise: 4 stars, advanced (rev_injective). Prove that the rev function
 // is injective – that is,
-// rev_injective:(l1, l2 : NatList) ౏> rev l1 = rev l2 ౏> l1 = l2
-Rev_injective (l1: NatList) (l2: NatList) (e: Equal NatList (Rev l1) (Rev l2)) : (Equal NatList l1 l2)
+// rev_injective:(l1, l2 : Data.NatData.List) ౏> rev l1 = rev l2 ౏> l1 = l2
+Rev_injective (l1: Data.NatData.List) (l2: Data.NatData.List) (e: Prop.Equal Data.NatData.List (Rev l1) (Rev l2)) : (Prop.Equal Data.NatData.List l1 l2)
 Rev_injective l1 l2 prf = 
                     let aux1 = Rev_involutive l1
                     let aux2 = Rev_involutive l2
-										let app = Equal.apply (x => Rev x) prf
-										let chn1 = Equal.chain app aux2
-										let mir1 = Equal.mirror chn1
-										let chn2 = Equal.chain mir1 aux1
-										let mir2 = Equal.mirror chn2 
+										let app = Prop.Equal.apply (x => Rev x) prf
+										let chn1 = Prop.Equal.chain app aux2
+										let mir1 = Prop.Equal.mirror chn1
+										let chn2 = Prop.Equal.chain mir1 aux1
+										let mir2 = Prop.Equal.mirror chn2 
 										mir2
-// - prf : (Equal (List Nat) (Rev l1) (Rev l2))
-// - aux1: (Equal (List Nat) (Rev (Rev l1)) l1)
-// - aux2: (Equal (List Nat) (Rev (Rev l2)) l2)
-// - app : (Equal (List Nat) (Rev (Rev l1)) (Rev (Rev l2)))
-// - chn1: (Equal (List Nat) (Rev (Rev l1)) l2)
-// - mir1: (Equal (List Nat) l2 (Rev (Rev l1)))
-// - chn2: (Equal (List Nat) l2 l1)
-// - mir2: (Equal (List Nat) l1 l2)
-// - Goal: (Equal (List Nat) l1 l2)
+// - prf : (Prop.Equal (Data.List Data.Nat) (Rev l1) (Rev l2))
+// - aux1: (Prop.Equal (Data.List Data.Nat) (Rev (Rev l1)) l1)
+// - aux2: (Prop.Equal (Data.List Data.Nat) (Rev (Rev l2)) l2)
+// - app : (Prop.Equal (Data.List Data.Nat) (Rev (Rev l1)) (Rev (Rev l2)))
+// - chn1: (Prop.Equal (Data.List Data.Nat) (Rev (Rev l1)) l2)
+// - mir1: (Prop.Equal (Data.List Data.Nat) l2 (Rev (Rev l1)))
+// - chn2: (Prop.Equal (Data.List Data.Nat) l2 l1)
+// - mir2: (Prop.Equal (Data.List Data.Nat) l1 l2)
+// - Goal: (Prop.Equal (Data.List Data.Nat) l1 l2)
 
 // 4.0.1. Exercise: 2 stars (hd_error). Using the same idea, fix the hd function
 // from earlier so we don’t have to pass a default element for the Nil case.
 
-NatOption : Type 
-NatOption = (Maybe Nat)
+Data.NatOption : Type 
+Data.NatOption = (Data.Maybe Data.Nat)
 
-// Option_elim (d : Nat) (o : NatOption) ౏> Nat
-Option_elim (d: Nat) (o: NatOption) : Nat
-Option_elim d (Maybe.some k)   = k
-Option_elim d (Maybe.none Nat) = d
+// Option_elim (d : Data.Nat) (o : Data.NatOption) ౏> Data.Nat
+Option_elim (d: Data.Nat) (o: Data.NatOption) : Data.Nat
+Option_elim d (Data.Maybe.some k)   = k
+Option_elim d (Data.Maybe.none Data.Nat) = d
 
-Hd_error <x> (l: List Nat) : NatOption
-Hd_error x (List.nil ) = (Maybe.none )
-Hd_error x (List.cons  head tail) = (Maybe.some  head)
+Hd_error <x> (l: Data.List Data.Nat) : Data.NatOption
+Hd_error x (Data.List.nil ) = (Data.Maybe.none )
+Hd_error x (Data.List.cons  head tail) = (Data.Maybe.some  head)
 
 // Test_hd_error1 : Hd_error [] = None
-Test_hd_error1 : (Equal NatOption (Hd_error []) (Maybe.none Nat)) 
-Test_hd_error1 = Equal.refl
+Test_hd_error1 : (Prop.Equal Data.NatOption (Hd_error []) (Data.Maybe.none Data.Nat)) 
+Test_hd_error1 = Prop.Equal.refl
 
 // Test_hd_error2 : Hd_error [1] = Some 1
-Test_hd_error2 : (Equal NatOption (Hd_error [(U60.to_nat 1)]) (Maybe.some (U60.to_nat 1))) 
-Test_hd_error2 = Equal.refl
+Test_hd_error2 : (Prop.Equal Data.NatOption (Hd_error [(Data.U60.to_nat 1)]) (Data.Maybe.some (Data.U60.to_nat 1))) 
+Test_hd_error2 = Prop.Equal.refl
 
 // Test_hd_error3 : Hd_error [5,6] = Some 5
-Test_hd_error3 : (Equal NatOption (Hd_error [(U60.to_nat 5),(U60.to_nat 6)]) (Maybe.some (U60.to_nat 5))) 
-Test_hd_error3 = Equal.refl
+Test_hd_error3 : (Prop.Equal Data.NatOption (Hd_error [(Data.U60.to_nat 5),(Data.U60.to_nat 6)]) (Data.Maybe.some (Data.U60.to_nat 5))) 
+Test_hd_error3 = Prop.Equal.refl
 
 // 4.0.2. Exercise: 1 star, optional (option_elim_hd). This exercise relates your
 // new hd_error to the old hd.
-// Hd <a: Type> (v: Nat) (m: NatOption): Nat
-// Hd a v (Maybe.none ) = v
-// Hd a v (Maybe.some  value) = value
+// Hd <a: Type> (v: Data.Nat) (m: Data.NatOption): Data.Nat
+// Hd a v (Data.Maybe.none ) = v
+// Hd a v (Data.Maybe.some  value) = value
 
-Hd_list (v: Nat) (l: List Nat): Nat
-Hd_list  v (List.nil ) = v
-Hd_list  v (List.cons head tail) = head
+Hd_list (v: Data.Nat) (l: Data.List Data.Nat): Data.Nat
+Hd_list  v (Data.List.nil ) = v
+Hd_list  v (Data.List.cons head tail) = head
 
-// Option_elim_hd : (l : NatList) ౏> (default : Nat) ౏> hd default l = option_elim default (hd_error l)
-Option_elim_hd (l: NatList) (default: Nat) : (Equal (Hd_list default l) (Option_elim default (Hd_error l)))
+// Option_elim_hd : (l : Data.NatData.List) ౏> (default : Data.Nat) ౏> hd default l = option_elim default (hd_error l)
+Option_elim_hd (l: Data.NatData.List) (default: Data.Nat) : (Prop.Equal (Hd_list default l) (Option_elim default (Hd_error l)))
 Option_elim_hd l default = ?
 
 Id : Type 
-MkId (key: Nat) : Id
+MkId (key: Data.Nat) : Id
 
-// beq_id : (x1, x2 : Id) ౏> Bool
+// beq_id : (x1, x2 : Id) ౏> Data.Bool
 // beq_id (MkId n1) (MkId n2) = n1 తథ n2
 
-Beq_id (x1: Id) (x2: Id) : Bool
-Beq_id (MkId n1) (MkId n2) = Nat.equal n1 n2 
+Beq_id (x1: Id) (x2: Id) : Data.Bool
+Beq_id (MkId n1) (MkId n2) = Data.Nat.equal n1 n2 
 
 // 5.0.1. Exercise: 1 star (beq_id_refl).
 // Beq_id_refl : (x : Id) ౏> True = beq_id x x
-Beq_id_refl (x: Id) : (Equal Bool Bool.true (Beq_id x x))
-Beq_id_refl (MkId Nat.zero) = Equal.refl
-// - Goal: (Equal Bool Bool.true Bool.true)
-Beq_id_refl (MkId (Nat.succ n.pred)) = ?
-// - Goal: (Equal Bool Bool.true (Nat.equal n.pred n.pred))
+Beq_id_refl (x: Id) : (Prop.Equal Data.Bool Data.Bool.true (Beq_id x x))
+Beq_id_refl (MkId Data.Nat.zero) = Prop.Equal.refl
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+Beq_id_refl (MkId (Data.Nat.succ n.pred)) = ?
+// - Goal: (Prop.Equal Data.Bool Data.Bool.true (Data.Nat.equal n.pred n.pred))
 PartialMap : Type 
 PartialMap.empty : PartialMap
-PartialMap.record  (key: Id) (val: Nat) (map: PartialMap) : PartialMap
+PartialMap.record  (key: Id) (val: Data.Nat) (map: PartialMap) : PartialMap
 
-// Update : (d : PartialMap) ౏> (x : Id) ౏> (value : Nat) ౏> PartialMap
-Update (d: PartialMap) (x: Id) (value: Nat) : PartialMap
+// Update : (d : PartialMap) ౏> (x : Id) ౏> (value : Data.Nat) ౏> PartialMap
+Update (d: PartialMap) (x: Id) (value: Data.Nat) : PartialMap
 Update d x value = PartialMap.record x value d
 
-// find : (x : Id) ౏> (d : PartialMap) ౏> NatOption
+// find : (x : Id) ౏> (d : PartialMap) ౏> Data.NatOption
 // find x Empty = None
 // find x (Record y v d') = if beq_id x y
 // then Some v
 // else find x d'
-Find (x: Id) (d: PartialMap) : NatOption
-Find x PartialMap.empty = (Maybe.none Nat)
-Find x (PartialMap.record key val map) = if (Beq_id x key) {(Maybe.some val)} else {Find x map}
+Find (x: Id) (d: PartialMap) : Data.NatOption
+Find x PartialMap.empty = (Data.Maybe.none Data.Nat)
+Find x (PartialMap.record key val map) = if (Beq_id x key) {(Data.Maybe.some val)} else {Find x map}
 
 // 5.0.2. Exercise: 1 star (update_eq).
-// Update_eq : (d : PartialMap) ౏> (x : Id) ౏> (v : Nat) ౏> find x (update d x v) = Some v
-Update_eq (d: PartialMap) (x: Id) (v: Nat) : (Equal NatOption (Find x (Update d x v)) (Maybe.some v))
+// Update_eq : (d : PartialMap) ౏> (x : Id) ౏> (v : Data.Nat) ౏> find x (update d x v) = Some v
+Update_eq (d: PartialMap) (x: Id) (v: Data.Nat) : (Prop.Equal Data.NatOption (Find x (Update d x v)) (Data.Maybe.some v))
 Update_eq PartialMap.empty x v = ?
 
 // // 5.0.3. Exercise: 1 star (update_neq).
-// Update_neq : (d : PartialMap) ౏> (x, y : Id) ౏> (o : Nat) ౏> beq_id x y = False ౏> find x (update d y o) = find x d
-Update_neq (d: PartialMap) (x: Id) (y: Id) (o: Nat) (e: Equal Bool (Beq_id x y) Bool.false) : (Equal (Find x (Update d y o)) (Find x d))
+// Update_neq : (d : PartialMap) ౏> (x, y : Id) ౏> (o : Data.Nat) ౏> beq_id x y = False ౏> find x (update d y o) = find x d
+Update_neq (d: PartialMap) (x: Id) (y: Id) (o: Data.Nat) (e: Prop.Equal Data.Bool (Beq_id x y) Data.Bool.false) : (Prop.Equal (Find x (Update d y o)) (Find x d))
 Update_neq d x y o prf = ?
 
 // 5.0.4. Exercise: 2 stars (baz_num_elts). Consider the following inductive definition:
 
 // data Baz : Type where
 // Baz1 : Baz ౏> Baz
-// Baz2 : Baz ౏> Bool ౏> Baz
+// Baz2 : Baz ౏> Data.Bool ౏> Baz
 
-// How many elements does the type Baz have? (Answer in English or the natural
+// How many elements does the type Baz have? (Answer in English or the Data.Natural
 // language of your choice.)
 

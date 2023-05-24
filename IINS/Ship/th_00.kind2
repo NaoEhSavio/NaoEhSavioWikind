@@ -1,327 +1,328 @@
-// ::::::::::::::
+// ::::::::::::::refl
 // :: Theorems ::
 // ::::::::::::::
 
-// Note: these problems use functions from the base libs, NOT the ones above
+// Prop.Note: these problems use functions from the base libs, NOT the ones above
 
-Problems.t0 : (Equal Bool Bool.true Bool.true)
-Problems.t0 = Equal.refl
+Problems.t0 : (Prop.Equal Data.Bool Data.Bool.true Data.Bool.true)
+Problems.t0 = Prop.Equal.refl
 
-Problems.t1 (a: Bool) : (Equal Bool (Bool.and Bool.false a) Bool.false)
-Problems.t1 a = Equal.refl
+Problems.t1 (a: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.and Data.Bool.false a) Data.Bool.false)
+Problems.t1 a = Prop.Equal.refl
 
-Problems.t2 (a: Bool) : (Equal Bool (Bool.and a Bool.false) Bool.false)
-Problems.t2 Bool.true = Equal.refl
-Problems.t2 Bool.false = Equal.refl
+Problems.t2 (a: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.and a Data.Bool.false) Data.Bool.false)
+Problems.t2 Data.Bool.true = Prop.Equal.refl
+Problems.t2 Data.Bool.false = Prop.Equal.refl
 
-Problems.t3 (a: Bool) : (Equal Bool (Bool.or Bool.true a) Bool.true)
-Problems.t3 a = Equal.refl
+Problems.t3 (a: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.or Data.Bool.true a) Data.Bool.true)
+Problems.t3 a = Prop.Equal.refl
 
-Problems.t4 (a: Bool) : (Equal Bool (Bool.or a Bool.true) Bool.true)
-Problems.t4 Bool.true = Equal.refl
-Problems.t4 Bool.false = Equal.refl
+Problems.t4 (a: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.or a Data.Bool.true) Data.Bool.true)
+Problems.t4 Data.Bool.true = Prop.Equal.refl
+Problems.t4 Data.Bool.false = Prop.Equal.refl
 
-Problems.t5 (a: Bool) : (Equal Bool (Bool.equal a a) Bool.true)
-Problems.t5 Bool.true = Equal.refl
-Problems.t5 Bool.false = Equal.refl
+Problems.t5 (a: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.equal a a) Data.Bool.true)
+Problems.t5 Data.Bool.true = Prop.Equal.refl
+Problems.t5 Data.Bool.false = Prop.Equal.refl
 
-Problems.t6 (a: Bool) : (Equal Bool (Bool.not (Bool.not a)) a)
-Problems.t6 Bool.true = Equal.refl
-Problems.t6 Bool.false = Equal.refl
+Problems.t6 (a: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.not (Data.Bool.not a)) a)
+Problems.t6 Data.Bool.true = Prop.Equal.refl
+Problems.t6 Data.Bool.false = Prop.Equal.refl
 
-Problems.t7 (a: Bool) (b: Bool) : (Equal Bool (Bool.not(Bool.and a b)) (Bool.or(Bool.not a) (Bool.not b)))
-Problems.t7 Bool.true b = Equal.refl
-Problems.t7 Bool.false b = Equal.refl
+Problems.t7 (a: Data.Bool) (b: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.not(Data.Bool.and a b)) (Data.Bool.or(Data.Bool.not a) (Data.Bool.not b)))
+Problems.t7 Data.Bool.true b = Prop.Equal.refl
+Problems.t7 Data.Bool.false b = Prop.Equal.refl
 
-Problems.t8 (a: Bool) (b: Bool) : (Equal Bool (Bool.not(Bool.or a b)) (Bool.and(Bool.not a) (Bool.not b)))
-Problems.t8 Bool.true b = Equal.refl
-Problems.t8 Bool.false b = Equal.refl
+Problems.t8 (a: Data.Bool) (b: Data.Bool) : (Prop.Equal Data.Bool (Data.Bool.not(Data.Bool.or a b)) (Data.Bool.and(Data.Bool.not a) (Data.Bool.not b)))
+Problems.t8 Data.Bool.true b = Prop.Equal.refl
+Problems.t8 Data.Bool.false b = Prop.Equal.refl
 
-Problems.t9 <a: Type> <b: Type> (pair: Pair a b) : (Equal (Pair a b) (Pair.new a b (Pair.fst a b pair) (Pair.snd a b pair)) pair)
-Problems.t9 a b (Pair.new x y) = Equal.refl
+Problems.t9 <a: Type> <b: Type> (pair: Data.Pair a b) : (Prop.Equal (Data.Pair a b) (Data.Pair.new a b (Data.Pair.fst a b pair) (Data.Pair.snd a b pair)) pair)
+Problems.t9 a b (Data.Pair.new x y) = Prop.Equal.refl
 
-Problems.t10 <a: Type> <b: Type> (pair: Pair a b) : (Equal (Pair a b) (Pair.swap b a (Pair.swap a b pair)) pair)
-Problems.t10 a b (Pair.new x y ) = Equal.refl
-//criar Pair.swap
+Problems.t10 <a: Type> <b: Type> (pair: Data.Pair a b) : (Prop.Equal (Data.Pair a b) (Data.Pair.swap b a (Data.Pair.swap a b pair)) pair)
+Problems.t10 a b (Data.Pair.new x y ) = Prop.Equal.refl
+//criar Data.Pair.swap
 
-// Nat.same (n: Nat) : Nat
-// Nat.same  Nat.zero    = Nat.zero
-// Nat.same (Nat.succ n) = Nat.succ (Nat.same n)
+// Data.Nat.same (n: Data.Nat) : Data.Nat
+// Data.Nat.same  Data.Nat.zero    = Data.Nat.zero
+// Data.Nat.same (Data.Nat.succ n) = Data.Nat.succ (Data.Nat.same n)
 
-Problems.t11 (n: Nat) : Equal Nat (Nat.same n) n
-Problems.t11 Nat.zero = Equal.refl
-Problems.t11 (Nat.succ n.pred) = 
+Problems.t11 (n: Data.Nat) : Prop.Equal Data.Nat (Data.Nat.same n) n
+Problems.t11 Data.Nat.zero = Prop.Equal.refl
+Problems.t11 (Data.Nat.succ n.pred) = 
                             let ind = Problems.t11 n.pred
-                            let app = Equal.apply (x => Nat.succ x) ind
+                            let app = Prop.Equal.apply (x => Data.Nat.succ x) ind
                             app
 
-// - Goal: (Equal Nat (Nat.succ (Nat.same n.pred)) (Nat.succ n.pred))
-// - app : (Equal Nat (Nat.succ (Nat.same n.pred)) (Nat.succ n.pred))
-Problems.t12 (n: Nat) : (Equal Nat (Nat.half(Nat.double n)) n)
-Problems.t12 Nat.zero = Equal.refl
-Problems.t12 (Nat.succ n.pred) = 
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.same n.pred)) (Data.Nat.succ n.pred))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.same n.pred)) (Data.Nat.succ n.pred))
+Problems.t12 (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.half(Data.Nat.double n)) n)
+Problems.t12 Data.Nat.zero = Prop.Equal.refl
+Problems.t12 (Data.Nat.succ n.pred) = 
                         let ind = Problems.t12 n.pred
-                        let app = Equal.apply (x => Nat.succ x) ind
+                        let app = Prop.Equal.apply (x => Data.Nat.succ x) ind
                         app
-// - Goal: (Equal Nat (Nat.succ (Nat.half (Nat.double n.pred))) (Nat.succ n.pred))
-// - app : (Equal Nat (Nat.succ (Nat.half (Nat.double n.pred))) (Nat.succ n.pred))
-Problems.t13 (n: Nat) : (Equal Nat (Nat.add Nat.zero n)  n)
-Problems.t13 n = Equal.refl
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.half (Data.Nat.double n.pred))) (Data.Nat.succ n.pred))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.half (Data.Nat.double n.pred))) (Data.Nat.succ n.pred))
+Problems.t13 (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add Data.Nat.zero n)  n)
+Problems.t13 n = Prop.Equal.refl
 
-Problems.t14 (n: Nat) : (Equal Nat (Nat.add n Nat.zero) n)
-Problems.t14 Nat.zero = Equal.refl
-Problems.t14 (Nat.succ n.pred)  = 
+Problems.t14 (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n Data.Nat.zero) n)
+Problems.t14 Data.Nat.zero = Prop.Equal.refl
+Problems.t14 (Data.Nat.succ n.pred)  = 
                             let ind = Problems.t14 n.pred
-                            let app = Equal.apply (x => Nat.succ x) ind
+                            let app = Prop.Equal.apply (x => Data.Nat.succ x) ind
                             app
-// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred Nat.zero)) (Nat.succ n.pred))
-// - app : (Equal Nat (Nat.succ (Nat.add n.pred Nat.zero)) (Nat.succ n.pred))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred Data.Nat.zero)) (Data.Nat.succ n.pred))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred Data.Nat.zero)) (Data.Nat.succ n.pred))
 
-Problems.t15 (n: Nat) (m: Nat) : (Equal Nat (Nat.add(Nat.succ n) m) (Nat.succ(Nat.add n m)))
-Problems.t15 n m = Equal.refl
+Problems.t15 (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add(Data.Nat.succ n) m) (Data.Nat.succ(Data.Nat.add n m)))
+Problems.t15 n m = Prop.Equal.refl
 
-Problems.t16 (n: Nat) (m: Nat) : (Equal Nat (Nat.add n (Nat.succ m)) (Nat.succ(Nat.add n m)))
-Problems.t16 Nat.zero m = Equal.refl
-Problems.t16 (Nat.succ n.pred) m = 
+
+Problems.t16 (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n (Data.Nat.succ m)) (Data.Nat.succ(Data.Nat.add n m)))
+Problems.t16 Data.Nat.zero m = Prop.Equal.refl
+Problems.t16 (Data.Nat.succ n.pred) m = 
                             let ind = Problems.t16 n.pred m
-                            let app = Equal.apply (x => Nat.succ x) ind 
+                            let app = Prop.Equal.apply (x => Data.Nat.succ x) ind 
                             app 
-// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.succ m))) (Nat.succ (Nat.succ (Nat.add n.pred m))))
-// - app : (Equal Nat (Nat.succ (Nat.add n.pred (Nat.succ m))) (Nat.succ (Nat.succ (Nat.add n.pred m))))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.succ m))) (Data.Nat.succ (Data.Nat.succ (Data.Nat.add n.pred m))))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.succ m))) (Data.Nat.succ (Data.Nat.succ (Data.Nat.add n.pred m))))
 
-Problems.t17 (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
-Problems.t17 Nat.zero m = 
-                    let mir = Equal.mirror (Problems.t14 m)
+Problems.t17 (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n m) (Data.Nat.add m n))
+Problems.t17 Data.Nat.zero m = 
+                    let mir = Prop.Equal.mirror (Problems.t14 m)
                     mir
-Problems.t17 (Nat.succ n.pred) m = 
+Problems.t17 (Data.Nat.succ n.pred) m = 
                                 let ind = Problems.t17 n.pred m
-                                let app = Equal.apply (x =>  (Nat.succ x)) ind
-                                let mir = Equal.mirror (Problems.t16 m n.pred)
-                                let chn = Equal.chain app mir
+                                let app = Prop.Equal.apply (x =>  (Data.Nat.succ x)) ind
+                                let mir = Prop.Equal.mirror (Problems.t16 m n.pred)
+                                let chn = Prop.Equal.chain app mir
                                 chn
-// - app : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.succ (Nat.add m n.pred)))
-// - mir : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add n.pred (Nat.succ m)))
-// - mir : (Equal Nat (Nat.succ (Nat.add m n.pred)) (Nat.add m (Nat.succ n.pred)))
-// - chn : (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
-// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred m)) (Nat.add m (Nat.succ n.pred)))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.succ (Data.Nat.add m n.pred)))
+// - mir : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.add n.pred (Data.Nat.succ m)))
+// - mir : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add m n.pred)) (Data.Nat.add m (Data.Nat.succ n.pred)))
+// - chn : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.add m (Data.Nat.succ n.pred)))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred m)) (Data.Nat.add m (Data.Nat.succ n.pred)))
 
-Problems.t18 (n: Nat) : (Equal Nat (Nat.add n n) (Nat.double n))
-Problems.t18 Nat.zero = Equal.refl
-Problems.t18 (Nat.succ n.pred) = 
+Problems.t18 (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n n) (Data.Nat.double n))
+Problems.t18 Data.Nat.zero = Prop.Equal.refl
+Problems.t18 (Data.Nat.succ n.pred) = 
                             let ind = Problems.t18 n.pred
-                            let app = Equal.apply (x => Nat.succ x) ind 
+                            let app = Prop.Equal.apply (x => Data.Nat.succ x) ind 
                             let aux = Problems.t16 n.pred n.pred 
-                            let chn = Equal.chain aux app
-                            let app2 = Equal.apply (k => Nat.succ k) chn
+                            let chn = Prop.Equal.chain aux app
+                            let app2 = Prop.Equal.apply (k => Data.Nat.succ k) chn
                             app2
-// - ind : (Equal Nat (Nat.add n.pred n.pred) (Nat.double n.pred))
-// - app : (Equal Nat (Nat.succ (Nat.add n.pred n.pred)) (Nat.succ (Nat.double n.pred)))
-// - aux : (Equal Nat (Nat.add n.pred (Nat.succ n.pred)) (Nat.succ (Nat.add n.pred n.pred)))
-// - chn : (Equal Nat (Nat.add n.pred (Nat.succ n.pred)) (Nat.succ (Nat.double n.pred)))
-// - app2: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.succ n.pred))) (Nat.succ (Nat.succ (Nat.double n.pred))))
-// - Goal: (Equal Nat (Nat.succ (Nat.add n.pred (Nat.succ n.pred))) (Nat.succ (Nat.succ (Nat.double n.pred))))
-Problems.t19 (n: Nat) : (Equal Bool (Nat.ltn n (Nat.succ n)) Bool.true)
-Problems.t19 Nat.zero = Equal.refl
-Problems.t19 (Nat.succ n.pred) = 
+// - ind : (Prop.Equal Data.Nat (Data.Nat.add n.pred n.pred) (Data.Nat.double n.pred))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred n.pred)) (Data.Nat.succ (Data.Nat.double n.pred)))
+// - aux : (Prop.Equal Data.Nat (Data.Nat.add n.pred (Data.Nat.succ n.pred)) (Data.Nat.succ (Data.Nat.add n.pred n.pred)))
+// - chn : (Prop.Equal Data.Nat (Data.Nat.add n.pred (Data.Nat.succ n.pred)) (Data.Nat.succ (Data.Nat.double n.pred)))
+// - app2: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.succ n.pred))) (Data.Nat.succ (Data.Nat.succ (Data.Nat.double n.pred))))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add n.pred (Data.Nat.succ n.pred))) (Data.Nat.succ (Data.Nat.succ (Data.Nat.double n.pred))))
+Problems.t19 (n: Data.Nat) : (Prop.Equal Data.Bool (Data.Nat.ltn n (Data.Nat.succ n)) Data.Bool.true)
+Problems.t19 Data.Nat.zero = Prop.Equal.refl
+Problems.t19 (Data.Nat.succ n.pred) = 
                             let ind = Problems.t19 n.pred
                             ind
-// - ind : (Equal Bool (Nat.lte n.pred n.pred) Bool.true)
-// - Goal: (Equal Bool (Nat.lte n.pred n.pred) Bool.true)
-Problems.t20 (n: Nat) : (Equal Bool (Nat.gtn(Nat.succ n) n) Bool.true)
-Problems.t20 Nat.zero = Equal.refl
-Problems.t20 (Nat.succ n.pred) = 
+// - ind : (Prop.Equal Data.Bool (Data.Nat.lte n.pred n.pred) Data.Bool.true)
+// - Goal: (Prop.Equal Data.Bool (Data.Nat.lte n.pred n.pred) Data.Bool.true)
+Problems.t20 (n: Data.Nat) : (Prop.Equal Data.Bool (Data.Nat.gtn(Data.Nat.succ n) n) Data.Bool.true)
+Problems.t20 Data.Nat.zero = Prop.Equal.refl
+Problems.t20 (Data.Nat.succ n.pred) = 
                             let ind = Problems.t20 n.pred
                             ind
-// - ind : (Equal Bool (Nat.gtn (Nat.succ n.pred) n.pred) Bool.true)
-// - Goal: (Equal Bool (Nat.gtn (Nat.succ n.pred) n.pred) Bool.true)
+// - ind : (Prop.Equal Data.Bool (Data.Nat.gtn (Data.Nat.succ n.pred) n.pred) Data.Bool.true)
+// - Goal: (Prop.Equal Data.Bool (Data.Nat.gtn (Data.Nat.succ n.pred) n.pred) Data.Bool.true)
 
-Problems.t21 (n: Nat) : (Equal Nat (Nat.sub n n)  Nat.zero)
-Problems.t21 Nat.zero = Equal.refl
-Problems.t21 (Nat.succ n.pred) = 
+Problems.t21 (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.sub n n)  Data.Nat.zero)
+Problems.t21 Data.Nat.zero = Prop.Equal.refl
+Problems.t21 (Data.Nat.succ n.pred) = 
                         let ind = Problems.t21 n.pred
                         ind
-// - ind : (Equal Bool (Nat.gtn (Nat.succ n.pred) n.pred) Bool.true)
-// - Goal: (Equal Bool (Nat.gtn (Nat.succ n.pred) n.pred) Bool.true)
-Problems.t22 (n: Nat) (e: Equal n (Nat.succ(Nat.zero)))  : (Equal Nat (Nat.succ n) (Nat.succ(Nat.succ(Nat.zero))))
+// - ind : (Prop.Equal Data.Bool (Data.Nat.gtn (Data.Nat.succ n.pred) n.pred) Data.Bool.true)
+// - Goal: (Prop.Equal Data.Bool (Data.Nat.gtn (Data.Nat.succ n.pred) n.pred) Data.Bool.true)
+Problems.t22 (n: Data.Nat) (e: Prop.Equal n (Data.Nat.succ(Data.Nat.zero)))  : (Prop.Equal Data.Nat (Data.Nat.succ n) (Data.Nat.succ(Data.Nat.succ(Data.Nat.zero))))
 Problems.t22 n e = 
-                let app = Equal.apply (x => Nat.succ x) e
+                let app = Prop.Equal.apply (x => Data.Nat.succ x) e
                 app
-// - app : (Equal Nat (Nat.succ n) (Nat.succ (Nat.succ Nat.zero)))
-// - Goal: (Equal Nat (Nat.succ n) (Nat.succ (Nat.succ Nat.zero)))
-Problems.t23 (n: Nat) (m: Nat) (e: Equal (Nat.equal n m) Bool.true): (Equal n m)
-Problems.t23 Nat.zero Nat.zero e = Equal.refl
-Problems.t23 (Nat.succ n) (Nat.succ m) e = 
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ n) (Data.Nat.succ (Data.Nat.succ Data.Nat.zero)))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ n) (Data.Nat.succ (Data.Nat.succ Data.Nat.zero)))
+Problems.t23 (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal (Data.Nat.equal n m) Data.Bool.true): (Prop.Equal n m)
+Problems.t23 Data.Nat.zero Data.Nat.zero e = Prop.Equal.refl
+Problems.t23 (Data.Nat.succ n) (Data.Nat.succ m) e = 
                                     let ind = Problems.t23 n m e
-                                    let app = Equal.apply (x => Nat.succ x) ind
+                                    let app = Prop.Equal.apply (x => Data.Nat.succ x) ind
                                     app
 
-// - ind : (Equal _ n m)
-// - app : (Equal Nat (Nat.succ n) (Nat.succ m))
-// - Goal: (Equal Nat (Nat.succ n) (Nat.succ m))
-Problems.t24 (xs: List Nat) : (Equal Bool (Nat.gtn(List.length Nat (List.cons Nat (Nat.succ Nat.zero) xs)) Nat.zero) Bool.true)
-Problems.t24 xs = Equal.refl
+// - ind : (Prop.Equal _ n m)
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ n) (Data.Nat.succ m))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ n) (Data.Nat.succ m))
+Problems.t24 (xs: Data.List Data.Nat) : (Prop.Equal Data.Bool (Data.Nat.gtn(Data.List.length Data.Nat (Data.List.cons Data.Nat (Data.Nat.succ Data.Nat.zero) xs)) Data.Nat.zero) Data.Bool.true)
+Problems.t24 xs = Prop.Equal.refl
 
-Problems.t25 (xs: List Nat) : (Equal (List Nat)   (List.map Nat Nat xs (x => x))  xs)
-Problems.t25 (List.nil) = Equal.refl
-Problems.t25 (List.cons Nat x xs) = 
+Problems.t25 (xs: Data.List Data.Nat) : (Prop.Equal (Data.List Data.Nat)   (Data.List.map Data.Nat Data.Nat xs (x => x))  xs)
+Problems.t25 (Data.List.nil) = Prop.Equal.refl
+Problems.t25 (Data.List.cons Data.Nat x xs) = 
                             let ind = Problems.t25 xs
-                            let app = Equal.apply (l => (List.cons x l)) ind
+                            let app = Prop.Equal.apply (l => (Data.List.cons x l)) ind
                             app
-// - ind : (Equal (List Nat) (List.map Nat Nat xs (x => x)) xs)   
-// - app : (Equal (List Nat) (List.cons Nat x (List.map Nat Nat xs (x => x))) (List.cons Nat x xs))     
-// - Goal: (Equal (List Nat) (List.cons _ x (List.map _ _ xs (x => x))) (List.cons Nat x xs))
-Problems.t26 (xs: List Nat) (ys: List Nat): (Equal Nat (Nat.add(List.length Nat (xs)) (List.length Nat(ys))) (List.length Nat (List.concat Nat (xs) (ys))))
-Problems.t26 (List.nil ) ys = Equal.refl
-Problems.t26 (List.cons x xs ) ys = 
+// - ind : (Prop.Equal (Data.List Data.Nat) (Data.List.map Data.Nat Data.Nat xs (x => x)) xs)   
+// - app : (Prop.Equal (Data.List Data.Nat) (Data.List.cons Data.Nat x (Data.List.map Data.Nat Data.Nat xs (x => x))) (Data.List.cons Data.Nat x xs))     
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Data.List.cons _ x (Data.List.map _ _ xs (x => x))) (Data.List.cons Data.Nat x xs))
+Problems.t26 (xs: Data.List Data.Nat) (ys: Data.List Data.Nat): (Prop.Equal Data.Nat (Data.Nat.add(Data.List.length Data.Nat (xs)) (Data.List.length Data.Nat(ys))) (Data.List.length Data.Nat (Data.List.concat Data.Nat (xs) (ys))))
+Problems.t26 (Data.List.nil ) ys = Prop.Equal.refl
+Problems.t26 (Data.List.cons x xs ) ys = 
                                 let ind = Problems.t26 xs ys
-                                let app = Equal.apply (l => Nat.succ l) ind
+                                let app = Prop.Equal.apply (l => Data.Nat.succ l) ind
                                 app
-// - ind : (Equal Nat (Nat.add (List.length Nat xs) (List.length Nat ys)) (List.length Nat (List.concat Nat xs ys)))
-// - app : (Equal Nat (Nat.succ (Nat.add (List.length Nat xs) (List.length Nat ys))) (Nat.succ (List.length Nat (List.concat Nat xs ys))))
-// - Goal: (Equal Nat (Nat.succ (Nat.add (List.length Nat xs) (List.length Nat ys))) (Nat.succ (List.length Nat (List.concat Nat xs ys))))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.add (Data.List.length Data.Nat xs) (Data.List.length Data.Nat ys)) (Data.List.length Data.Nat (Data.List.concat Data.Nat xs ys)))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add (Data.List.length Data.Nat xs) (Data.List.length Data.Nat ys))) (Data.Nat.succ (Data.List.length Data.Nat (Data.List.concat Data.Nat xs ys))))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.add (Data.List.length Data.Nat xs) (Data.List.length Data.Nat ys))) (Data.Nat.succ (Data.List.length Data.Nat (Data.List.concat Data.Nat xs ys))))
 
-// List.reverse <a: Type> (xs: List a) : (List a)
-// List.reverse a xs = List.reverse.go (List.nil a) xs
+// Data.List.reverse <a: Type> (xs: Data.List a) : (Data.List a)
+// Data.List.reverse a xs = Data.List.reverse.go (Data.List.nil a) xs
 
-// List.reverse.go <a: Type> (new_list: List a) (old_list: List a) : (List a)
-// List.reverse.go a new_list (List.nil old_list) = new_list
-// List.reverse.go a new_list (List.cons old_list head tail) = List.reverse.go (List.cons head new_list) tail
-Problems.t27.go : (Equal (List Nat) (List.reverse Nat (List.nil Nat)) (List.nil Nat))
-Problems.t27.go = Equal.refl
-// - Goal: (Equal (List Nat) (List.nil _) (List.nil Nat))
+// Data.List.reverse.go <a: Type> (new_Data.List: Data.List a) (old_Data.List: Data.List a) : (Data.List a)
+// Data.List.reverse.go a new_Data.List (Data.List.nil old_Data.List) = new_Data.List
+// Data.List.reverse.go a new_Data.List (Data.List.cons old_Data.List head tail) = Data.List.reverse.go (Data.List.cons head new_Data.List) tail
+Problems.t27.go : (Prop.Equal (Data.List Data.Nat) (Data.List.reverse Data.Nat (Data.List.nil Data.Nat)) (Data.List.nil Data.Nat))
+Problems.t27.go = Prop.Equal.refl
+// - Goal: (Prop.Equal (Data.List Data.Nat) (Data.List.nil _) (Data.List.nil Data.Nat))
 
-Problems.t27.aux : (Equal (List Nat) (List.reverse.go Nat  (List.nil Nat) (List.nil Nat)) (List.nil Nat))
-Problems.t27.aux = Equal.refl
-
-
-Problems.t27.gg (x: Nat): (Equal (List Nat) (List.reverse Nat (List.cons Nat x (List.nil Nat))) (List.cons Nat x (List.nil Nat)))
-Problems.t27.gg x = Equal.refl
-
-Problems.t27.aux.gg (x: List Nat): (Equal (List Nat) (List.reverse.go Nat x (List.nil Nat)) (x))
-Problems.t27.aux.gg List.nil = Equal.refl
-Problems.t27.aux.gg (List.cons Nat x xs) = ?
+Problems.t27.aux : (Prop.Equal (Data.List Data.Nat) (Data.List.reverse.go Data.Nat  (Data.List.nil Data.Nat) (Data.List.nil Data.Nat)) (Data.List.nil Data.Nat))
+Problems.t27.aux = Prop.Equal.refl
 
 
-Problems.t27 (xs: List Nat) : (Equal (List Nat) (List.reverse Nat (List.reverse Nat (xs))) xs)
-Problems.t27 (List.nil) = Equal.refl
-Problems.t27 (List.cons Nat x xs) = 
-                            let ind = Problems.t27 xs 
-                            let app = Equal.apply (l => List.cons x l) ind
-                            let ind2 = Problems.t27.aux.gg x
-                            // let rrt = Equal.rewrite (Equal.mirror ind2) (x => (Equal (List Nat) (List.reverse.go Nat (x) (List.nil Nat)) xs)) ind
-                            ?
-//                             let rrt = Equal.rewrite ind (x => (Equal (List Nat) (List.reverse.go _ (List.reverse.go _ xs (List.nil _)) (List.nil _)) xs)) ind
-//- ind : (Equal (List Nat) (List.reverse.go _ (List.reverse.go _ xs (List.nil _)) (List.nil _)) xs)
-//- ind2: (Equal (List Nat) (List.cons _ x (List.nil Nat)) (List.cons Nat x (List.nil Nat)))
-//- app : (Equal (List Nat) (List.cons Nat x (List.reverse.go _ (List.reverse.go _ xs (List.nil _)) (List.nil _))) (List.cons Nat x xs))
-//- Goal: (Equal (List Nat) (List.reverse.go _ (List.reverse.go _ xs (List.cons _ x (List.nil _))) (List.nil _)) (List.cons Nat x xs))
+Problems.t27.gg (x: Data.Nat): (Prop.Equal (Data.List Data.Nat) (Data.List.reverse Data.Nat (Data.List.cons Data.Nat x (Data.List.nil Data.Nat))) (Data.List.cons Data.Nat x (Data.List.nil Data.Nat)))
+Problems.t27.gg x = Prop.Equal.refl
+
+Problems.t27.aux.gg (x: Data.List Data.Nat): (Prop.Equal (Data.List Data.Nat) (Data.List.reverse.go Data.Nat x (Data.List.nil Data.Nat)) (x))
+Problems.t27.aux.gg Data.List.nil = Prop.Equal.refl
+// Problems.t27.aux.gg (Data.List.cons Data.Nat x xs) = ?
+
+
+Problems.t27 (xs: Data.List Data.Nat) : (Prop.Equal (Data.List Data.Nat) (Data.List.reverse Data.Nat (Data.List.reverse Data.Nat (xs))) xs)
+Problems.t27 (Data.List.nil) = Prop.Equal.refl
+// Problems.t27 (Data.List.cons Data.Nat x xs) = 
+//                             let ind = Problems.t27 xs 
+//                             let app = Prop.Equal.apply (l => Data.List.cons x l) ind
+//                             let ind2 = Problems.t27.aux.gg x
+//                             // let rrt = Prop.Equal.rewrite (Prop.Equal.mirror ind2) (x => (Prop.Equal (Data.List Data.Nat) (Data.List.reverse.go Data.Nat (x) (Data.List.nil Data.Nat)) xs)) ind
+//                             ?
+//                             let rrt = Prop.Equal.rewrite ind (x => (Prop.Equal (Data.List Data.Nat) (Data.List.reverse.go _ (Data.List.reverse.go _ xs (Data.List.nil _)) (Data.List.nil _)) xs)) ind
+//- ind : (Prop.Equal (Data.List Data.Nat) (Data.List.reverse.go _ (Data.List.reverse.go _ xs (Data.List.nil _)) (Data.List.nil _)) xs)
+//- ind2: (Prop.Equal (Data.List Data.Nat) (Data.List.cons _ x (Data.List.nil Data.Nat)) (Data.List.cons Data.Nat x (Data.List.nil Data.Nat)))
+//- app : (Prop.Equal (Data.List Data.Nat) (Data.List.cons Data.Nat x (Data.List.reverse.go _ (Data.List.reverse.go _ xs (Data.List.nil _)) (Data.List.nil _))) (Data.List.cons Data.Nat x xs))
+//- Goal: (Prop.Equal (Data.List Data.Nat) (Data.List.reverse.go _ (Data.List.reverse.go _ xs (Data.List.cons _ x (Data.List.nil _))) (Data.List.nil _)) (Data.List.cons Data.Nat x xs))
 
 
 
-// Prova.8 : (Not (Equal Bool Bool.true Bool.false))
-// Prova.8 = true_is_false => Equal.rewrite true_is_false (x => if x { String } else { Empty }) "ola mundo"
+// Prova.8 : (Prop.Not (Prop.Equal Data.Bool Data.Bool.true Data.Bool.false))
+// Prova.8 = true_is_false => Prop.Equal.rewrite true_is_false (x => if x { String } else { Data.Empty }) "ola mundo"
 
 
-Problems.t28:  Not(Equal Bool Bool.true Bool.false)
-Problems.t28 = (emp => Equal.rewrite emp (e => if e {Nat} else {Empty}) Nat.zero)
+Problems.t28:  Prop.Not(Prop.Equal Data.Bool Data.Bool.true Data.Bool.false)
+Problems.t28 = (emp => Prop.Equal.rewrite emp (e => if e {Data.Nat} else {Data.Empty}) Data.Nat.zero)
     
-// - Goal: ((Equal Bool Bool.true Bool.false) -> Empty)
+// - Goal: ((Prop.Equal Data.Bool Data.Bool.true Data.Bool.false) -> Data.Empty)
 
-// Nat.pred (n: Nat) : Nat
-// Nat.pred  Nat.zero       = Nat.zero
-// Nat.pred (Nat.succ pred) = pred
+// Data.Nat.pred (n: Data.Nat) : Data.Nat
+// Data.Nat.pred  Data.Nat.zero       = Data.Nat.zero
+// Data.Nat.pred (Data.Nat.succ pred) = pred
 
-// Nat.is_zero (n: Nat) : Bool
-// Nat.is_zero  Nat.zero    = Bool.true
-// Nat.is_zero (Nat.succ n) = Bool.false
+// Data.Nat.is_zero (n: Data.Nat) : Data.Bool
+// Data.Nat.is_zero  Data.Nat.zero    = Data.Bool.true
+// Data.Nat.is_zero (Data.Nat.succ n) = Data.Bool.false
 
-Problems.t29:  Not(Equal Nat (Nat.succ(Nat.succ(Nat.zero))) (Nat.succ(Nat.zero)))
+Problems.t29:  Prop.Not(Prop.Equal Data.Nat (Data.Nat.succ(Data.Nat.succ(Data.Nat.zero))) (Data.Nat.succ(Data.Nat.zero)))
 Problems.t29 = 
 (emp => 
-    let app = Equal.apply (x => Nat.pred x) emp
-    let aux = Equal.apply (x => Nat.is_zero x) app
-    let mir = Equal.mirror aux
+    let app = Prop.Equal.apply (x => Data.Nat.pred x) emp
+    let aux = Prop.Equal.apply (x => Data.Nat.is_zero x) app
+    let mir = Prop.Equal.mirror aux
     // ?)
-    Equal.rewrite mir (e => if e {Nat} else {Empty}) Nat.zero)
+    Prop.Equal.rewrite mir (e => if e {Data.Nat} else {Data.Empty}) Data.Nat.zero)
 
-// - emp : (Equal Nat (Nat.succ (Nat.succ Nat.zero)) (Nat.succ Nat.zero))
-// - app : (Equal Nat (Nat.succ Nat.zero) Nat.zero)
-// - aux : (Equal Bool Bool.false Bool.true)
-// - mir : (Equal Bool Bool.true Bool.false)
-// - Goal: ((Equal Nat (Nat.succ (Nat.succ Nat.zero)) (Nat.succ Nat.zero)) -> Empty)
-Problems.t30 (a: Bool) : Not(Equal Bool (Bool.or(Bool.true) (a)) Bool.false)
-Problems.t30 a = (emp => Equal.rewrite emp (e => if e {Nat} else {Empty}) Nat.zero)
+// - emp : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.succ Data.Nat.zero)) (Data.Nat.succ Data.Nat.zero))
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ Data.Nat.zero) Data.Nat.zero)
+// - aux : (Prop.Equal Data.Bool Data.Bool.false Data.Bool.true)
+// - mir : (Prop.Equal Data.Bool Data.Bool.true Data.Bool.false)
+// - Goal: ((Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.succ Data.Nat.zero)) (Data.Nat.succ Data.Nat.zero)) -> Data.Empty)
+Problems.t30 (a: Data.Bool) : Prop.Not(Prop.Equal Data.Bool (Data.Bool.or(Data.Bool.true) (a)) Data.Bool.false)
+Problems.t30 a = (emp => Prop.Equal.rewrite emp (e => if e {Data.Nat} else {Data.Empty}) Data.Nat.zero)
 
-// - Goal: ((Equal Bool (Bool.or a Bool.true) Bool.false) -> Empty)
-Problems.t31 (a: Bool) : Not(Equal Bool (Bool.or(a) (Bool.true)) Bool.false)
-Problems.t31 Bool.false = (emp => Equal.rewrite emp (e => if e {Nat} else {Empty}) Nat.zero)
+// - Goal: ((Prop.Equal Data.Bool (Data.Bool.or a Data.Bool.true) Data.Bool.false) -> Data.Empty)
+Problems.t31 (a: Data.Bool) : Prop.Not(Prop.Equal Data.Bool (Data.Bool.or(a) (Data.Bool.true)) Data.Bool.false)
+Problems.t31 Data.Bool.false = (emp => Prop.Equal.rewrite emp (e => if e {Data.Nat} else {Data.Empty}) Data.Nat.zero)
 
-// - Goal: ((Equal Bool Bool.true Bool.false) -> Empty)
-Problems.t31 Bool.true = (emp => Equal.rewrite emp (e => if e {Nat} else {Empty}) Nat.zero)
+// - Goal: ((Prop.Equal Data.Bool Data.Bool.true Data.Bool.false) -> Data.Empty)
+Problems.t31 Data.Bool.true = (emp => Prop.Equal.rewrite emp (e => if e {Data.Nat} else {Data.Empty}) Data.Nat.zero)
 
-// - Goal: ((Equal Bool Bool.true Bool.false) -> Empty)
-Problems.t32 (a: Bool) : Not(Equal Bool (Bool.and(Bool.false) (a))  Bool.true)
+// - Goal: ((Prop.Equal Data.Bool Data.Bool.true Data.Bool.false) -> Data.Empty)
+Problems.t32 (a: Data.Bool) : Prop.Not(Prop.Equal Data.Bool (Data.Bool.and(Data.Bool.false) (a))  Data.Bool.true)
 Problems.t32 a = (emp => 
-                    let mir = Equal.mirror emp
+                    let mir = Prop.Equal.mirror emp
                     // ?)
-                    Equal.rewrite mir (e => if e {Nat} else {Empty}) Nat.zero)
+                    Prop.Equal.rewrite mir (e => if e {Data.Nat} else {Data.Empty}) Data.Nat.zero)
 
-// - mir : (Equal Bool Bool.true Bool.false)
-// - Goal: ((Equal Bool Bool.false Bool.true) -> Empty)
-Problems.t33 (a: Bool) : Not(Equal Bool (Bool.and(a) (Bool.false)) Bool.true)
-Problems.t33 Bool.true = (emp => 
-                    let mir = Equal.mirror emp
+// - mir : (Prop.Equal Data.Bool Data.Bool.true Data.Bool.false)
+// - Goal: ((Prop.Equal Data.Bool Data.Bool.false Data.Bool.true) -> Data.Empty)
+Problems.t33 (a: Data.Bool) : Prop.Not(Prop.Equal Data.Bool (Data.Bool.and(a) (Data.Bool.false)) Data.Bool.true)
+Problems.t33 Data.Bool.true = (emp => 
+                    let mir = Prop.Equal.mirror emp
                     // ?)
-                    Equal.rewrite mir (e => if e {Nat} else {Empty}) Nat.zero)
+                    Prop.Equal.rewrite mir (e => if e {Data.Nat} else {Data.Empty}) Data.Nat.zero)
 
-// - mir : (Equal Bool Bool.true Bool.false)
-// - Goal: ((Equal Bool Bool.false Bool.true) -> Empty)
-Problems.t33 Bool.false = (emp => 
-                    let mir = Equal.mirror emp
+// - mir : (Prop.Equal Data.Bool Data.Bool.true Data.Bool.false)
+// - Goal: ((Prop.Equal Data.Bool Data.Bool.false Data.Bool.true) -> Data.Empty)
+Problems.t33 Data.Bool.false = (emp => 
+                    let mir = Prop.Equal.mirror emp
                     // ?)
-                    Equal.rewrite mir (e => if e {Nat} else {Empty}) Nat.zero)
+                    Prop.Equal.rewrite mir (e => if e {Data.Nat} else {Data.Empty}) Data.Nat.zero)
 
-// - mir : (Equal Bool Bool.true Bool.false)
-// - Goal: ((Equal Bool Bool.false Bool.true) -> Empty)
-Problems.t34 (a: Nat) (b: Nat)  (e:Equal a b):  Equal Nat (b) (a)
-Problems.t34 Nat.zero Nat.zero  e = Equal.refl
-// Problems.t34 Nat.zero (Nat.succ b) e =?// Equal.mirror e
+// - mir : (Prop.Equal Data.Bool Data.Bool.true Data.Bool.false)
+// - Goal: ((Prop.Equal Data.Bool Data.Bool.false Data.Bool.true) -> Data.Empty)
+Problems.t34 (a: Data.Nat) (b: Data.Nat)  (e:Prop.Equal a b):  Prop.Equal Data.Nat (b) (a)
+Problems.t34 Data.Nat.zero Data.Nat.zero  e = Prop.Equal.refl
+// Problems.t34 Data.Nat.zero (Data.Nat.succ b) e =?// Prop.Equal.mirror e
                                     // (emp => 
-                                    // let aux = Equal.apply (x => Nat.is_zero x) emp
-                                    // let mir = Equal.mirror aux
+                                    // let aux = Prop.Equal.apply (x => Data.Nat.is_zero x) emp
+                                    // let mir = Prop.Equal.mirror aux
                                     // ?)
-                                    // Equal.rewrite mir (e => if e {Nat} else {Empty}) Nat.zero)
+                                    // Prop.Equal.rewrite mir (e => if e {Data.Nat} else {Data.Empty}) Data.Nat.zero)
 
-// - Goal: (Equal Nat (Nat.succ b) Nat.zero) 
-// - Goal: (Equal Nat (Nat.succ b) Nat.zero) -> Empty
-// Problems.t34 (Nat.succ a) Nat.zero e =
-Problems.t34 (Nat.succ a) (Nat.succ b) e = 
-                                    let mir = Equal.mirror e
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ b) Data.Nat.zero) 
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ b) Data.Nat.zero) -> Data.Empty
+// Problems.t34 (Data.Nat.succ a) Data.Nat.zero e =
+Problems.t34 (Data.Nat.succ a) (Data.Nat.succ b) e = 
+                                    let mir = Prop.Equal.mirror e
                                     mir
-// - e   : (Equal _   (Nat.succ a) (Nat.succ b))
-// - mir : (Equal _   (Nat.succ b) (Nat.succ a))
-// - Goal: (Equal Nat (Nat.succ b) (Nat.succ a))
-Problems.t35 (a: Nat) (b: Nat) (c: Nat) (e0: Equal a b) (e1: Equal b c): Equal Nat (a) (c) 
-Problems.t35 Nat.zero Nat.zero Nat.zero e0 e1 = Equal.refl
-Problems.t35 (Nat.succ a) (Nat.succ b) (Nat.succ c) e0 e1 = 
-                                                    let chn = Equal.chain e0 e1 
+// - e   : (Prop.Equal _   (Data.Nat.succ a) (Data.Nat.succ b))
+// - mir : (Prop.Equal _   (Data.Nat.succ b) (Data.Nat.succ a))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ b) (Data.Nat.succ a))
+Problems.t35 (a: Data.Nat) (b: Data.Nat) (c: Data.Nat) (e0: Prop.Equal a b) (e1: Prop.Equal b c): Prop.Equal Data.Nat (a) (c) 
+Problems.t35 Data.Nat.zero Data.Nat.zero Data.Nat.zero e0 e1 = Prop.Equal.refl
+Problems.t35 (Data.Nat.succ a) (Data.Nat.succ b) (Data.Nat.succ c) e0 e1 = 
+                                                    let chn = Prop.Equal.chain e0 e1 
                                                     chn
-//   chn : (Equal _   (Nat.succ a) (Nat.succ c))
-// - Goal: (Equal Nat (Nat.succ a) (Nat.succ c))
-Problems.t36 (a: Nat) (f: Nat -> Type) (p: (f a)) : f (Nat.same a)
-Problems.t36 Nat.zero f p = p
-Problems.t36 (Nat.succ a.pred) f p =
+//   chn : (Prop.Equal _   (Data.Nat.succ a) (Data.Nat.succ c))
+// - Goal: (Prop.Equal Data.Nat (Data.Nat.succ a) (Data.Nat.succ c))
+Problems.t36 (a: Data.Nat) (f: Data.Nat -> Type) (p: (f a)) : f (Data.Nat.same a)
+Problems.t36 Data.Nat.zero f p = p
+Problems.t36 (Data.Nat.succ a.pred) f p =
                                 let ind = Problems.t11 a.pred
-                                let app = Equal.apply (x => Nat.succ x) ind
-                                let mir = Equal.mirror app
-                                let rrt = Equal.rewrite mir f p
+                                let app = Prop.Equal.apply (x => Data.Nat.succ x) ind
+                                let mir = Prop.Equal.mirror app
+                                let rrt = Prop.Equal.rewrite mir f p
                                 rrt
                                 // ?
 
-// - f   : (Nat -> Type)
-// - p   : (f (Nat.succ a.pred))
-// - ind : (Equal Nat (Nat.same a.pred) a.pred)
-// - app : (Equal Nat (Nat.succ (Nat.same a.pred)) (Nat.succ a.pred))
-// - mir : (Equal Nat (Nat.succ a.pred) (Nat.succ (Nat.same a.pred)))
-// - rrt : (f (Nat.succ (Nat.same a.pred)))
-// - Goal: (f (Nat.succ (Nat.same a.pred)))
+// - f   : (Data.Nat -> Type)
+// - p   : (f (Data.Nat.succ a.pred))
+// - ind : (Prop.Equal Data.Nat (Data.Nat.same a.pred) a.pred)
+// - app : (Prop.Equal Data.Nat (Data.Nat.succ (Data.Nat.same a.pred)) (Data.Nat.succ a.pred))
+// - mir : (Prop.Equal Data.Nat (Data.Nat.succ a.pred) (Data.Nat.succ (Data.Nat.same a.pred)))
+// - rrt : (f (Data.Nat.succ (Data.Nat.same a.pred)))
+// - Goal: (f (Data.Nat.succ (Data.Nat.same a.pred)))

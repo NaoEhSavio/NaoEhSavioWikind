@@ -9,7 +9,10 @@ Data.Nat.half.rel.pred
   (n: Data.Nat)
   (s: ([m: Data.Nat] -> (Data.Either (Prop.Equal Data.Nat n (Data.Nat.double m)) (Prop.Equal Data.Nat n (Data.Nat.succ (Data.Nat.double m))))))
 : ([m: Data.Nat] -> (Data.Either (Prop.Equal Data.Nat (Data.Nat.succ n) (Data.Nat.double m)) (Prop.Equal Data.Nat (Data.Nat.succ n) (Data.Nat.succ (Data.Nat.double m)))))
-Data.Nat.half.rel.pred n (Data.Sigma.new a b fst snd) = Data.Nat.half.rel.test n fst (specialize b into #0 in snd)
+Data.Nat.half.rel.pred n (Data.Sigma.new a b fst snd) = Data.Nat.half.rel.test n fst (
+let s = (specialize b into #0 in snd)
+  ?
+)
 
 Data.Nat.half.rel.test
   (n: Data.Nat)

@@ -1,8 +1,8 @@
 // plus_2_2_is_4 : 2 + 2 = 4
 // plus_2_2_is_4 = Refl
 
-Plus_2_2_is_4 : Equal Nat (Nat.add 2n 2n) 4n
-Plus_2_2_is_4 = Equal.refl
+Plus_2_2_is_4 : Prop.Equal Data.Nat (Data.Nat.add 2n 2n) 4n
+Plus_2_2_is_4 = Prop.Equal.refl
 
 // But propositions can be used in many other ways. For example, we can give a name
 // to a proposition as a value on its own, just as we have given names to expressions
@@ -11,7 +11,7 @@ Plus_2_2_is_4 = Equal.refl
 // Plus_fact : Type
 // Plus_fact = 2+2=4
 Plus_fact : Type
-Plus_fact = Equal Nat (Nat.add 2n 2n) 4n
+Plus_fact = Prop.Equal Data.Nat (Data.Nat.add 2n 2n) 4n
 
 // λΠ> :t Plus_fact
 // Plus_fact : Type
@@ -20,20 +20,20 @@ Plus_fact = Equal Nat (Nat.add 2n 2n) 4n
 // example, in a function declaration.
 
 Plus_fact_is_true : Plus_fact
-Plus_fact_is_true = Equal.refl
+Plus_fact_is_true = Prop.Equal.refl
 
 // (Here’s the reason - recall that names starting with lowercase letters are considered
 // implicits in Idris, so plus_fact would be considered a free variable!)
 // We can also write parameterized propositions – that is, functions that take arguments of some type and return a proposition. For instance, the following function
 // takes a number and returns a proposition asserting that this number is equal to
 // three:
-Is_three (n: Nat) : Type
-Is_three n = Equal Nat n 3n
+Is_three (n: Data.Nat) : Type
+Is_three n = Prop.Equal Data.Nat n 3n
 
-// is_three : Nat ౏> Type
+// is_three : Data.Nat ౏> Type
 // is_three n = n=3
 // λΠ> :t is_three
-// is_three : Nat ౏> Type
+// is_three : Data.Nat ౏> Type
 
 // In Idris, functions that return propositions are said to define properties of their
 // arguments.
@@ -42,14 +42,14 @@ Is_three n = Equal Nat n 3n
 // injective function.
 
 Injective <a> <b> (f: a -> b) : Type
-Injective a b f = (x: a) -> (y: a) -> (e: Equal b (f x) (f y)) -> (Equal a x y)
+Injective a b f = (x: a) -> (y: a) -> (e: Prop.Equal b (f x) (f y)) -> (Prop.Equal a x y)
 
 // Injective : (f : a ౏> b) ౏> Type
 // Injective {a} {b} f = (x, y : a) ౏> f x = f y ౏> x = y
 
-Succ_inj : Injective ((x: Nat) => Nat.succ x)
-Succ_inj = (n: Nat) => (m: Nat) => (e : Equal Nat (Nat.succ n) (Nat.succ m)) => (
- 	let p = Equal.apply (x => Nat.pred x) e
+Succ_inj : Injective ((x: Data.Nat) => Data.Nat.succ x)
+Succ_inj = (n: Data.Nat) => (m: Data.Nat) => (e : Prop.Equal Data.Nat (Data.Nat.succ n) (Data.Nat.succ m)) => (
+ 	let p = Prop.Equal.apply (x => Data.Nat.pred x) e
  	p
  	)
 
@@ -72,26 +72,26 @@ Succ_inj = (n: Nat) => (m: Nat) => (e : Equal Nat (Nat.succ n) (Nat.succ m)) => 
 // that both a and b are true.
 
 // and_example : (3 + 4 = 7, 2 * 2 = 4)
-And_example : Pair (Equal Nat (Nat.add 3n 4n) 7n) (Equal Nat (Nat.mul 2n 2n) 4n)
+And_example : Data.Pair (Prop.Equal Data.Nat (Data.Nat.add 3n 4n) 7n) (Prop.Equal Data.Nat (Data.Nat.mul 2n 2n) 4n)
 // To prove a conjunction, we can use value-level pair syntax:
 // and_example = (Refl, Refl)
-And_example = Pair.new (Equal.refl) (Equal.refl)
+And_example = Data.Pair.new (Prop.Equal.refl) (Prop.Equal.refl)
 
 // For any propositions a and b, if we assume that a is true and we assume that b is
 // true, we can trivially conclude that (a,b) is also true.
 
-And_intro <a> <b>: a -> b -> (Pair a b)
-And_intro a b = x => y => Pair.new x y
+And_intro <a> <b>: a -> b -> (Data.Pair a b)
+And_intro a b = x => y => Data.Pair.new x y
 
 // and_intro : a ౏> b ౏> (a, b)
 // and_intro = MkPair
 
 // 1.1.1. Exercise: 2 stars (and_exercise).
 
-And_exercise (n: Nat) (m: Nat) (e: Equal Nat (Nat.add n m) 0n) : Pair (Equal Nat n 0n) (Equal Nat m 0n)
+And_exercise (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal Data.Nat (Data.Nat.add n m) 0n) : Data.Pair (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n)
 // And_exercise n m e = ?and_exercise
 
-// and_exercise : (n, m : Nat) ౏> n + m = 0 ౏> (n = 0, m = 0)
+// and_exercise : (n, m : Data.Nat) ౏> n + m = 0 ౏> (n = 0, m = 0)
 // and_exercise n m prf = ?and_exercise_rhs
 
 // So much for proving conjunctive statements. To go in the other direction – i.e.,
@@ -100,38 +100,38 @@ And_exercise (n: Nat) (m: Nat) (e: Equal Nat (Nat.add n m) 0n) : Pair (Equal Nat
 // If the proof context contains a hypothesis h of the form (a,b), case splitting will
 // replace it with a pair pattern (a,b).
 
-And_example2 (n: Nat) (m: Nat) (e: Pair (Equal Nat n 0n) (Equal Nat m 0n)) : Equal Nat (Nat.add m n) 0n
-And_example2 Nat.zero Nat.zero e = Equal.refl
-And_example2 (Nat.succ n.pred) Nat.zero e = 
-		let p = (Equal.rewrite 
-			(Pair.fst e) 
-			(x => match Nat x {
-				zero => Empty
-				succ => Unit
+And_example2 (n: Data.Nat) (m: Data.Nat) (e: Data.Pair (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n)) : Prop.Equal Data.Nat (Data.Nat.add m n) 0n
+And_example2 Data.Nat.zero Data.Nat.zero e = Prop.Equal.refl
+And_example2 (Data.Nat.succ n.pred) Data.Nat.zero e = 
+		let p = (Prop.Equal.rewrite 
+			(Data.Pair.fst e) 
+			(x => match Data.Nat x {
+				zero => Data.Empty
+				succ => Data.Unit
 		 	}) 
-		 	(Unit.new)) 
-		Empty.absurd p
-And_example2 Nat.zero (Nat.succ m.pred) e = 
-		let p = (Equal.rewrite 
-			(Pair.snd e) 
-			(x => match Nat x {
-				zero => Empty
-				succ => Unit
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd p
+And_example2 Data.Nat.zero (Data.Nat.succ m.pred) e = 
+		let p = (Prop.Equal.rewrite 
+			(Data.Pair.snd e) 
+			(x => match Data.Nat x {
+				zero => Data.Empty
+				succ => Data.Unit
 		 	}) 
-		 	(Unit.new)) 
-		Empty.absurd p
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd p
 
-And_example2 (Nat.succ n.pred) (Nat.succ m.pred) e = 
-		let p = (Equal.rewrite 
-			(Pair.fst e) 
-			(x => match Nat x {
-				zero => Empty
-				succ => Unit
+And_example2 (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e = 
+		let p = (Prop.Equal.rewrite 
+			(Data.Pair.fst e) 
+			(x => match Data.Nat x {
+				zero => Data.Empty
+				succ => Data.Unit
 		 	}) 
-		 	(Unit.new)) 
-		Empty.absurd p
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd p
 
-// and_example2 : (n, m : Nat) ౏> (n = 0, m = 0) ౏> n + m = 0
+// and_example2 : (n, m : Data.Nat) ౏> (n = 0, m = 0) ౏> n + m = 0
 // and_example2 Z Z (Refl,Refl) = Refl
 // and_example2 (S _) _ (Refl,_) impossible
 // and_example2 _ (S _) (_,Refl) impossible
@@ -139,10 +139,10 @@ And_example2 (Nat.succ n.pred) (Nat.succ m.pred) e =
 // a single conjunction, since we could have also stated the theorem with two separate
 // premises:
 
-And_example3 (n: Nat) (m: Nat) (e: (Equal Nat n 0n)) (p: (Equal Nat m 0n)) : Equal Nat (Nat.add n m) 0n
+And_example3 (n: Data.Nat) (m: Data.Nat) (e: (Prop.Equal Data.Nat n 0n)) (p: (Prop.Equal Data.Nat m 0n)) : Prop.Equal Data.Nat (Data.Nat.add n m) 0n
 // And_example3 n m e p = ?
 
-// and_example2' : (n, m : Nat) ౏> n = 0 ౏> m = 0 ౏> n + m = 0
+// and_example2' : (n, m : Data.Nat) ౏> n = 0 ౏> m = 0 ౏> n + m = 0
 // and_example2' Z Z Refl Refl = Refl
 // and_example2' (S _) _ Refl _ impossible
 // and_example2' _ (S _) _ Refl impossible
@@ -151,13 +151,13 @@ And_example3 (n: Nat) (m: Nat) (e: (Equal Nat n 0n)) (p: (Equal Nat m 0n)) : Equ
 // intermediate steps in proofs, especially in bigger developments. Here’s a simple
 // example:
 
-And_example4 (n: Nat) (m: Nat) (e: Equal Nat (Nat.add n m) 0n) : (Equal Nat (Nat.mul n m) 0n)
+And_example4 (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal Data.Nat (Data.Nat.add n m) 0n) : (Prop.Equal Data.Nat (Data.Nat.mul n m) 0n)
 And_example4 n m e = 
-	let fst = Pair.fst (And_exercise n m e)
-	let app = Equal.apply (x => Nat.mul x m) fst
+	let fst = Data.Pair.fst (And_exercise n m e)
+	let app = Prop.Equal.apply (x => Data.Nat.mul x m) fst
 	app
 
-// and_example3 : (n, m : Nat) ౏> n + m = 0 ౏> n * m = 0
+// and_example3 : (n, m : Data.Nat) ౏> n + m = 0 ౏> n * m = 0
 // and_example3 n m prf =
 // let (nz, _) = and_exercise n m prf in
 // rewrite nz in Refl
@@ -165,25 +165,25 @@ And_example4 n m e =
 // Another common situation with conjunctions is that we know (a,b) but in some
 // context we need just a (or just b). The following lemmas are useful in such cases: 
 
-Proj1 <p> <q> : (Pair p q) -> p 
-Proj1 p q = (x: (Pair p q)) => Pair.fst x
+Proj1 <p> <q> : (Data.Pair p q) -> p 
+Proj1 p q = (x: (Data.Pair p q)) => Data.Pair.fst x
 
-Proj1v2 <p> <q> (pair:Pair p q) : p 
-Proj1v2 p q pair = Pair.fst pair
+Proj1v2 <p> <q> (pair:Data.Pair p q) : p 
+Proj1v2 p q pair = Data.Pair.fst pair
 
-Proj1v3 <p> <q> (pair:Pair p q) : p 
-Proj1v3 p q (Pair.new fst snd) = fst
+Proj1v3 <p> <q> (pair:Data.Pair p q) : p 
+Proj1v3 p q (Data.Pair.new fst snd) = fst
 
 // proj1 : (p, q) ౏> p
 // proj1 = fst
 
 // 1.1.2. Exercise: 1 star, optional (proj2).
 
-Proj2 <p> <q> : (Pair p q) -> q
-Proj2 p q = (x: (Pair p q)) => Pair.snd x
+Proj2 <p> <q> : (Data.Pair p q) -> q
+Proj2 p q = (x: (Data.Pair p q)) => Data.Pair.snd x
 
-Proj2v2 <p> <q> (pair:Pair p q) : q 
-Proj2v2 p q pair = Pair.snd pair
+Proj2v2 <p> <q> (pair:Data.Pair p q) : q 
+Proj2v2 p q pair = Data.Pair.snd pair
 
 // proj2 : (p, q) ౏> q
 // proj2 x = ?proj2_rhs
@@ -194,52 +194,50 @@ Proj2v2 p q pair = Pair.snd pair
 // and_commut : (p, q) ౏> (q, p)
 // and_commut (p, q) = (q, p)
 
-And_commut <p> <q> (pair: Pair p q) : Pair q p
-And_commut (Pair.new fst snd) = Pair.new snd fst
+And_commut <p> <q> (pair: Data.Pair p q) : Data.Pair q p
+And_commut (Data.Pair.new fst snd) = Data.Pair.new snd fst
 
 // 1.1.3. Exercise: 2 stars (and_assoc). Remove or demote to 1 star?
 
 // and_assoc : (p, (q, r)) ౏> ((p, q), r)
 // and_assoc x = ?and_assoc_rhs
 
-And_assoc <p> <q> <r> (pair: Pair p (Pair q r)) : Pair (Pair p q) r
-And_assoc p q r (Pair.new pair.p (Pair pair.q pair.r) fst (Pair.new snd trd)) = (Pair.new (Pair.new fst snd) trd) 
+And_assoc (p) (q) (r) (pair: Data.Pair p (Data.Pair q r)) : Data.Pair (Data.Pair p q) r
+And_assoc p q r (Data.Pair.new pair.p (Data.Pair pair.q pair.r) fst (Data.Pair.new snd trd)) = (Data.Pair.new (Data.Pair.new fst snd) trd) 
 
 // 1.2. Disjunction.
 // Hide Basics.Booleans analogues and make syntax synonyms (/\) and (\/) for (,)
-// and Either?
+// and Data.Either?
 // Another important connective is the disjunction, or logical or of two propositions:
-// a `Either` b is true when either a or b is. The first case has be tagged with Left,
+// a `Data.Either` b is true when either a or b is. The first case has be tagged with Left,
 // and the second with Right.
 // To use a disjunctive hypothesis in a proof, we proceed by case analysis, which,
-// as for Nat or other data types, can be done with pattern matching. Here is an
+// as for Data.Nat or other data types, can be done with pattern matching. Here is an
 // example:
 
-Or_example (n: Nat) (m: Nat) (e: (Either (Equal Nat n 0n) (Equal Nat m 0n))) : Equal Nat (Nat.mul n m) 0n
-Or_example Nat.zero m (Either.left l r Equal.refl) = Equal.refl
-Or_example n Nat.zero (Either.right l r val) = Mult_0_r n
-// Or_example n Nat.zero (Either.right l r Equal.refl) = ?
-Or_example (Nat.succ n.pred) m (Either.left l r val) = 
-	let p = (Equal.rewrite 
+Or_example (n: Data.Nat) (m: Data.Nat) (e: (Data.Either (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n))) : Prop.Equal Data.Nat (Data.Nat.mul n m) 0n
+Or_example Data.Nat.zero m (Data.Either.left l r Prop.Equal.refl) = Prop.Equal.refl
+Or_example n Data.Nat.zero (Data.Either.right l r val) = Mult_0_r n
+Or_example (Data.Nat.succ n.pred) m (Data.Either.left l r val) = 
+	let p = (Prop.Equal.rewrite 
 			val
-			(x => match Nat x {
-				zero => Empty
-				succ => Unit
+			(x => match Data.Nat x {
+				zero => Data.Empty
+				succ => Data.Unit
 		 	}) 
-		 	(Unit.new)) 
-		Empty.absurd p
-// Or_example n Nat.zero (Either.right l r val) = ?
-Or_example n (Nat.succ m.pred) (Either.right l r val) = 
-	let p = (Equal.rewrite 
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd p
+Or_example n (Data.Nat.succ m.pred) (Data.Either.right l r val) = 
+	let p = (Prop.Equal.rewrite 
 			val
-			(x => match Nat x {
-				zero => Empty
-				succ => Unit
+			(x => match Data.Nat x {
+				zero => Data.Empty
+				succ => Data.Unit
 		 	}) 
-		 	(Unit.new)) 
-		Empty.absurd p
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd p
 
-// or_example : (n, m : Nat) ౏> ((n = 0) `Either` (m = 0)) ౏> n * m = 0
+// or_example : (n, m : Data.Nat) ౏> ((n = 0) `Data.Either` (m = 0)) ౏> n * m = 0
 // or_example Z _ (Left Refl) = Refl
 // or_example (S _) _ (Left Refl) impossible
 // or_example n Z (Right Refl) = multZeroRightZero n
@@ -249,36 +247,36 @@ Or_example n (Nat.succ m.pred) (Either.right l r val) =
 // does. This can be done via aforementioned Left and Right constructors. Here is a
 // trivial use…
 
-Or_intro_left <a> <b> (t: a) : Either a b
-Or_intro_left t = Either.left t
+Or_intro_left <a> <b> (t: a) : Data.Either a b
+Or_intro_left t = Data.Either.left t
 
 
-Or_intro_right <a> <b> (t: b) : Either a b
-Or_intro_right t = Either.right t
+Or_intro_right <a> <b> (t: b) : Data.Either a b
+Or_intro_right t = Data.Either.right t
 
-// or_intro : a ౏> a `Either` b
+// or_intro : a ౏> a `Data.Either` b
 // or_intro = Left
 
 // … and a slightly more interesting example requiring both Left and Right:
-Zero_or_succ (n: Nat) : Either (Equal Nat n 0n) (Equal Nat n (Nat.succ (Nat.pred n)))
-Zero_or_succ Nat.zero = Either.left Equal.refl
-Zero_or_succ (Nat.succ n.pred) = Either.right Equal.refl
+Zero_or_succ (n: Data.Nat) : Data.Either (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat n (Data.Nat.succ (Data.Nat.pred n)))
+Zero_or_succ Data.Nat.zero = Data.Either.left Prop.Equal.refl
+Zero_or_succ (Data.Nat.succ n.pred) = Data.Either.right Prop.Equal.refl
 
-// zero_or_succ : (n : Nat) ౏> ((n = 0) `Either` (n = S (pred n)))
+// zero_or_succ : (n : Data.Nat) ౏> ((n = 0) `Data.Either` (n = S (pred n)))
 // zero_or_succ Z = Left Refl
 // zero_or_succ (S _) = Right Refl
 
 // 1.2.1. Exercise: 1 star (mult_eq_0).
-Mult_ep_0 (n: Nat) (m: Nat) (e: Equal (Nat.mul n m) 0n) : Either (Equal Nat n 0n) (Equal Nat m 0n)
+Mult_ep_0 (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal (Data.Nat.mul n m) 0n) : Data.Either (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n)
 // Mult_ep_0 n m e = ?
 
-// mult_eq_0 : n * m = 0 ౏> ((n = 0) `Either` (m = 0))
+// mult_eq_0 : n * m = 0 ౏> ((n = 0) `Data.Either` (m = 0))
 // mult_eq_0 prf = ?mult_eq_0_rhs
 // □
 // 1.2.2. Exercise: 1 star (or_commut).
-Or_commut <p> <q> (eth: Either p q) : (Either q p)
+Or_commut <p> <q> (eth: Data.Either p q) : (Data.Either q p)
 // Or_commut p q eth = ?
-// or_commut : (p `Either` q) ౏> (q `Either` p)
+// or_commut : (p `Data.Either` q) ౏> (q `Data.Either` p)
 // or_commut x = ?or_commut_rhs
 // □
 // 1.3. Falsehood and Negation. So far, we have mostly been concerned with
@@ -293,14 +291,14 @@ Or_commut <p> <q> (eth: Either p q) : (Either q p)
 // as q ౏> (p ౏> q). Idris actually makes a slightly different choice, defining Not p
 // as p ౏> Void, where Void is a particular contradictory proposition defined in the
 // standard library as a data type with no constructors.
-// type Empty {
+// type Data.Empty {
 
 // }
 
 // data Void : Type where
 
 Not <t> : Type
-Not t = t -> Empty
+Not t = t -> Data.Empty
 
 // Not : Type ౏> Type
 // Not a = a ౏> Void
@@ -309,8 +307,8 @@ Not t = t -> Empty
 // it. If we get Void into the proof context, we can call void or absurd on it to complete
 // any goal:
 
-Ex_falso_quodlibet <t> : Empty -> t
-Ex_falso_quodlibet t = e => Empty.absurd e
+Ex_falso_quodlibet <t> : Data.Empty -> t
+Ex_falso_quodlibet t = e => Data.Empty.absurd e
 
 // ex_falso_quodlibet : Void ౏> p
 // ex_falso_quodlibet = void
@@ -326,11 +324,11 @@ Not_implies_our_not <p> <q> (e: Not p) : (q -> (p -> q))
 // not_implies_our_not : Not p ౏> (q ౏> (p ౏> q))
 // not_implies_our_not notp q p = ?not_implies_our_not_rhs
 // □
-// This is how we use Not to state that 0 and 1 are different elements of Nat:
+// This is how we use Not to state that 0 and 1 are different elements of Data.Nat:
 // Explain Refl-lambda syntax and Uninhabited, keep in mind
 // https://github.com/idris-lang/Idris-dev/issues/3943
 
-Zero_not_one : Not (Equal Nat 0n (Nat.succ _))
+Zero_not_one : Not (Prop.Equal Data.Nat 0n (Data.Nat.succ _))
 // Zero_not_one = ?
 
 // zero_not_one : Not (Z = S _)
@@ -341,21 +339,21 @@ Zero_not_one : Not (Equal Nat 0n (Nat.succ _))
 // you can see perfectly well why a statement involving negation is true, it can be
 // a little tricky at first to get things into the right configuration so that Idris can
 // understand it! Here are proofs of a few familiar facts to get you warmed up.
-Not_False : Not Empty
-Not_False = e => Empty.absurd e
+Not_False : Not Data.Empty
+Not_False = e => Data.Empty.absurd e
 
 // not_False : Not Void
 // not_False = absurd
 
-Contradiction_implies_anything <p> <q> (pair: Pair p (Not p)) : q
-Contradiction_implies_anything p q (Pair.new fst snd) = Empty.absurd (snd fst)
+Contradiction_implies_anything <p> <q> (pair: Data.Pair p (Not p)) : q
+Contradiction_implies_anything p q (Data.Pair.new fst snd) = Data.Empty.absurd (snd fst)
 
 
 // contradiction_implies_anything : (p, Not p) ౏> q
 // contradiction_implies_anything (p, notp) = absurd $ notp p
 
 Double_neg <p> : Not (Not p)
-// Double_neg p = Empty.absurd 
+// Double_neg p = Data.Empty.absurd 
 
 // double_neg : p ౏> Not $ Not p
 // double_neg p notp = notp p
@@ -371,7 +369,7 @@ Contrapositive <p> <q> (f: p -> q) : (Not q -> Not p)
 // contrapositive pq = ?contrapositive_rhs
 
 // 1.3.4. Exercise: 1 star (not_both_true_and_false).
-Not_both_true_and_false <p> : Not (Pair p (Not p))
+Not_both_true_and_false <p> : Not (Data.Pair p (Not p))
 // Not_both_true_and_false p = ?
 
 // not_both_true_and_false : Not (p, Not p)
@@ -387,117 +385,113 @@ Not_both_true_and_false <p> : Not (Pair p (Not p))
 // the goal to Void. This makes it easier to use assumptions of the form Not p that
 // may be available in the context – in particular, assumptions of the form Not (x=y).
 
-Not_true_is_false (b: Bool) (e: Not (Equal Bool b Bool.true)) : Equal Bool b Bool.false
-Not_true_is_false Bool.false e = Equal.refl
-Not_true_is_false Bool.true e = Empty.absurd (e Equal.refl)
+Not_true_is_false (b: Data.Bool) (e: Not (Prop.Equal Data.Bool b Data.Bool.true)) : Prop.Equal Data.Bool b Data.Bool.false
+Not_true_is_false Data.Bool.false e = Prop.Equal.refl
+Not_true_is_false Data.Bool.true e = Data.Empty.absurd (e Prop.Equal.refl)
 
 // not_true_is_false False h = Refl
 // not_true_is_false True h = absurd  h Refl
-// 1.4. Truth. Besides Void, Idris’s standard library also defines Unit, a proposition that is trivially true. To prove it, we use the predefined constant ():
-True_is_true : Unit
-True_is_true = Unit.new
+// 1.4. Truth. Besides Void, Idris’s standard library also defines Data.Unit, a proposition that is trivially true. To prove it, we use the predefined constant ():
+True_is_true : Data.Unit
+True_is_true = Data.Unit.new
 
-// True_is_true : Unit
+// True_is_true : Data.Unit
 // True_is_true = ()
 
-// Unlike Void, which is used extensively, Unit is used quite rarely in proofs, since it
+// Unlike Void, which is used extensively, Data.Unit is used quite rarely in proofs, since it
 // is trivial (and therefore uninteresting) to prove as a goal, and it carries no useful
 // information as a hypothesis. But it can be quite useful when defining complex
 // proofs using conditionals or as a parameter to higher-order proofs. We will see
-// examples of such uses of Unit later on.
+// examples of such uses of Data.Unit later on.
 
-// 1.5. Logical Equiv. The handy “if and only if” connective, which
+// 1.5. Logical Iff. The handy “if and only if” connective, which
 // asserts that two propositions have the same truth value, is just the conjunction of
 // two implications.
 
 // namespace MyIff
 // iff : {p,q : Type} ౏> Type
 // iff {p} {q} = (p ౏> q, q ౏> p)
+Iff <p> <q> : Type
+Iff p q = Data.Pair (p -> q) (q -> p)
 
-record Equiv (p) (q) {
-	lft: p -> q 
-	rgt: q -> p
-}
-// Equiv (p: Type) (q: Type) : Type
-// Equiv.new <p: Type> <q: Type> (lft: (_: p) q) (rgt: (_: q) p) : (Equiv p q)
+// Iff (p: Type) (q: Type) : Type
+// Data.Pair.new <p: Type> <q: Type> (lft: (_: p) q) (rgt: (_: q) p) : (Iff p q)
 
-// type Equiv (p) (q) {
+// type Iff (p) (q) {
 // 	new (lft: p -> q) (rgt: q -> p)
 // }
-Equiv.rgt <p> <q> (e: Equiv p q) : q 
-Equiv.rgt (Equiv.new p q l r)    = l (Equiv.lft (Equiv.new p q l r))
+// Iff.rgt <p> <q> (e: Iff p q) : (q -> p)
+// // Iff.rgt (Data.Pair.new p q l r)    = l (Iff.lft (Data.Pair.new p q l r))
+// Iff.lft <p> <q> (e: Iff p q) : p  
+// // Iff.lft p q (Data.Pair.new pp qq l r) =  r 
 
-Equiv.lft <p> <q> (e: Equiv p q) : p 
-Equiv.lft (Equiv.new p q l r)    = r (Equiv.rgt (Equiv.new p q l r))
+Foo <p> <q> (f: p -> q) : q
+
+Iff.mirror <p> <q> (e: Iff p q) : Iff q p
+Iff.mirror p q (Data.Pair.new lft rgt) = (Data.Pair.new rgt lft)
 
 
-
-Equiv.mirror <p> <q> (e: Equiv p q) : Equiv q p
-Equiv.mirror p q (Equiv.new lft rgt) = (Equiv.new rgt lft)
-
-// Iff <p> <q> : Type
-// Iff p q = Pair (p -> q) (q -> p)
 
 // Idris’s stdlib has a more general form of this, Iso, in Control.Isomorphism.
 // syntax [p] ”<౦>” [q] = iff {p} {q}
 
 // Iff.swap <p> <q> (i: Iff p q) : (Iff q p)
-// Iff.swap p q (Pair.new fst snd ) = Pair.new snd fst
+// Iff.swap p q (Data.Pair.new fst snd ) = Data.Pair.new snd fst
 
 // iff_sym : (p <౦> q) ౏> (q <౦> p)
 // iff_sym (pq, qp) = (qp, pq)
 
 
-Not_true_iff_false (b: Bool) : Equiv (Not (Equal Bool b Bool.true)) (Equal Bool b Bool.false)
-Not_true_iff_false  b = Equiv.new (x => Not_true_is_false b x) (y => Not_true_and_false b y)
+Not_true_iff_false (b: Data.Bool) : Iff (Not (Prop.Equal Data.Bool b Data.Bool.true)) (Prop.Equal Data.Bool b Data.Bool.false)
+Not_true_iff_false  b = Data.Pair.new ((x: Not (Prop.Equal Data.Bool b Data.Bool.true))  => Not_true_is_false b x) ((y: Prop.Equal Data.Bool b Data.Bool.false) => Not_true_and_false b y)
 
 // not_true_iff_false : (Not (b = True)) <౦> (b = False)
 // not_true_iff_false {b} = (not_true_is_false b, not_true_and_false b)
 // where
 
-Not_true_and_false (b : Bool) (e: Equal Bool b Bool.false) : Not (Equal Bool b Bool.true)
-Not_true_and_false Bool.false Equal.refl = 
+Not_true_and_false (b : Data.Bool) (e: Prop.Equal Data.Bool b Data.Bool.false) : Not (Prop.Equal Data.Bool b Data.Bool.true)
+Not_true_and_false Data.Bool.false Prop.Equal.refl = 
 	emp => 
-	let p = (Equal.rewrite emp
-			(x => match Bool x {
-				true => Empty
-				false => Unit
+	let p = (Prop.Equal.rewrite emp
+			(x => match Data.Bool x {
+				true => Data.Empty
+				false => Data.Unit
 		 	}) 
-		 	(Unit.new)) 
-	Empty.absurd p
+		 	(Data.Unit.new)) 
+	Data.Empty.absurd p
 
-Not_true_and_false Bool.true e = 
-	let p = Equal.rewrite e (x => if x {Unit} else {Empty}) Unit.new
-	Empty.absurd p
-// not_true_and_false : (b : Bool) ౏> (b = False) ౏> Not (b = True)
+Not_true_and_false Data.Bool.true e = 
+	let p = Prop.Equal.rewrite e (x => if x {Data.Unit} else {Data.Empty}) Data.Unit.new
+	Data.Empty.absurd p
+// not_true_and_false : (b : Data.Bool) ౏> (b = False) ౏> Not (b = True)
 // not_true_and_false False _ Refl impossible
 // not_true_and_false True Refl _ impossible
 
 // 1.5.1. Exercise: 1 star, optional (iff_properties). Using the above proof that
 // <౦> is symmetric (iff_sym) as a guide, prove that it is also reflexive and transitive.
 
-Equiv.refl <p> : Equiv p p
-Equiv.refl p = (Equiv.new p p (p => p) (p => p))
+Iff.refl <p> : Iff p p
+Iff.refl p = (Data.Pair.new ((p: p) => p) ((p: p) => p))
 
 // iff_refl : p <౦> p
 // iff_refl = ?iff_refl_rhs
 
-Equiv.chain <p> <q> <r> (e0: Equiv p q) (e1: Equiv q r) : Equiv p r
-Equiv.chain p q r e0 (Equiv.refl x) = e0 :: Equiv p x
+Iff.chain (p) (q) (r) (e0: Iff p q) (e1: Iff q r) : Iff p r
+Iff.chain p q r e0 (Iff.refl x) =  e0 :: Iff p x
 
 // iff_trans : (p <౦> q) ౏> (q <౦> r) ౏> (p <౦> r)
 // iff_trans piq qir = ?iff_trans_rhs
 // □
 // 1.5.2. Exercise: 3 stars (or_distributes_over_and).
 
-Or_distributes_over_and <p> <q> <r> : Equiv (Either p (Pair q r)) (Pair (Either p q) (Either p r))
-Or_distributes_over_and p q r = Equiv.new (x => To_Or_distributes_over_and p q r x) (x => Fro_Or_distributes_over_and p q r x)
+Or_distributes_over_and (p) (q) (r) : Iff (Data.Either p (Data.Pair q r)) (Data.Pair (Data.Either p q) (Data.Either p r))
+Or_distributes_over_and p q r = Data.Pair.new ((x: Data.Either p (Data.Pair q r)) => To_Or_distributes_over_and p q r x) ((x: Data.Pair (Data.Either p q) (Data.Either p r)) => Fro_Or_distributes_over_and p q r x)
 
-To_Or_distributes_over_and <p> <q> <r> (e: Either p (Pair q r)) : Pair (Either p q) (Either p r)
+To_Or_distributes_over_and (p) (q) (r) (e: Data.Either p (Data.Pair q r)) : Data.Pair (Data.Either p q) (Data.Either p r)
 
-Fro_Or_distributes_over_and <p> <q> <r> (e: Pair (Either p q) (Either p r)) : Either p (Pair q r)
+Fro_Or_distributes_over_and (p) (q) (r) (e: Data.Pair (Data.Either p q) (Data.Either p r)) : Data.Either p (Data.Pair q r)
 
-// or_distributes_over_and : (p `Either` (q,r)) <౦> (p `Either` q, p `Either` r)
+// or_distributes_over_and : (p `Data.Either` (q,r)) <౦> (p `Data.Either` q, p `Data.Either` r)
 // or_distributes_over_and = ?or_distributes_over_and_rhs
 // □
 // Edit the rest of the section. What to do with Setoids? We could probably just
@@ -508,67 +502,84 @@ Fro_Or_distributes_over_and <p> <q> <r> (e: Pair (Either p q) (Either p r)) : Ei
 // import a special Idris library that allows rewriting with other formulas besides
 // equality (setoids).
 // Here is a simple example demonstrating how these tactics work with iff. First,
-// let’s prove a couple of basic iff Equivs…
+// let’s prove a couple of basic iff Iffs…
 
-Mult_0 (n: Nat) (m: Nat) : Equiv (Equal Nat (Nat.mul n m) 0n) (Either (Equal Nat n 0n) (Equal Nat m 0n))
-Mult_0 n m = Equiv.new (x => To_mult_0 n m x) (y => Or_example n m y)
-// mult_0 : (n * m = Z) <౦> ((n = Z) `Either` (m = Z))
+Mult_0 (n: Data.Nat) (m: Data.Nat) : Iff (Prop.Equal Data.Nat (Data.Nat.mul n m) 0n) (Data.Either (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n))
+// Mult_0 n m = Data.Pair.new (x => To_mult_0 n m x) (y => Or_example n m y)
+// mult_0 : (n * m = Z) <౦> ((n = Z) `Data.Either` (m = Z))
 // mult_0 {n} {m} = (to n m, or_example n m)
 // where
-Plus_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.add n m) (Nat.add m n))
+Plus_comm (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.add n m) (Data.Nat.add m n))
 
-To_mult_0 (n: Nat) (m: Nat) (e: Equal Nat (Nat.mul n m) 0n) : (Either (Equal Nat n 0n) (Equal Nat m 0n))
-To_mult_0 Nat.zero Nat.zero Equal.refl = Either.right Equal.refl
-To_mult_0 Nat.zero (Nat.succ m) Equal.refl = Either.left Equal.refl
-To_mult_0 (Nat.succ n) Nat.zero e = Either.right Equal.refl
-To_mult_0 (Nat.succ n) (Nat.succ m) e =
-		let a = Plus_comm (Nat.mul n (Nat.succ m)) (Nat.succ m)
-		let b = Equal.chain (Equal.mirror e) a
-		let c = (Equal.rewrite b
-			(x => match Nat x {
-				zero => Unit
-				succ => Empty
+To_mult_0 (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal Data.Nat (Data.Nat.mul n m) 0n) : (Data.Either (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n))
+To_mult_0 Data.Nat.zero Data.Nat.zero Prop.Equal.refl = Data.Either.right Prop.Equal.refl
+To_mult_0 Data.Nat.zero (Data.Nat.succ m) Prop.Equal.refl = Data.Either.left Prop.Equal.refl
+To_mult_0 (Data.Nat.succ n) Data.Nat.zero e = Data.Either.right Prop.Equal.refl
+To_mult_0 (Data.Nat.succ n) (Data.Nat.succ m) e =
+		let a = Plus_comm (Data.Nat.mul n (Data.Nat.succ m)) (Data.Nat.succ m)
+		let b = Prop.Equal.chain (Prop.Equal.mirror e) a
+		let c = (Prop.Equal.rewrite b
+			(x => match Data.Nat x {
+				zero => Data.Unit
+				succ => Data.Empty
 		 	})
-		 	(Unit.new)) 
-		Empty.absurd c
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd c
 
-// to : (n, m : Nat) ౏> (n * m = Z) ౏> (n = 0) `Either` (m = 0)
+// to : (n, m : Data.Nat) ౏> (n * m = Z) ౏> (n = 0) `Data.Either` (m = 0)
 // to Z _ Refl = Left Refl
 // to (S _) Z _ = Right Refl
 // to (S _) (S _) Refl impossible
-Or_assoc <p> <q> <r> : Equiv (Either p (Either q r)) (Either (Either p q) r)
-Or_assoc = Equiv.new (x => To_or_assoc x) (y => Fro_or_assoc y)
-// or_assoc : (p `Either` (q `Either` r)) <౦> ((p `Either` q) `Either` r)
+Or_assoc (p) (q) (r) : Iff (Data.Either p (Data.Either q r)) (Data.Either (Data.Either p q) r)
+Or_assoc p q r = Data.Pair.new ((x: Data.Either p (Data.Either q r)) => To_or_assoc p q r x) ((y: Data.Either (Data.Either p q) r)  => Fro_or_assoc p q r y)
+// or_assoc : (p `Data.Either` (q `Data.Either` r)) <౦> ((p `Data.Either` q) `Data.Either` r)
 // or_assoc = (to, fro)
 // where
-To_or_assoc <p> <q> <r> (e: Either p (Either q r)) : Either (Either p q) r
-To_or_assoc (Either.left e) = Either.left (Either.left e)
-To_or_assoc (Either.right p (Either q r) (Either.left e)) = Either.left (Either.right e)
-To_or_assoc (Either.right p (Either q r) (Either.right e)) = Either.right e
+To_or_assoc (p) (q) (r) (e: Data.Either p (Data.Either q r)) : Data.Either (Data.Either p q) r
+To_or_assoc p q r (Data.Either.left e) = Data.Either.left (Data.Either.left e)
+To_or_assoc p q r (Data.Either.right pp (Data.Either qq rr) (Data.Either.left e)) = Data.Either.left (Data.Either.right e)
+To_or_assoc p q r (Data.Either.right pp (Data.Either qq rr) (Data.Either.right e)) = Data.Either.right e
 // to (Left p) = Left $ Left p
 // to (Right (Left q)) = Left $ Right q
 // to (Right (Right r)) = Right r
 
-Fro_or_assoc <p> <q> <r> (e: Either (Either p q) r) : Either p (Either q r)
-Fro_or_assoc (Either.left (Either p q) r (Either.left e)) = Either.left e
-Fro_or_assoc (Either.left (Either p q) r (Either.right e)) = Either.right (Either.left e)
-Fro_or_assoc (Either.right (Either p q) r e) = Either.right (Either.right e)
+Fro_or_assoc (p) (q) (r) (e: Data.Either (Data.Either p q) r) : Data.Either p (Data.Either q r)
+Fro_or_assoc p q r (Data.Either.left (Data.Either pp qq) rr (Data.Either.left e)) = Data.Either.left e
+Fro_or_assoc p q r (Data.Either.left (Data.Either pp qq) rr (Data.Either.right e)) = Data.Either.right (Data.Either.left e)
+Fro_or_assoc p q r (Data.Either.right (Data.Either pp qq) rr e) = Data.Either.right (Data.Either.right e)
 // fro (Left (Left p)) = Left p
 // fro (Left (Right q)) = Right $ Left q
 // fro (Right r) = Right $ Right r
 
 // We can now use these facts with rewrite and Refl to give smooth proofs of statements
-// involving Equivs. Here is a ternary version of the previous mult_0 result:
-Mult_0_3 (n: Nat) (m: Nat) (p: Nat) : Equiv (Equal Nat (Nat.mul n (Nat.mul m p)) 0n) (Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n)))
-Mult_0_3 n m p = Equiv.new (x => To_mult_0_3 n m p x) (y => Fro_mult_0_3 n m p y)
+// involving Iffs. Here is a ternary version of the previous mult_0 result:
+Mult_0_3 (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) : Iff (Prop.Equal Data.Nat (Data.Nat.mul n (Data.Nat.mul m p)) 0n) (Data.Either (Prop.Equal Data.Nat n 0n) (Data.Either (Prop.Equal Data.Nat m 0n) (Prop.Equal Data.Nat p 0n)))
+Mult_0_3 n m p = Data.Pair.new ((x: (Prop.Equal Data.Nat (Data.Nat.mul n (Data.Nat.mul m p)) 0n)) => To_mult_0_3 n m p x) ((y: Data.Either (Prop.Equal Data.Nat n 0n) (Data.Either (Prop.Equal Data.Nat m 0n) (Prop.Equal Data.Nat p 0n))) => Fro_mult_0_3 n m p y)
 // mult_0_3 : (n * m * p = Z) <౦>
-// ((n = Z) `Either` ((m = Z) `Either` (p = Z)))
+// ((n = Z) `Data.Either` ((m = Z) `Data.Either` (p = Z)))
 // mult_0_3 = (to, fro)
 // where
-To_mult_0_3 (n: Nat) (m: Nat) (p: Nat) (e: (Equal Nat (Nat.mul n (Nat.mul m p)) 0n)) : (Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n)))
-To_mult_0_3 n m p e = Either.swap (Equiv.rgt (Or_assoc (Equal m 0n) (Equal p 0n) (Equal n 0n)))
-		 	 
-// to : (n * m * p = Z) ౏> ((n = Z) `Either` ((m = Z) `Either` (p = Z)))
+To_mult_0_3 (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) (e: (Prop.Equal Data.Nat (Data.Nat.mul n (Data.Nat.mul m p)) 0n)) : (Data.Either (Prop.Equal Data.Nat n 0n) (Data.Either (Prop.Equal Data.Nat m 0n) (Prop.Equal Data.Nat p 0n)))
+To_mult_0_3 n m p e = //Data.Either.swap (Data.Pair.snd (Or_assoc (Prop.Equal m 0n) (Prop.Equal p 0n) (Prop.Equal n 0n)))
+	let snd = (Data.Pair.snd (Or_assoc (Prop.Equal m 0n) (Prop.Equal p 0n) (Prop.Equal n 0n))) :: (_) -> (_)
+	let auy = (Data.Pair.fst (Mult_0 m p )) :: (_) -> (_)
+	// let auw Data.Either left right =  (Mult_ep_0 n (Data.Nat.mul m p) e) 
+	// let aux = To_mult_0_3.Aux m p e
+	// Data.Either.swap ?
+	?
+// To_mult_0_3.Aux (m: Data.Nat) (p: Data.Nat) (e: (Prop.Equal Data.Nat (Data.Nat.mul m p) 0n)) : (Data.Either (Prop.Equal Data.Nat m 0n) (Prop.Equal Data.Nat p 0n))
+// To_mult_0_3.Aux m p e = ((Data.Pair.fst (Mult_0 m p )) :: (_) -> (_)) e
+	// let auz = match Data.Either auw with {
+	// 	right => auw.val
+	// 	left => ?
+
+	// }: (Prop.Equal Data.Nat (Data.Nat.mul m p) 0n) 
+	// let fin = snd ?
+	// ?
+
+	// (Data.Either (Prop.Equal Data.Nat n 0n) (Data.Either (Prop.Equal Data.Nat m 0n) (Prop.Equal Data.Nat p 0n)))
+	// • aux : (Data.Pair ((x_1 : ) -> (Data.Either (Data.Either (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n)) (Prop.Equal Data.Nat p 0n))) ((x_2 ) -> (Data.Either (Prop.Equal Data.Nat n 0n) (Data.Either (Prop.Equal Data.Nat m 0n) (Prop.Equal Data.Nat p 0n))))
+	// to : (n * m * p = Z) ౏> ((n = Z) `Data.Either` ((m = Z) `Data.Either` (p = Z)))
 // to {n} {m} {p} prf = let
 // (nm_p_to, _) = mult_0 {n=(n*m)} {m=p}
 // (n_m_to, _) = mult_0 {n} {m}
@@ -576,55 +587,53 @@ To_mult_0_3 n m p e = Either.swap (Equiv.rgt (Or_assoc (Equal m 0n) (Equal p 0n)
 // in or_a_fro  case nm_p_to prf of
 // Left prf ౬> Left $ n_m_to prf
 // Right prf ౬> Right prf
-Mult_comm (n: Nat) (m: Nat) : (Equal Nat (Nat.mul m n) (Nat.mul n m))
-Mult_assoc (n: Nat) (m: Nat) (p: Nat) : (Equal Nat (Nat.mul n (Nat.mul m p)) (Nat.mul (Nat.mul n m) p))
-Mult_0_r (n: Nat) : (Equal Nat (Nat.mul n Nat.zero) Nat.zero)
+Mult_comm (n: Data.Nat) (m: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul m n) (Data.Nat.mul n m))
+Mult_assoc (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul n (Data.Nat.mul m p)) (Data.Nat.mul (Data.Nat.mul n m) p))
+Mult_0_r (n: Data.Nat) : (Prop.Equal Data.Nat (Data.Nat.mul n Data.Nat.zero) Data.Nat.zero)
 
-Fro_mult_0_3 (n: Nat) (m: Nat) (p: Nat) (e: Either (Equal Nat n 0n) (Either (Equal Nat m 0n) (Equal Nat p 0n))) : (Equal Nat (Nat.mul n (Nat.mul m p)) 0n)
-Fro_mult_0_3 Nat.zero m p (Either.left Equal.refl) = Equal.refl
-Fro_mult_0_3 n Nat.zero p (Either.right a (Either b c) (Either.left Equal.refl)) = Mult_comm 0n n
+Fro_mult_0_3 (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) (e: Data.Either (Prop.Equal Data.Nat n 0n) (Data.Either (Prop.Equal Data.Nat m 0n) (Prop.Equal Data.Nat p 0n))) : (Prop.Equal Data.Nat (Data.Nat.mul n (Data.Nat.mul m p)) 0n)
+Fro_mult_0_3 Data.Nat.zero m p (Data.Either.left Prop.Equal.refl) = Prop.Equal.refl
+Fro_mult_0_3 n Data.Nat.zero p (Data.Either.right a (Data.Either b c) (Data.Either.left Prop.Equal.refl)) = Mult_comm 0n n
+Fro_mult_0_3 n m Data.Nat.zero (Data.Either.right a (Data.Either b c) (Data.Either.right Prop.Equal.refl)) = Prop.Equal.chain (Mult_assoc n m 0n) (Mult_0_r (Data.Nat.mul n m))
+Fro_mult_0_3 (Data.Nat.succ n) m p (Data.Either.left e) = 
+	let p = (Prop.Equal.rewrite 
+			e
+			(x => match Data.Nat x {
+				zero => Data.Empty
+				succ => Data.Unit
+		 	}) 
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd p
+Fro_mult_0_3 n (Data.Nat.succ m) p (Data.Either.right a (Data.Either b c) (Data.Either.left e)) = 
+	let p = (Prop.Equal.rewrite 
+			e
+			(x => match Data.Nat x {
+				zero => Data.Empty
+				succ => Data.Unit
+		 	}) 
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd p
+Fro_mult_0_3 n m (Data.Nat.succ p) (Data.Either.right a (Data.Either b c) (Data.Either.right e)) = 
+	let p = (Prop.Equal.rewrite 
+			e
+			(x => match Data.Nat x {
+				zero => Data.Empty
+				succ => Data.Unit
+		 	}) 
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd p
 
-Fro_mult_0_3 n m Nat.zero (Either.right a (Either b c) (Either.right Equal.refl)) = Equal.chain (Mult_assoc n m 0n) (Mult_0_r (Nat.mul n m))
-Fro_mult_0_3 (Nat.succ n) m p (Either.left e) = 
-	let p = (Equal.rewrite 
-			e
-			(x => match Nat x {
-				zero => Empty
-				succ => Unit
-		 	}) 
-		 	(Unit.new)) 
-		Empty.absurd p
-Fro_mult_0_3 n (Nat.succ m) p (Either.right a (Either b c) (Either.left e)) = 
-	let p = (Equal.rewrite 
-			e
-			(x => match Nat x {
-				zero => Empty
-				succ => Unit
-		 	}) 
-		 	(Unit.new)) 
-		Empty.absurd p
-Fro_mult_0_3 n m (Nat.succ p) (Either.right a (Either b c) (Either.right e)) = 
-	let p = (Equal.rewrite 
-			e
-			(x => match Nat x {
-				zero => Empty
-				succ => Unit
-		 	}) 
-		 	(Unit.new)) 
-		Empty.absurd p
-
-// fro : ((n = Z) `Either` ((m = Z) `Either` (p = Z))) ౏> (n * m * p = Z)
+// fro : ((n = Z) `Data.Either` ((m = Z) `Data.Either` (p = Z))) ౏> (n * m * p = Z)
 // fro (Left Refl) = Refl
 // fro {n} (Right (Left Refl)) = rewrite multZeroRightZero n in Refl
 // fro {n} {m} (Right (Right Refl)) = rewrite multZeroRightZero (n*m) in Refl
-// The apply tactic can also be used with <౦>. When given an Equiv as its
-// argument, apply tries to guess which side of the Equiv to use.
-Apply_iff_example (n: Nat) (m: Nat) (e: Equal Nat (Nat.mul n m) 0n) : Either (Equal Nat n 0n) (Equal Nat m 0n) 
-Apply_iff_example n m e = Equiv.rgt (Mult_0 n m)
+// The apply tactic can also be used with <౦>. When given an Iff as its
+// argument, apply tries to guess which side of the Iff to use.
+Apply_iff_example (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal Data.Nat (Data.Nat.mul n m) 0n) : Data.Either (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n) 
+Apply_iff_example n m e = ((Data.Pair.fst (Mult_0 n m)) :: (_) ->(_)) e 
 
-// apply_iff_example : (n, m : Nat) ౏> n * m = Z ౏> ((n = Z) `Either` (m = Z))
+// apply_iff_example : (n, m : Data.Nat) ౏> n * m = Z ౏> ((n = Z) `Data.Either` (m = Z))
 // apply_iff_example n m = fst $ mult_0 {n} {m}
-
 
 // 1.6. Existential Quantification. Another important logical connective is
 // existential quantification. To say that there is some x of type t such that some
@@ -636,7 +645,7 @@ Apply_iff_example n m e = Equiv.rgt (Mult_0 n m)
 // writing it on the left side of **. Then we prove that p holds after all occurrences
 // of x are replaced by t.
 
-// record Sigma (x) (p: x -> Type) {
+// record Data.Sigma (x) (p: x -> Type) {
 //   fst : x
 //   snd : (p fst)
 // }
@@ -650,54 +659,57 @@ Apply_iff_example n m e = Equiv.rgt (Mult_0 n m)
 //    MkDPair : {P : a -> Type} -> (x : a) -> P x -> DPair a P
 
 
-type Sigma (a) (f: a -> Type) {
-	new (fst: a) (snd: f fst)
-}		
+// type Data.Sigma (a) (f: a -> Type) {
+// 	new (fst: a) (snd: f fst)
+// }		
 
-// four_is_even : (n : Nat ** 4 = n + n)
-// Four_is_even : [n: Nat] -> (Equal Nat 4n (Nat.add n n))
-Four_is_even : Sigma Nat (n => (Equal Nat 4n (Nat.add n n)))
-Four_is_even = Sigma.new 2n Equal.refl
+// four_is_even : (n : Data.Nat ** 4 = n + n)
+
+// Four_is_even : [n: Data.Nat] -> (Prop.Equal Data.Nat 4n (Data.Nat.add n n))
+// Four_is_even : Data.Sigma Data.Nat (n => (Prop.Equal Data.Nat 4n (Data.Nat.add n n)))
+
+// Four_is_even = Data.Sigma.new 2n Prop.Equal.refl
+// Four_is_even = $ 2n Prop.Equal.refl
 
 
 // Conversely, if we have an existential hypothesis (x ** p) in the context, we can
 // pattern match on it to obtain a witness x and a hypothesis stating that p holds of
 // x.
-// Exists_example_2 (s: Sigma Nat (m => (Equal Nat n (Nat.add 4n m)))) : (o : Nat ** n = 2 + o)
-Exists_example_2 (n: Nat) (p: [m: Nat] -> (Equal Nat n (Nat.add 4n m))) : [o: Nat] -> (Equal Nat n (Nat.add 2n o))
-// Exists_example_2 n (Sigma.new a (f) m prf) = $ (Nat.add 2n m) (Equal.apply (x => x) prf)
+// Exists_example_2 (s: Data.Sigma Data.Nat (m => (Prop.Equal Data.Nat n (Data.Nat.add 4n m)))) : (o : Data.Nat ** n = 2 + o)
+Exists_example_2 (n: Data.Nat) (p: [m: Data.Nat] -> (Prop.Equal Data.Nat n (Data.Nat.add 4n m))) : [o: Data.Nat] -> (Prop.Equal Data.Nat n (Data.Nat.add 2n o))
+// Exists_example_2 n (Data.Sigma.new a (f) m prf) = $ (Data.Nat.add 2n m) (Prop.Equal.apply (x => x) prf)
 // 	let e = prf
 // 	?)
 
-// Nat : Type
-// Nat.zero : Nat
-// Nat.succ (pred: Nat) : Nat
+// Data.Nat : Type
+// Data.Nat.zero : Data.Nat
+// Data.Nat.succ (pred: Data.Nat) : Data.Nat
 
-// Equal <x> (a: x) (b: x) : Type
-// Equal.refl <x> <a: x> : Equal a a 
-// Equal.mirror <x> <a: x> <b: x> (c: Equal x a b) : Equal x b a
-// Equal.apply <x> <y> <a: x> <b: x> (f: x -> y) (c: Equal x a b) : Equal y (f a) (f b)
-// Equal.chain <x> <a: x> <b: x> <c: x> (e: Equal x a b) (f: Equal x b c) : Equal x a c
+// Prop.Equal <x> (a: x) (b: x) : Type
+// Prop.Equal.refl <x> <a: x> : Prop.Equal a a 
+// Prop.Equal.mirror <x> <a: x> <b: x> (c: Prop.Equal x a b) : Prop.Equal x b a
+// Prop.Equal.apply <x> <y> <a: x> <b: x> (f: x -> y) (c: Prop.Equal x a b) : Prop.Equal y (f a) (f b)
+// Prop.Equal.chain <x> <a: x> <b: x> <c: x> (e: Prop.Equal x a b) (f: Prop.Equal x b c) : Prop.Equal x a c
 
-// Exists_example_3 (s: Sigma Nat (m => Sigma Nat (n => (Equal Nat n (Nat.add (U60.to_nat 4) m))))) : Sigma Nat (o => Sigma Nat (n => (Equal Nat n (Nat.add (U60.to_nat 2) o))))
-// Exists_example_3 (Sigma.new m e) = $ (Nat.add (Nat.succ(Nat.succ Nat.zero)) m) ($ ? ?)  
+// Exists_example_3 (s: Data.Sigma Data.Nat (m => Data.Sigma Data.Nat (n => (Prop.Equal Data.Nat n (Data.Nat.add (U60.to_nat 4) m))))) : Data.Sigma Data.Nat (o => Data.Sigma Data.Nat (n => (Prop.Equal Data.Nat n (Data.Nat.add (U60.to_nat 2) o))))
+// Exists_example_3 (Data.Sigma.new m e) = $ (Data.Nat.add (Data.Nat.succ(Data.Nat.succ Data.Nat.zero)) m) ($ ? ?)  
 
-// exists_example_2 : (m : Nat ** n = 4 + m) ౏> (o : Nat ** n = 2 + o)
+// exists_example_2 : (m : Data.Nat ** n = 4 + m) ౏> (o : Data.Nat ** n = 2 + o)
 // exists_example_2 (m ** pf) = (2 + m ** pf)
 
 // 1.6.1. Exercise: 1 star (dist_not_exists). Prove that “p holds for all x” implies
 // “there is no x for which p does not hold.”
 
-Dist_not_exists <a> <p: a -> Type> (f: (x: a) -> (p x)) : Not (Sigma a (x => ( Not (p x))))
+Dist_not_exists <a> <p: a -> Type> (f: (x: a) -> (p x)) : Not (Data.Sigma a (x => ( Not (p x))))
 // Dist_not_exists a p f = ?
 // dist_not_exists : {p : a ౏> Type} ౏> ((x : a) ౏> p x) ౏> Not (x ** Not $ p x)
 // dist_not_exists f = ?dist_not_exists_rhs
 // □
 // 1.6.2. Exercise: 2 stars (dist_exists_or). Prove that existential quantification
 // distributes over disjunction.
-Dist_exists_or <a> <p: a -> Type> <q: a -> Type> : Equiv (Sigma a (x => (Either (p x) (q x)))) (Either (Sigma a (x => (p x))) (Sigma a (x => (q x))))
-// dist_exists_or : {p, q : a ౏> Type} ౏> (x ** (p x `Either` q x)) <౦>
-// ((x ** p x) `Either` (x ** q x))
+Dist_exists_or <a> <p: a -> Type> <q: a -> Type> : Iff (Data.Sigma a (x => (Data.Either (p x) (q x)))) (Data.Either (Data.Sigma a (x => (p x))) (Data.Sigma a (x => (q x))))
+// dist_exists_or : {p, q : a ౏> Type} ౏> (x ** (p x `Data.Either` q x)) <౦>
+// ((x ** p x) `Data.Either` (x ** q x))
 // Dist_exists_or a p q = ?dist_exists_or_rhs
 // □
 
@@ -715,32 +727,32 @@ Dist_exists_or <a> <p: a -> Type> <q: a -> Type> : Equiv (Sigma a (x => (Either 
 // an element and a list and returning a proposition:
 
 
-In <a> (x: a) (l: List a) : Type
-In a x List.nil = Empty
-In a x (List.cons head tail) = Either (Equal a x head) (In a x tail) 
-// In : (x : a) ౏> (l : List a) ౏> Type
+In <a> (x: a) (l: Data.List a) : Type
+In a x Data.List.nil = Data.Empty
+In a x (Data.List.cons head tail) = Data.Either (Prop.Equal a x head) (In a x tail) 
+// In : (x : a) ౏> (l : Data.List a) ౏> Type
 // In x [] =  
-// In x (x' ௝௞ xs) = (x' = x) `Either` In x xs
+// In x (x' ௝௞ xs) = (x' = x) `Data.Either` In x xs
 // When In is applied to a concrete list, it expands into a concrete sequence of nested
 // disjunctions.
 
 In_example_1 : In 4n [1n, 2n, 3n, 4n, 5n]
-In_example_1 = Either.right (Either.right (Either.right (Either.left Equal.refl)))
+In_example_1 = Data.Either.right (Data.Either.right (Data.Either.right (Data.Either.left Prop.Equal.refl)))
 // In_example_1 : In 4 [1, 2, 3, 4, 5]
 // In_example_1 = Right $ Right $ Right $ Left Refl
 
-// In_example_2 (n: Nat) (i: In n [2n, 4n]) : Sigma Nat (m => (Equal n (Nat.mul 2n m)))
-In_example_2 (n: Nat) (i: In n [2n, 4n]) : Sigma Nat (m => Equal Nat n (Nat.mul 2n m))
-In_example_2 n (Either.left e) = $ 1n e
-In_example_2 n (Either.right l (Either rl rr) (Either.left e)) = $ 2n e
-In_example_2 n (Either.right l (Either rl rr) (Either.right e))	= Empty.absurd e
+// In_example_2 (n: Data.Nat) (i: In n [2n, 4n]) : Data.Sigma Data.Nat (m => (Prop.Equal n (Data.Nat.mul 2n m)))
+In_example_2 (n: Data.Nat) (i: In n [2n, 4n]) : Data.Sigma Data.Nat (m => Prop.Equal Data.Nat n (Data.Nat.mul 2n m))
+In_example_2 n (Data.Either.left e) = $ 1n e
+In_example_2 n (Data.Either.right l (Data.Either rl rr) (Data.Either.left e)) = $ 2n e
+In_example_2 n (Data.Either.right l (Data.Either rl rr) (Data.Either.right e))	= Data.Empty.absurd e
 
-// In_example_2 (n: Nat) (i: In n [2n, 4n]) : Sigma Nat (m => Equal Nat n (Nat.mul 2n m))
-// In_example_2 n (Either.left e)            = $ 1n e
-// // In_example_2 n (Either.right e)           = $ 2n (Either.lft e) // funciona 
-// In_example_2 n (Either.right l r (Either.left ll rr e)) = Sigma.new 2n e // não funciona 
-// // In_example_2 n (Either.right e)           = Empty.absurd (Either.rgt e) // funciona 
-// In_example_2 n (Either.right l r (Either.right ll rr e)) = Empty.absurd e // não funciona 
+// In_example_2 (n: Data.Nat) (i: In n [2n, 4n]) : Data.Sigma Data.Nat (m => Prop.Equal Data.Nat n (Data.Nat.mul 2n m))
+// In_example_2 n (Data.Either.left e)            = $ 1n e
+// // In_example_2 n (Data.Either.right e)           = $ 2n (Data.Either.lft e) // funciona 
+// In_example_2 n (Data.Either.right l r (Data.Either.left ll rr e)) = Data.Sigma.new 2n e // não funciona 
+// // In_example_2 n (Data.Either.right e)           = Data.Empty.absurd (Data.Either.rgt e) // funciona 
+// In_example_2 n (Data.Either.right l r (Data.Either.right ll rr e)) = Data.Empty.absurd e // não funciona 
 
 // In_example_2 (Left Refl) = (1 ** Refl)
 // In_example_2 (Right $ Left Refl) = (2 ** Refl)
@@ -750,16 +762,16 @@ In_example_2 n (Either.right l (Either rl rr) (Either.right e))	= Empty.absurd e
 // Note, in the next, how In starts out applied to a variable and only gets expanded
 // when we do case analysis on this variable:
 
-Map <x> <y> (func: x -> y) (l: (List x)) : (List y)
-Map func List.nil = List.nil
-Map func (List.cons head tail) = List.cons (func head) (Map func tail)
+Map <x> <y> (func: x -> y) (l: (Data.List x)) : (Data.List y)
+Map func Data.List.nil = Data.List.nil
+Map func (Data.List.cons head tail) = Data.List.cons (func head) (Map func tail)
 
 // 2. PROGRAMMING WITH PROPOSITIONS 79
-In_map <a> <b> (f: a -> b) (l: List a) (x: a) (i: In x l) : In (f x) (Map f l)
-In_map a b f List.nil x i = Empty.absurd i
-In_map a b f (List.cons head tail) x (Either.left e) = Equal.rewrite e (k => (Either (Equal (f x) (f k)) _)) (Either.left Equal.refl)
-In_map a b f (List.cons head tail) x (Either.right e) = Either.right (In_map f tail x e)
-// In_map : (f : a ౏> b) ౏> (l : List a) ౏> (x : a) ౏> In x l ౏>
+In_map <a> <b> (f: a -> b) (l: Data.List a) (x: a) (i: In x l) : In (f x) (Map f l)
+In_map a b f Data.List.nil x i = Data.Empty.absurd i
+In_map a b f (Data.List.cons head tail) x (Data.Either.left e) = Prop.Equal.rewrite e (k => (Data.Either (Prop.Equal (f x) (f k)) _)) (Data.Either.left Prop.Equal.refl)
+In_map a b f (Data.List.cons head tail) x (Data.Either.right e) = Data.Either.right (In_map f tail x e)
+// In_map : (f : a ౏> b) ౏> (l : Data.List a) ౏> (x : a) ౏> In x l ౏>
 // In (f x) (map f l)
 // In_map _ [] _ ixl = absurd ixl
 // In_map f (x' ௝௞ xs) x (Left prf) = rewrite prf in Left Refl
@@ -771,134 +783,136 @@ In_map a b f (List.cons head tail) x (Either.right e) = Either.right (In_map f t
 // “obviously terminating.” In the next chapter, we will see how to define propositions
 // inductively, a different technique with its own set of strengths and limitations.
 // 2.0.1. Exercise: 2 stars (In_map_iff).
-In_map_iff <a> <b> (f: a -> b) (l: List a) (y: b) : Equiv (In y (Map f l)) (Sigma a (x => (Pair (Equal (f x) y) (In x l))))
-// In_map_iff : (f : a ౏> b) ౏> (l : List a) ౏> (y : b) ౏>
+In_map_iff <a> <b> (f: a -> b) (l: Data.List a) (y: b) : Iff (In y (Map f l)) (Data.Sigma a (x => (Data.Pair (Prop.Equal (f x) y) (In x l))))
+// In_map_iff : (f : a ౏> b) ౏> (l : Data.List a) ౏> (y : b) ౏>
 // (In y (map f l)) <౦> (x ** (f x = y, In x l))
 // In_map_iff a b f l y = ?In_map_iff
 // □
 // 2.0.2. Exercise: 2 stars (in_app_iff).
 
-// Equiv.refl <p> : Equiv p p
-// Equiv.refl p = (Equiv.new p p (p => p) (p => p))
+// Iff.refl <p> : Iff p p
+// Iff.refl p = (Data.Pair.new p p (p => p) (p => p))
 
-// Equiv.chain <p> <q> <r> (e0: Equiv p q) (e1: Equiv q r) : Equiv p r
-// Equiv.chain p q r e0 (Equiv.refl x) = e0 :: Equiv p x
+// Iff.chain (p) (q) (r) (e0: Iff p q) (e1: Iff q r) : Iff p r
+// Iff.chain p q r e0 (Iff.refl x) = e0 :: Iff p x
 
-// Equiv.mirror <p> <q> (e: Equiv p q) : Equiv q p
-// Equiv.mirror p q (Equiv.new lft rgt) = (Equiv.new rgt lft)
+// Iff.mirror <p> <q> (e: Iff p q) : Iff q p
+// Iff.mirror p q (Data.Pair.new lft rgt) = (Data.Pair.new rgt lft)
 
-// App_nil_r <x> (l: List x) : (Equal (List.concat l List.nil) l)
+// App_nil_r <x> (l: Data.List x) : (Prop.Equal (Data.List.concat l Data.List.nil) l)
 
-// Either.swap.prf <l> <r> : Equal (Either l r) (Either r l) 
-// Either.swap.prf l r = 
-// 	let r = Equal.rewrite _ (x => (Equal (Either l r) x)) Equal.refl
-// 	r
+Data.Either.swap.prf <l> <r> : Prop.Equal (Data.Either l r) (Data.Either r l) 
+Data.Either.swap.prf l r = 
+	let r = Prop.Equal.rewrite _ (x => (Prop.Equal (Data.Either l r) x)) Prop.Equal.refl
+	r
 	
 
 
-In_app_iff <a> (x: a) (lx: List a) (ly: List a) : Equiv (In x (List.concat lx ly)) (Either (In x lx) (In x ly))  
-// In_app_iff a x List.nil ly = 
-// 	let t = Either.swap.prf (In x ly) Empty
-// 	let l = In_app_iff a x ly List.nil
-// 	let f = App_nil_r ly
-// 	let r = Equal.rewrite f (k => (Equiv (In x (k)) (Either (In x ly) Empty))) l
-// 	let z = Equal.rewrite t (k => (Equiv (In a x ly) k)) r
-// 	z
-	// Equiv.refl :: (Equiv _ (Either Empty (In a x ly)))
+In_app_iff <a> (x: a) (lx: Data.List a) (ly: Data.List a) : Iff (In x (Data.List.concat lx ly)) (Data.Either (In x lx) (In x ly))  
+// In_app_iff a x Data.List.nil ly = 
+	// let t = Data.Either.swap.prf (In x ly) Data.Empty
+	// let l = In_app_iff a x ly Data.List.nil
+	// let f = App_nil_r ly
+	// let r = Prop.Equal.rewrite f (k => (Iff (In x (k)) (Data.Either (In x ly) Data.Empty))) ?
+	// let z = Prop.Equal.rewrite t (k => (Iff (In a x ly) k)) r
+	// z
+	// Iff.refl :: (Iff _ (Data.Either Data.Empty (In a x ly)))
 
 	
 
 
 	
- // in_app_iff : (In a (l++l')) <౦> (In a l `Either` In a l')
+ // in_app_iff : (In a (l++l')) <౦> (In a l `Data.Either` In a l')
 // in_app_iff = ?in_app_iff_rhs
 // □
 // 2.0.3. Exercise: 3 stars (All). Recall that functions returning propositions can
-// be seen as properties of their arguments. For instance, if p has type Nat ౏> Type,
+// be seen as properties of their arguments. For instance, if p has type Data.Nat ౏> Type,
 // then p n states that property p holds of n.
 // Drawing inspiration from In, write a recursive function All stating that some property p holds of all elements of a list l. To make sure your definition is correct,
 // prove the All_In lemma below. (Of course, your definition should not just restate
 // the left-hand side of All_In.)
 
-All <t> (p: t -> Type) (l: List t) : Type
-All t p List.nil = Empty
-All t p (List.cons head tail) = Pair (p head) (All p tail)
+All <t> (p: t -> Type) (l: Data.List t) : Type
+All t p Data.List.nil = Data.Empty
+All t p (Data.List.cons head tail) = Data.Pair (p head) (All p tail)
 // All t p l = ?All
-// All : (p : t ౏> Type) ౏> (l : List t) ౏> Type
+// All : (p : t ౏> Type) ౏> (l : Data.List t) ౏> Type
 // All p l = ?All_rhs
-All_in <t> (p: t -> Type) (l: List t) : Equiv ((x: t) -> (i: In x l) -> p x) (All p l) 
-All_in t p l =  Equiv.new (x => All_in_to t p l x) (x => All_in_fro t p l x)
+All_in <t> (p: t -> Type) (l: Data.List t) : Iff ((x: t) -> (i: In x l) -> p x) (All p l) 
 
-All_in_to <t> (p: t -> Type) (l: List t) (e: (x: t) -> (In x l) -> (p x)) : (All p l) 
-All_in_to  t p List.nil e = Empty.absurd _
-All_in_to t p (List.cons r head tail) e = 
+All_in t p l =  Data.Pair.new ((x: (x: t) -> (In x l) -> (p x)) => All_in_to t p l x) ((x: All p l) => All_in_fro t p l x)
+
+All_in_to <t> (p: t -> Type) (l: Data.List t) (e: (x: t) -> (In x l) -> (p x)) : (All p l) 
+All_in_to  t p Data.List.nil e = Data.Empty.absurd _
+All_in_to t p (Data.List.cons r head tail) e = 
 	let left = e head
-	let left = left (Either.left Equal.refl)
-	let right = All_in_to p tail (x => i => e x (Either.right i))
-	Pair.new (left) (right)
+	let left = left (Data.Either.left Prop.Equal.refl)
+	let right = All_in_to p tail (x => i => e x (Data.Either.right i))
+	Data.Pair.new (left) (right)
 
-All_in_fro <t> (p: t -> Type) (l: List t) (e: All p l) : (x : t) -> (In x l) -> (p x)
-All_in_fro t p List.nil e = Empty.absurd _
-All_in_fro t p (List.cons r head tail) (Pair.new fst snd) = x => i => 
+All_in_fro <t> (p: t -> Type) (l: Data.List t) (e: All p l) : (x: t) -> (In x l) -> (p x)
+All_in_fro t p Data.List.nil e = Data.Empty.absurd _
+All_in_fro t p (Data.List.cons r head tail) (Data.Pair.new fst snd) = x => i => 
 	let body = All_in_fro p tail snd
-	let last = Either.rgt i
-	(body x last)
+	match Data.Either i {
+		left => Data.Empty.absurd _ //TODO
+		right => (body x i.val) 
+	}
+		
 
 // 2.0.4. Exercise: 3 stars (combine_odd_even). Complete the definition of the
 // combine_odd_even function below. It takes as arguments two properties of numbers,
-// podd and peven, and it should return a property p such that p n is equivalent to
-// podd n when n is odd and equivalent to peven n otherwise.
-Evenb (n: Nat) : Bool
-Evenb Nat.zero = Bool.true
-Evenb (Nat.succ Nat.zero) = Bool.false
-Evenb (Nat.succ (Nat.succ n)) = Evenb n
+// podd and peven, and it should return a property p such that p n is Iffalent to
+// podd n when n is odd and Iffalent to peven n otherwise.
+Evenb (n: Data.Nat) : Data.Bool
+Evenb Data.Nat.zero = Data.Bool.true
+Evenb (Data.Nat.succ Data.Nat.zero) = Data.Bool.false
+Evenb (Data.Nat.succ (Data.Nat.succ n)) = Evenb n
 
-Odd (n: Nat) : Bool
-Odd Nat.zero = Bool.false
-Odd (Nat.succ Nat.zero) = Bool.true
-Odd (Nat.succ (Nat.succ n)) = Odd n
+Odd (n: Data.Nat) : Data.Bool
+Odd Data.Nat.zero = Data.Bool.false
+Odd (Data.Nat.succ Data.Nat.zero) = Data.Bool.true
+Odd (Data.Nat.succ (Data.Nat.succ n)) = Odd n
 
-Evenb_S (n: Nat) : (Equal Bool (Evenb (Nat.succ n)) (Bool.not (Evenb n)))
-// Evenb_S n = Equal.refl
+Evenb_S (n: Data.Nat) : (Prop.Equal Data.Bool (Evenb (Data.Nat.succ n)) (Data.Bool.not (Evenb n)))
+// Evenb_S n = Prop.Equal.refl
 
-Combine.odd.even (podd: (o: Nat) -> Type) 
-								 (peven: (e: Nat) -> Type) : Nat -> Type
-Combine.odd.even podd peven = n => Bool.if _ (Odd n) (podd n) (peven n)
+Combine.odd.even (podd: (o: Data.Nat) -> Type) 
+								 (peven: (e: Data.Nat) -> Type) : Data.Nat -> Type
+Combine.odd.even podd peven = n => Data.Bool.if _ (Odd n) (podd n) (peven n)
 
 // To test your definition, prove the following facts:
-// Nat_Succ_N (n: Nat) : Equal (Nat.succ n) n
+// Nat_Succ_N (n: Data.Nat) : Prop.Equal (Data.Nat.succ n) n
 
 
-Combine.odd.even.intro.go (n: Nat) : Either (Equal Bool (Odd n) Bool.true) (Equal Bool (Odd n) Bool.false)
-Combine.odd.even.intro.go Nat.zero = Either.right Equal.refl
-Combine.odd.even.intro.go (Nat.succ Nat.zero) = Either.left Equal.refl
-Combine.odd.even.intro.go (Nat.succ (Nat.succ n)) = (Combine.odd.even.intro.go n)
+Combine.odd.even.intro.go (n: Data.Nat) : Data.Either (Prop.Equal Data.Bool (Odd n) Data.Bool.true) (Prop.Equal Data.Bool (Odd n) Data.Bool.false)
+Combine.odd.even.intro.go Data.Nat.zero = Data.Either.right Prop.Equal.refl
+Combine.odd.even.intro.go (Data.Nat.succ Data.Nat.zero) = Data.Either.left Prop.Equal.refl
+Combine.odd.even.intro.go (Data.Nat.succ (Data.Nat.succ n)) = (Combine.odd.even.intro.go n)
 
-Ero (n: Nat) : Equal Nat (n) (Nat.succ (Nat.succ n)) 
+Ero (n: Data.Nat) : Prop.Equal Data.Nat (n) (Data.Nat.succ (Data.Nat.succ n)) 
 
-Combine.odd.even.intro (n: Nat) 
-												(podd: (o: Nat) -> Type) 
-												(peven: (e: Nat) -> Type) 
-												(i: (Equal (Odd n) Bool.true ) -> podd n) 
-												(p: (Equal (Odd n) Bool.false) -> peven n) : 
+Combine.odd.even.intro (n: Data.Nat) 
+												(podd: (o: Data.Nat) -> Type) 
+												(peven: (e: Data.Nat) -> Type) 
+												(i: (Prop.Equal (Odd n) Data.Bool.true ) -> podd n) 
+												(p: (Prop.Equal (Odd n) Data.Bool.false) -> peven n) : 
 												(Combine.odd.even podd peven) n
 	
-Combine.odd.even.intro Nat.zero odd even i p = (p Equal.refl)
-Combine.odd.even.intro (Nat.succ Nat.zero) odd even oddp evenp = (oddp Equal.refl)
-// Combine.odd.even.intro (Nat.succ (Nat.succ n)) odd even oddp evenp = 
-// 	let o = (oddp) (Either.lft (Combine.odd.even.intro.go n))
-// 	let e = (evenp) (Either.rgt (Combine.odd.even.intro.go n))
-// 	let ind = Combine.odd.even.intro n odd even _ _
-// 	let co = Combine.odd.even.elim.odd n odd even ind (Either.lft (Combine.odd.even.intro.go n))
-// 	let ce = Combine.odd.even.elim.even n odd even ind (Either.rgt (Combine.odd.even.intro.go n))
-// 	let rrt = Equal.rewrite (Ero n) (x => (Bool.if _ (Odd x) (odd x) (even x))) _
-// 	rrt
-Combine.odd.even.elim.odd (n: Nat) (podd: (o: Nat) -> Type) (peven: (e: Nat) -> Type) (e: (Combine.odd.even (podd) (peven)) n) (p: (Equal (Odd n) Bool.true)) : podd n
-// Combine.odd.even.elim.odd Nat.zero podd pevem e p = ?
-// Combine.odd.even.elim.odd (Nat.succ n) podd pevem e p = ?
+Combine.odd.even.intro Data.Nat.zero odd even i p = (p Prop.Equal.refl)
+Combine.odd.even.intro (Data.Nat.succ Data.Nat.zero) odd even oddp evenp = (oddp Prop.Equal.refl)
+// Combine.odd.even.intro (Data.Nat.succ (Data.Nat.succ n)) odd even oddp evenp = 
+// 	let ind = Combine.odd.even.intro n (odd) (even) (x => ?) (y => ?)
 
 
-Combine.odd.even.elim.even (n: Nat) (podd: (o: Nat) -> Type) (peven: (e: Nat) -> Type) (e: (Combine.odd.even (podd) (peven)) n) (p: (Equal (Odd n) Bool.false)) : peven n
+
+Combine.odd.even.elim.odd (n: Data.Nat) (podd: (o: Data.Nat) -> Type) (peven: (e: Data.Nat) -> Type) (e: (Combine.odd.even (podd) (peven)) n) (p: (Prop.Equal (Odd n) Data.Bool.true)) : podd n
+// Combine.odd.even.elim.odd Data.Nat.zero podd pevem e p = ?
+// Combine.odd.even.elim.odd (Data.Nat.succ n) podd pevem e p = ?
+// Combine.odd.even.elim.odd (Data.Nat.succ (Data.Nat.succ n)) podd pevem e p = ?
+
+
+Combine.odd.even.elim.even (n: Data.Nat) (podd: (o: Data.Nat) -> Type) (peven: (e: Data.Nat) -> Type) (e: (Combine.odd.even (podd) (peven)) n) (p: (Prop.Equal (Odd n) Data.Bool.false)) : peven n
 
 
 
@@ -913,19 +927,19 @@ Combine.odd.even.elim.even (n: Nat) (podd: (o: Nat) -> Type) (peven: (e: Nat) ->
 // expression. We can also use :t to ask what theorem a particular identifier refers
 // to.
 // λΠ> :t plusCommutative
-// plusCommutative : (left : Nat) ౏> (right : Nat) ౏> left + right = right + left
-Plus.Commutative (left: Nat) (right: Nat) : Equal Nat (Nat.add left right) (Nat.add right left)
+// plusCommutative : (left : Data.Nat) ౏> (right : Data.Nat) ౏> left + right = right + left
+Plus.Commutative (left: Data.Nat) (right: Data.Nat) : Prop.Equal Data.Nat (Data.Nat.add left right) (Data.Nat.add right left)
 // Plus.Commutative left right = ?
 // Idris prints the statement of the plusCommutative theorem in the same way that it
 // prints the type of any term that we ask it to check. Why?
 // The reason is that the identifier plusCommutative actually refers to a proof object – a
 // data structure that represents a logical derivation establishing of the truth of the
-// statement (n, m : Nat) ౏> n + m = m + n. The type of this object is the statement of
+// statement (n, m : Data.Nat) ౏> n + m = m + n. The type of this object is the statement of
 // the theorem that it is a proof of.
 // Intuitively, this makes sense because the statement of a theorem tells us what we
 // can use that theorem for, just as the type of a computational object tells us what
-// we can do with that object – e.g., if we have a term of type Nat ౏> Nat ౏> Nat, we
-// can give it two Nats as arguments and get a Nat back. Similarly, if we have an
+// we can do with that object – e.g., if we have a term of type Data.Nat ౏> Data.Nat ౏> Data.Nat, we
+// can give it two Nats as arguments and get a Data.Nat back. Similarly, if we have an
 // object of type n = m ౏> n + n = m + m and we provide it an “argument” of type n = m,
 // we can derive n + n = m + m.
 // Operationally, this analogy goes even further: by applying a theorem, as if it were
@@ -933,7 +947,7 @@ Plus.Commutative (left: Nat) (right: Nat) : Equal Nat (Nat.add left right) (Nat.
 // having to resort to intermediate assertions. For example, suppose we wanted to
 // prove the following result:
 
-Plus.comm3 (n: Nat) (m: Nat) (p: Nat) : Equal Nat (Nat.add n (Nat.add m p)) (Nat.add (Nat.add p m ) n)
+Plus.comm3 (n: Data.Nat) (m: Data.Nat) (p: Data.Nat) : Prop.Equal Data.Nat (Data.Nat.add n (Data.Nat.add m p)) (Data.Nat.add (Data.Nat.add p m ) n)
 // Plus.comm3 n m p = 
 
 // Edit, we have already done this in previous chapters (add a hyperlink?)
@@ -970,11 +984,11 @@ Plus.comm3 (n: Nat) (m: Nat) (p: Nat) : Equal Nat (Nat.add n (Nat.add m p)) (Nat
 // supply wildcards as arguments to be inferred, or to declare some hypotheses to a
 // theorem as implicit by default. These features are illustrated in the proof below.
 
-Lemma_application_ex (n: Nat) (ns: List Nat) (i: In n (Map (m => (Nat.mul m 0n)) ns)) : Equal Nat n 0n
-Lemma_application_ex n List.nil prf = Empty.absurd prf
-Lemma_application_ex n (List.cons head tail) (Either.left prf) = Equal.rewrite (Mult_0_r head) (x => (Equal Nat n x)) prf
-Lemma_application_ex n (List.cons head tail) (Either.right prf) = Lemma_application_ex n tail prf
-// lemma_application_ex : (n : Nat) ౏> (ns : List Nat) ౏>
+Lemma_application_ex (n: Data.Nat) (ns: Data.List Data.Nat) (i: In n (Map (m => (Data.Nat.mul m 0n)) ns)) : Prop.Equal Data.Nat n 0n
+Lemma_application_ex n Data.List.nil prf = Data.Empty.absurd prf
+Lemma_application_ex n (Data.List.cons head tail) (Data.Either.left prf) = Prop.Equal.rewrite (Mult_0_r head) (x => (Prop.Equal Data.Nat n x)) prf
+Lemma_application_ex n (Data.List.cons head tail) (Data.Either.right prf) = Lemma_application_ex n tail prf
+// lemma_application_ex : (n : Data.Nat) ౏> (ns : Data.List Data.Nat) ౏>
 // In n (map (\m ౬> m * 0) ns) ౏> n = 0
 // lemma_application_ex _ [] prf = absurd prf
 // lemma_application_ex _ (y ௝௞ _) (Left prf) =
@@ -996,18 +1010,18 @@ Lemma_application_ex n (List.cons head tail) (Either.right prf) = Lemma_applicat
 // often leads to slightly different ways of capturing informal mathematical concepts,
 // but these are, by and large, quite Natural and easy to work with. For example,
 // instead of saying that a natural number n belongs to the set of even numbers, we
-// would say in Idris that ev n holds, where ev : Nat ౏> Type is a property describing
+// would say in Idris that ev n holds, where ev : Data.Nat ౏> Type is a property describing
 // even numbers.
 // However, there are some cases where translating standard mathematical reasoning
 // into Idris can be either cumbersome or sometimes even impossible, unless we enrich
 // the core logic with additional axioms. We conclude this chapter with a brief
 // discussion of some of the most significant differences between the two worlds.
 // 4.1. Functional Extensionality. The equality assertions that we have seen
-// so far mostly have concerned elements of inductive types (Nat, Bool, etc.). But since
+// so far mostly have concerned elements of inductive types (Data.Nat, Data.Bool, etc.). But since
 // Idris’s equality operator is polymorphic, these are not the only possibilities – in
 // particular, we can write propositions claiming that two functions are equal to e
-Function_equality_ex1 : Equal Nat (Nat.succ 3n) (Nat.succ (Nat.pred 4n))
-Function_equality_ex1 = Equal.refl
+Function_equality_ex1 : Prop.Equal Data.Nat (Data.Nat.succ 3n) (Data.Nat.succ (Data.Nat.pred 4n))
+Function_equality_ex1 = Prop.Equal.refl
 // function_equality_ex1 : plus 3 = plus (pred 4)
 // function_equality_ex1 = Refl
 // In common mathematical practice, two functions f and g are considered equal if
@@ -1023,26 +1037,24 @@ Function_equality_ex1 = Equal.refl
 // Functional extensionality is not part of Idris’s basic axioms. This means that some
 // “reasonable” propositions are not provable.
 
-// function_equality_ex2 : (\x ౬> plus x 1) = (\x ౬> plus 1 x)
-// function_equality_ex2 = ?stuck
+// Function_equality_ex2 : Prop.Equal ((x: Data.Nat) => (Data.Nat.add x 1n)) ((x: Data.Nat) => (Data.Nat.add 1n x))
+// Function_equality_ex2 = ?
 
 // Explain believe_me vs really_believe_me?
 // However, we can add functional extensionality to Idris’s core logic using the
 // really_believe_me command.
 
 // functional_extensionality : ((x : a) ౏> f x = g x) ౏> f = g
-Functional_extensionality <a> <b> (f: a -> b) (g: a -> b) (e: (x: a) -> (Equal b (f x) (g x))) : Equal f g
-// Functional_extensionality a b f g e = 
-// 	let x = a
-// 	let gg = e x
-// 	?
+Functional_extensionality <a> <b> <f: a -> b> <g: a -> b> (e: (x: a) -> (Prop.Equal b (f x) (g x))) : Prop.Equal f g
+
 // functional_extensionality = really_believe_me
 
 // Using really_believe_me has the same effect as stating a theorem and skipping its
 // proof using a hole, but it alerts the reader (and type checker) that this isn’t just
 // something we’re going to come back and fill in later!
 // We can now invoke functional extensionality in proofs:
-// function_equality_ex2 : (\x ౬> plus x 1) = (\x ౬> plus 1 x)
+Function_equality_ex2 : Prop.Equal ((x: Data.Nat) => (Data.Nat.add x 1n)) ((x: Data.Nat) => (Data.Nat.add 1n x))
+Function_equality_ex2 = Functional_extensionality (x => Plus.Commutative x 1n) 
 // function_equality_ex2 = functional_extensionality $ \x ౬> plusCommutative x 1
 // Naturally, we must be careful when adding new axioms into Idris’s logic, as they
 // may render it inconsistent – that is, they may make it possible to prove every
@@ -1064,89 +1076,89 @@ Functional_extensionality <a> <b> (f: a -> b) (g: a -> b) (e: (x: a) -> (Equal b
 // running ++ takes time asymptotically linear in the size of the list, which means
 // that rev has quadratic running time.
 // We can improve this with the following definition:
-Rev_append <x> (l1: List x) (l2: List x) : List x
-Rev_append x List.nil l2 = l2
-Rev_append x (List.cons head tail) l2 = Rev_append tail (List.cons head l2)
-// rev_append : (l1, l2 : List x) ౏> List x
+Rev_append <x> (l1: Data.List x) (l2: Data.List x) : Data.List x
+Rev_append x Data.List.nil l2 = l2
+Rev_append x (Data.List.cons head tail) l2 = Rev_append tail (Data.List.cons head l2)
+// rev_append : (l1, l2 : Data.List x) ౏> Data.List x
 // rev_append [] l2 = l2
 // rev_append (x ௝௞ xs) l2 = rev_append xs (x ௝௞ l2)
-Tr_rev <x> (l: List x) : List x
-Tr_rev x l = Rev_append l List.nil
+Tr_rev <x> (l: Data.List x) : Data.List x
+Tr_rev x l = Rev_append l Data.List.nil
 
-// tr_rev : (l : List x) ౏> List x
+// tr_rev : (l : Data.List x) ౏> Data.List x
 // tr_rev l = rev_append l []
-Rev_involutive <x> (l: List x) : (Equal (List x) (Rev (Rev l)) l)
+Rev_involutive <x> (l: Data.List x) : (Prop.Equal (Data.List x) (Rev (Rev l)) l)
 
-Rev_app_distr <x> (l1: List x) (l2: List x) : (Equal (List x) (Rev (App l1 l2)) (App (Rev l2) (Rev l1)))
+Rev_app_distr <x> (l1: Data.List x) (l2: Data.List x) : (Prop.Equal (Data.List x) (Rev (App l1 l2)) (App (Rev l2) (Rev l1)))
 
-App_assoc <a> (l: List a) (m: List a) (n: List a) : (Equal (List a) (App l (App m n)) (App (App l m) n)) 
+App_assoc <a> (l: Data.List a) (m: Data.List a) (n: Data.List a) : (Prop.Equal (Data.List a) (App l (App m n)) (App (App l m) n)) 
 
-App_assoc4 <a> (l1: (List a)) (l2: (List a)) (l3: (List a)) (l4: (List a)) : (Equal (List a) (App l1 (App l2 (App l3 l4))) (App (App (App l1 l2) l3) l4))
+App_assoc4 <a> (l1: (Data.List a)) (l2: (Data.List a)) (l3: (Data.List a)) (l4: (Data.List a)) : (Prop.Equal (Data.List a) (App l1 (App l2 (App l3 l4))) (App (App (App l1 l2) l3) l4))
 
-App_nil_r <x> (l: List x) : Equal (List x) (App l List.nil) l
+App_nil_r <x> (l: Data.List x) : Prop.Equal (Data.List x) (App l Data.List.nil) l
 
-Rev <x> (l: List x) : List x
-Rev List.nil = List.nil                      // #######[head]#######
-Rev (List.cons x head tail) = App (Rev tail) (List.cons head List.nil) 
+Rev <x> (l: Data.List x) : Data.List x
+Rev Data.List.nil = Data.List.nil                      // #######[head]#######
+Rev (Data.List.cons x head tail) = App (Rev tail) (Data.List.cons head Data.List.nil) 
 
-App <a> (l1: List a) (l2: List a) : List a
-App (List.nil ) l2 = l2
-App (List.cons x head tail) l2 = List.cons head (App tail l2) 
-// (This is very similar to how reverse is defined in Prelude.List.)
+App <a> (l1: Data.List a) (l2: Data.List a) : Data.List a
+App (Data.List.nil ) l2 = l2
+App (Data.List.cons x head tail) l2 = Data.List.cons head (App tail l2) 
+// (This is very similar to how reverse is defined in Prelude.Data.List.)
 // This version is said to be tail-recursive, because the recursive call to the function
 // is the last operation that needs to be performed (i.e., we don’t have to execute ++
 // after the recursive call); a decent compiler will generate very efficient code in this
-// case. Prove that the two definitions are indeed equivalent.
-// Tr_rev_app_distr <x> (l1: List x) (l2: List x) : (Equal (List x) (Tr_rev (App l1 l2)) (App (Tr_rev l2) (Tr_rev l1)))
-// Tr_rev_app_distr x List.nil l2 = 
+// case. Prove that the two definitions are indeed Iffalent.
+// Tr_rev_app_distr <x> (l1: Data.List x) (l2: Data.List x) : (Prop.Equal (Data.List x) (Tr_rev (App l1 l2)) (App (Tr_rev l2) (Tr_rev l1)))
+// Tr_rev_app_distr x Data.List.nil l2 = 
 // 	let aux = App_nil_r (Rev_append l2 [])
-// 	Equal.mirror aux
-// Tr_rev_app_distr x (List.cons head tail) l2 = 
+// 	Prop.Equal.mirror aux
+// Tr_rev_app_distr x (Data.List.cons head tail) l2 = 
 // 	let ind = Tr_rev_app_distr tail l2
-// 	let ind = Tr_rev_app_distr tail (List.cons head l2)
-// 	let aux = App_assoc (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))) []
-// 	let auy = App_nil_r (Rev_append tail (List.cons head (List.nil))) 
-// 	let rrt = Equal.rewrite auy (x => (Equal (App (Rev_append l2 (List.nil)) x) _)) aux
-// 	let auy = App_nil_r ((App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
-// 	let rrt = Equal.rewrite auy (x => (Equal _ (x))) aux
+// 	let ind = Tr_rev_app_distr tail (Data.List.cons head l2)
+// 	let aux = App_assoc (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil))) []
+// 	let auy = App_nil_r (Rev_append tail (Data.List.cons head (Data.List.nil))) 
+// 	let rrt = Prop.Equal.rewrite auy (x => (Prop.Equal (App (Rev_append l2 (Data.List.nil)) x) _)) aux
+// 	let auy = App_nil_r ((App (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil))))) 
+// 	let rrt = Prop.Equal.rewrite auy (x => (Prop.Equal _ (x))) aux
 
-// • Expected: (Equal (Rev_append (App tail l2) (List.cons head (List.nil))) (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
-//  •   ind  : (Equal (Rev_append (App tail l2) (List.nil))                  (App (Rev_append l2 (List.nil)) (Rev_append tail (List.nil)))) 
-//  •   aux  : (Equal (App (Rev_append l2 (List.nil)) (App (Rev_append tail (List.cons head (List.nil))) (List.nil))) (App (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil)))) (List.nil)))
+// • Expected: (Prop.Equal (Rev_append (App tail l2) (Data.List.cons head (Data.List.nil))) (App (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil))))) 
+//  •   ind  : (Prop.Equal (Rev_append (App tail l2) (Data.List.nil))                  (App (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.nil)))) 
+//  •   aux  : (Prop.Equal (App (Rev_append l2 (Data.List.nil)) (App (Rev_append tail (Data.List.cons head (Data.List.nil))) (Data.List.nil))) (App (App (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil)))) (Data.List.nil)))
 
-//  •   auy  : (Equal (App (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil)))) (List.nil)) (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
-//  •   rrt  : (Equal (App (Rev_append l2 (List.nil)) (App (Rev_append tail (List.cons head (List.nil))) (List.nil))) (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil))))) 
+//  •   auy  : (Prop.Equal (App (App (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil)))) (Data.List.nil)) (App (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil))))) 
+//  •   rrt  : (Prop.Equal (App (Rev_append l2 (Data.List.nil)) (App (Rev_append tail (Data.List.cons head (Data.List.nil))) (Data.List.nil))) (App (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil))))) 
 
-//  •   auy  : (Equal (App (Rev_append tail (List.cons head (List.nil))) (List.nil)) (Rev_append tail (List.cons head (List.nil))))
-//  •   rrt  : (Equal (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil)))) (App (App (Rev_append l2 (List.nil)) (Rev_append tail (List.cons head (List.nil)))) (List.nil)))
+//  •   auy  : (Prop.Equal (App (Rev_append tail (Data.List.cons head (Data.List.nil))) (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil))))
+//  •   rrt  : (Prop.Equal (App (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil)))) (App (App (Rev_append l2 (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil)))) (Data.List.nil)))
 
-//  •   aux  : (Equal (App (Rev_append (App tail l2) (List.nil)) (List.cons head (List.nil))) (App (App (Rev_append (App tail l2) (List.nil)) (List.cons head (List.nil))) (List.nil)))
-//  •   aux  : (Equal (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (App (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (List.nil))) 
-//  •   aux  : (Equal (App (Rev_append tail (List.cons head (List.nil))) (List.cons head (List.nil))) (App (App (Rev_append tail (List.cons head (List.nil))) (List.cons head (List.nil))) (List.nil))) 
+//  •   aux  : (Prop.Equal (App (Rev_append (App tail l2) (Data.List.nil)) (Data.List.cons head (Data.List.nil))) (App (App (Rev_append (App tail l2) (Data.List.nil)) (Data.List.cons head (Data.List.nil))) (Data.List.nil)))
+//  •   aux  : (Prop.Equal (App (Rev_append tail (Data.List.nil)) (Data.List.cons head (Data.List.nil))) (App (App (Rev_append tail (Data.List.nil)) (Data.List.cons head (Data.List.nil))) (Data.List.nil))) 
+//  •   aux  : (Prop.Equal (App (Rev_append tail (Data.List.cons head (Data.List.nil))) (Data.List.cons head (Data.List.nil))) (App (App (Rev_append tail (Data.List.cons head (Data.List.nil))) (Data.List.cons head (Data.List.nil))) (Data.List.nil))) 
 
-//  •   ind  : (Equal (Rev_append (App tail (List.cons head l2)) (List.nil)) (App (Rev_append l2 (List.cons head (List.nil))) (Rev_append tail (List.nil)))) 
-//  •   aux  : (Equal (App (Rev_append (App tail l2) (List.nil)) (List.cons head (List.nil))) (App (App (Rev_append (App tail l2) (List.nil)) (List.cons head (List.nil))) (List.nil)))
+//  •   ind  : (Prop.Equal (Rev_append (App tail (Data.List.cons head l2)) (Data.List.nil)) (App (Rev_append l2 (Data.List.cons head (Data.List.nil))) (Rev_append tail (Data.List.nil)))) 
+//  •   aux  : (Prop.Equal (App (Rev_append (App tail l2) (Data.List.nil)) (Data.List.cons head (Data.List.nil))) (App (App (Rev_append (App tail l2) (Data.List.nil)) (Data.List.cons head (Data.List.nil))) (Data.List.nil)))
 
 
 
-Tr_rev_correct <a> (x: List a) : Equal (List a) (Tr_rev x) (Rev x) 
-// // Tr_rev_correct a List.nil = Equal.refl
-// // Tr_rev_correct a (List.cons head tail) = 
+Tr_rev_correct <a> (x: Data.List a) : Prop.Equal (Data.List a) (Tr_rev x) (Rev x) 
+// // Tr_rev_correct a Data.List.nil = Prop.Equal.refl
+// // Tr_rev_correct a (Data.List.cons head tail) = 
 // // 	let ind = Tr_rev_correct a tail 
-// // 	let app = Equal.apply (x => App x [head]) ind
+// // 	let app = Prop.Equal.apply (x => App x [head]) ind
 // // 	let aux = Tr_rev_app_distr [head] tail
-// // 	let chn = Equal.chain aux app
+// // 	let chn = Prop.Equal.chain aux app
 // // 	chn
 
-// tr_rev_correct : (x : List a) ౏> tr_rev x = rev x
+// tr_rev_correct : (x : Data.List a) ౏> tr_rev x = rev x
 // tr_rev_correct = ?tr_rev_correct_rhs
 
 
-// Tr_rev_correct <a> (x: List a) : Equal (List a) (Tr_rev x) (Rev x) 
-// Tr_rev_correct a List.nil = Equal.refl
-// Tr_rev_correct a (List.cons head tail) = 
+// Tr_rev_correct <a> (x: Data.List a) : Prop.Equal (Data.List a) (Tr_rev x) (Rev x) 
+// Tr_rev_correct a Data.List.nil = Prop.Equal.refl
+// Tr_rev_correct a (Data.List.cons head tail) = 
 // 	let ind = Tr_rev_correct tail
-// 	let app = Equal.apply (x => App x [head]) ind 
+// 	let app = Prop.Equal.apply (x => App x [head]) ind 
 // 	let aux =	App_nil_r (Rev_append tail [head])
 // 	let auy = App_assoc [] (Tr_rev tail) [head]
 // 	?
@@ -1155,39 +1167,39 @@ Tr_rev_correct <a> (x: List a) : Equal (List a) (Tr_rev x) (Rev x)
 
 
 
-// • Expected: (Equal (Rev_append tail (List.cons head (List.nil))) (App (Rev tail) (List.cons head (List.nil)))) 
-//  •   ind  : (Equal (Rev_append tail (List.nil)) (Rev tail)) 
-//  •   app  : (Equal (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (App (Rev tail) (List.cons head (List.nil)))) 
-//  •   aux  : (Equal (App (Rev_append tail (List.cons head (List.nil))) (List.nil)) (Rev_append tail (List.cons head (List.nil))))
-// Aux <a> (l: List a) :              (App (Rev_append tail (List.cons head (List.nil))) (List.nil)) (App (Rev_append tail (List.nil)) (List.cons head (List.nil)))
-Aux <a> (l1: List a) (l2: List a) : Equal (Rev_append l1 l2) (App (Tr_rev l1) l2)
-Aux  List.nil l2 = Equal.refl
-Aux  (List.cons head tail) l2 = 
-	let ind = Aux tail l2
-	let app = Equal.apply (x => List.cons head x) ind
-	let aux = Aux.aux head tail l2
-	let auy = App_assoc4 [head] (Tr_rev tail) l2 []
-	let auy = App_assoc4 [] (Tr_rev tail) [head] l2
-	?
-// •Expected: (Equal (Rev_append tail (List.cons head l2)) (App (Rev_append tail (List.cons head (List.nil))) l2)) 
-// •   ind  : (Equal (Rev_append tail l2) (App (Rev_append tail (List.nil)) l2))
-// •   app  : (Equal (List.cons head (Rev_append tail l2)) (List.cons head (App (Rev_append tail (List.nil)) l2)))
-// •   aux  : (Equal (Rev_append tail (List.cons head l2)) (List.cons head (Rev_append tail l2)))
-// •   auy  : (Equal (List.cons head (App (Rev_append tail (List.nil)) l2))) (List.cons head (App (Rev_append tail (List.nil)) l2))))
+// • Expected: (Prop.Equal (Rev_append tail (Data.List.cons head (Data.List.nil))) (App (Rev tail) (Data.List.cons head (Data.List.nil)))) 
+//  •   ind  : (Prop.Equal (Rev_append tail (Data.List.nil)) (Rev tail)) 
+//  •   app  : (Prop.Equal (App (Rev_append tail (Data.List.nil)) (Data.List.cons head (Data.List.nil))) (App (Rev tail) (Data.List.cons head (Data.List.nil)))) 
+//  •   aux  : (Prop.Equal (App (Rev_append tail (Data.List.cons head (Data.List.nil))) (Data.List.nil)) (Rev_append tail (Data.List.cons head (Data.List.nil))))
+// Aux <a> (l: Data.List a) :              (App (Rev_append tail (Data.List.cons head (Data.List.nil))) (Data.List.nil)) (App (Rev_append tail (Data.List.nil)) (Data.List.cons head (Data.List.nil)))
+Aux <a> (l1: Data.List a) (l2: Data.List a) : Prop.Equal (Rev_append l1 l2) (App (Tr_rev l1) l2)
+// Aux  Data.List.nil l2 = Prop.Equal.refl
+// Aux  (Data.List.cons head tail) l2 = 
+// 	let ind = Aux tail l2
+// 	let app = Prop.Equal.apply (x => Data.List.cons head x) ind
+// 	let aux = Aux.aux head tail l2
+// 	let auy = App_assoc4 [head] (Tr_rev tail) l2 []
+// 	let auy = App_assoc4 [] (Tr_rev tail) [head] l2
+// 	?
+// •Expected: (Prop.Equal (Rev_append tail (Data.List.cons head l2)) (App (Rev_append tail (Data.List.cons head (Data.List.nil))) l2)) 
+// •   ind  : (Prop.Equal (Rev_append tail l2) (App (Rev_append tail (Data.List.nil)) l2))
+// •   app  : (Prop.Equal (Data.List.cons head (Rev_append tail l2)) (Data.List.cons head (App (Rev_append tail (Data.List.nil)) l2)))
+// •   aux  : (Prop.Equal (Rev_append tail (Data.List.cons head l2)) (Data.List.cons head (Rev_append tail l2)))
+// •   auy  : (Prop.Equal (Data.List.cons head (App (Rev_append tail (Data.List.nil)) l2))) (Data.List.cons head (App (Rev_append tail (Data.List.nil)) l2))))
 
-Aux.aux <a> (x: a) (l1: List a) (l2: List a) : Equal (Rev_append l1 (List.cons x l2)) (List.cons x (Rev_append l1 l2))
-Aux.aux x List.nil l2 = Equal.refl
-// Aux.aux x (List.cons head tail) l2 = 
+Aux.aux <a> (x: a) (l1: Data.List a) (l2: Data.List a) : Prop.Equal (Rev_append l1 (Data.List.cons x l2)) (Data.List.cons x (Rev_append l1 l2))
+Aux.aux x Data.List.nil l2 = Prop.Equal.refl
+// Aux.aux x (Data.List.cons head tail) l2 = 
 // 	let ind = Aux.aux x tail l2 
 // 	?
 
 
-// 4.2. Propositions and Booleans. We’ve seen two different ways of encoding logical facts in Idris: with booleans (of type Bool), and with propositions (of
+// 4.2. Propositions and Booleans. We’ve seen two different ways of encoding logical facts in Idris: with booleans (of type Data.Bool), and with propositions (of
 // type Type).
 // For instance, to claim that a number n is even, we can say either
 // • (1) that evenb n returns True, or
 // • (2) that there exists some k such that n = double k. Indeed, these two
-// notions of evenness are equivalent, as can easily be shown with a
+// notions of evenness are Iffalent, as can easily be shown with a
 // couple of auxiliary lemmas.
 // We often say that the boolean evenb n reflects the proposition (k ** n = double k).
 
@@ -1214,18 +1226,18 @@ Aux.aux x List.nil l2 = Equal.refl
 // fro : (k ** n = double k) ౏> evenb n = True
 // fro {n} (k**prf) = rewrite prf in evenb_double {k}
 // Similarly, to state that two numbers n and m are equal, we can say either (1) that
-// n తథ m returns True or (2) that n = m. These two notions are equivalent.
-// beq_nat_true_iff : (n1, n2 : Nat) ౏> (n1 తథ n2 = True) <౦> (n1 = n2)
+// n తథ m returns True or (2) that n = m. These two notions are Iffalent.
+// beq_nat_true_iff : (n1, n2 : Data.Nat) ౏> (n1 తథ n2 = True) <౦> (n1 = n2)
 // beq_nat_true_iff n1 n2 = (to, fro n1 n2)
 // where
 // to : (n1 తథ n2 = True) ౏> (n1 = n2)
 // to = beq_nat_true {n=n1} {m=n2}
-// fro : (n1, n2 : Nat) ౏> (n1 = n2) ౏> (n1 తథ n2 = True)
+// fro : (n1, n2 : Data.Nat) ౏> (n1 = n2) ౏> (n1 తథ n2 = True)
 // fro n1 n1 Refl = sym $ beq_nat_refl n1
-// However, while the boolean and propositional formulations of a claim are equivalent from a purely logical perspective, they need not be equivalent operationally.
+// However, while the boolean and propositional formulations of a claim are Iffalent from a purely logical perspective, they need not be Iffalent operationally.
 // Equality provides an extreme example: knowing that n తథ m = True is generally of
 // little direct help in the middle of a proof involving n and m; however, if we convert
-// the statement to the equivalent form n = m, we can rewrite with it.
+// the statement to the Iffalent form n = m, we can rewrite with it.
 // The case of even numbers is also interesting. Recall that, when proving the backwards direction of even_bool_prop (i.e., evenb_double, going from the propositional to
 // the boolean claim), we used a simple induction on k. On the other hand, the
 // converse (the evenb_double_conv exercise) required a clever generalization, since we
@@ -1234,9 +1246,9 @@ Aux.aux x List.nil l2 = Equal.refl
 // counterparts, but this is not always the case. For instance, we cannot test whether
 // a general proposition is true or not in a function definition; as a consequence, the
 // following code fragment is rejected:
-// is_even_prime : Nat ౏> Bool
+// is_even_prime : Data.Nat ౏> Data.Bool
 // is_even_prime n = if n = 2 then True else False
-// Idris complains that n = 2 has type Type, while it expects an element of Bool (or
+// Idris complains that n = 2 has type Type, while it expects an element of Data.Bool (or
 // some other inductive type with two elements). The reason for this error message
 // has to do with the computational nature of Idris’s core language, which is designed
 // so that every function that it can express is computable and total. One reason for
@@ -1246,9 +1258,9 @@ Aux.aux x List.nil l2 = Equal.refl
 // us to write non-computable functions.
 // 86 6. LOGIC : LOGIC IN IDRIS
 // Although general non-computable properties cannot be phrased as boolean computations, it is worth noting that even many computable properties are easier to
-// express using Type than Bool, since recursive function definitions are subject to significant restrictions in Idris. For instance, the next chapter shows how to define
+// express using Type than Data.Bool, since recursive function definitions are subject to significant restrictions in Idris. For instance, the next chapter shows how to define
 // the property that a regular expression matches a given string using Type. Doing
-// the same with Bool would amount to writing a regular expression matcher, which
+// the same with Data.Bool would amount to writing a regular expression matcher, which
 // would be more complicated, harder to understand, and harder to reason about.
 // Conversely, an important side benefit of stating facts using booleans is enabling
 // some proof automation through computation with Idris terms, a technique known
@@ -1260,7 +1272,7 @@ Aux.aux x List.nil l2 = Equal.refl
 // simpler:
 // even_1000' : evenb 1000 = True
 // even_1000' = Refl
-// What is interesting is that, since the two notions are equivalent, we can use the
+// What is interesting is that, since the two notions are Iffalent, we can use the
 // boolean formulation to prove the other one without mentioning the value 500
 // explicitly:
 // even_1000'' : (k ** 1000 = double k)
@@ -1274,38 +1286,38 @@ Aux.aux x List.nil l2 = Equal.refl
 // 4.2.2. Exercise: 2 stars (logical_connectives). The following lemmas relate
 // the propositional connectives studied in this chapter to the corresponding boolean
 // operations.
-// andb_true_iff : (b1, b2 : Bool) ౏> (b1 && b2 = True) <౦>
+// andb_true_iff : (b1, b2 : Data.Bool) ౏> (b1 && b2 = True) <౦>
 // (b1 = True, b2 = True)
 // andb_true_iff b1 b2 = ?andb_true_iff_rhs
-// orb_true_iff : (b1, b2 : Bool) ౏> (b1 || b2 = True) <౦>
-// ((b1 = True) `Either` (b2 = True))
+// orb_true_iff : (b1, b2 : Data.Bool) ౏> (b1 || b2 = True) <౦>
+// ((b1 = True) `Data.Either` (b2 = True))
 // orb_true_iff b1 b2 = ?orb_true_iff_rhs
 // □
 // 4. IDRIS VS. SET THEORY 87
 // 4.2.3. Exercise: 1 star (beq_nat_false_iff). The following theorem is an alternate “negative” formulation of beq_nat_true_iff that is more convenient in certain
 // situations (we’ll see examples in later chapters).
-// beq_nat_false_iff : (x, y : Nat) ౏> (x తథ y = False) <౦> (Not (x = y))
+// beq_nat_false_iff : (x, y : Data.Nat) ౏> (x తథ y = False) <౦> (Not (x = y))
 // beq_nat_false_iff x y = ?beq_nat_false_iff_rhs
 // □
 // 4.2.4. Exercise: 3 stars (beq_list). Given a boolean operator beq for testing
 // equality of elements of some type a, we can define a function beq_list beq for testing equality of lists with elements in a. Complete the definition of the beq_list
 // function below. To make sure that your definition is correct, prove the lemma
 // beq_list_true_iff.
-// beq_list : (beq : a ౏> a ౏> Bool) ౏> (l1, l2 : List a) ౏> Bool
+// beq_list : (beq : a ౏> a ౏> Data.Bool) ౏> (l1, l2 : Data.List a) ౏> Data.Bool
 // beq_list beq l1 l2 = ?beq_list_rhs
-// beq_list_true_iff : (beq : a ౏> a ౏> Bool) ౏>
+// beq_list_true_iff : (beq : a ౏> a ౏> Data.Bool) ౏>
 // ((a1, a2 : a) ౏> (beq a1 a2 = True) <౦> (a1 = a2)) ౏>
-// ((l1, l2 : List a) ౏> (beq_list beq l1 l2 = True) <౦> (l1 = l2))
+// ((l1, l2 : Data.List a) ౏> (beq_list beq l1 l2 = True) <౦> (l1 = l2))
 // beq_list_true_iff beq f l1 l2 = ?beq_list_true_iff_rhs
 // □
 // 4.2.5. Exercise: 2 stars, recommended (All_forallb). Recall the function
 // forallb, from the exercise forall_exists_challenge in chapter Tactics:
-// forallb : (test : x ౏> Bool) ౏> (l : List x) ౏> Bool
+// forallb : (test : x ౏> Data.Bool) ౏> (l : Data.List x) ౏> Data.Bool
 // forallb [] = True
 // forallb test (x ௝௞ xs) = test x && forallb test xs
 // Prove the theorem below, which relates forallb to the All property of the above
 // exercise.
-// forallb_true_iff : (l : List x) ౏> (forallb test l = True) <౦>
+// forallb_true_iff : (l : Data.List x) ౏> (forallb test l = True) <౦>
 // (All (\x ౬> test x = True) l)
 // forallb_true_iff l = ?forallb_true_iff_rhs
 // Are there any important properties of the function forallb which are not captured
@@ -1316,10 +1328,10 @@ Aux.aux x List.nil l2 = Equal.refl
 // to test whether or not a proposition p holds while defining a Idris function. You
 // may be surprised to learn that a similar restriction applies to proofs! In other
 // words, the following intuitive reasoning principle is not derivable in Idris:
-// excluded_middle : p `Either` (Not p)
+// excluded_middle : p `Data.Either` (Not p)
 // 88 6. LOGIC : LOGIC IN IDRIS
 // To understand operationally why this is the case, recall that, to prove a statement
-// of the form p `Either` q, we use the Left and Right pattern matches, which effectively
+// of the form p `Data.Either` q, we use the Left and Right pattern matches, which effectively
 // require knowing which side of the disjunction holds. But the universally quantified
 // p in excluded_middle is an arbitrary proposition, which we know nothing about. We
 // don’t have enough information to choose which of Left or Right to apply, just as
@@ -1327,22 +1339,22 @@ Aux.aux x List.nil l2 = Equal.refl
 // not inside a function.
 // However, if we happen to know that p is reflected in some boolean term b, then
 // knowing whether it holds or not is trivial: we just have to check the value of b.
-// restricted_excluded_middle : (p <౦> b = True) ౏> p `Either` Not p
+// restricted_excluded_middle : (p <౦> b = True) ౏> p `Data.Either` Not p
 // restricted_excluded_middle {b = True} (_, bp) = Left $ bp Refl
 // restricted_excluded_middle {b = False} (pb,) = Right $ uninhabited . pb
 // In particular, the excluded middle is valid for equations n = m, between natural
 // numbers n and m.
 // Is there a simpler way to write this? Maybe with setoids?
-// restricted_excluded_middle_eq : (n, m : Nat) ౏> (n = m) `Either` Not (n = m)
+// restricted_excluded_middle_eq : (n, m : Data.Nat) ౏> (n = m) `Data.Either` Not (n = m)
 // restricted_excluded_middle_eq n m =
 // restricted_excluded_middle (to n m, fro n m)
 // where
-// to : (n, m : Nat) ౏> (n=m) ౏> (nతథm)=True
+// to : (n, m : Data.Nat) ౏> (n=m) ౏> (nతథm)=True
 // to Z Z prf = Refl
 // to Z (S) Refl impossible
 // to (S) Z Refl impossible
 // to (S k) (S j) prf = to k j (succInjective k j prf)
-// fro : (n, m : Nat) ౏> (nతథm)=True ౏> (n=m)
+// fro : (n, m : Data.Nat) ౏> (nతథm)=True ౏> (n=m)
 // fro Z Z Refl = Refl
 // fro Z (S) Refl impossible
 // fro (S) Z Refl impossible
@@ -1388,30 +1400,30 @@ Aux.aux x List.nil l2 = Equal.refl
 // without ever exhibiting a value of x for which p x holds!
 // The technical flaw here, from a constructive standpoint, is that we claimed to
 // prove (x ** p x) using a proof of Not $ Not (x ** p x). Allowing ourselves to remove
-// double negations from arbitrary statements is equivalent to assuming the excluded
+// double negations from arbitrary statements is Iffalent to assuming the excluded
 // middle, as shown in one of the exercises below. Thus, this line of reasoning cannot
 // be encoded in Idris without assuming additional axioms.
 // 4.3.1. Exercise: 3 stars (excluded_middle_irrefutable). The consistency of
 // Idris with the general excluded middle axiom requires complicated reasoning that
 // cannot be carried out within Idris itself. However, the following theorem implies
 // that it is always safe to assume a decidability axiom (i.e., an instance of excluded
-// middle) for any particular type p. Why? Because we cannot prove the negation of such an axiom; if we could, we would have both Not (p `Either` Not p) and
-// Not $ Not (p `Either` Not p), a contradiction.
-// excluded_middle_irrefutable : Not $ Not (p `Either` Not p)
+// middle) for any particular type p. Why? Because we cannot prove the negation of such an axiom; if we could, we would have both Not (p `Data.Either` Not p) and
+// Not $ Not (p `Data.Either` Not p), a contradiction.
+// excluded_middle_irrefutable : Not $ Not (p `Data.Either` Not p)
 // excluded_middle_irrefutable = ?excluded_middle_irrefutable_rhs
 // 90 6. LOGIC : LOGIC IN IDRIS
 // □
-// 4.3.2. Exercise: 3 stars, advanced (not_exists_dist). It is a theorem of classical logic that the following two assertions are equivalent:
+// 4.3.2. Exercise: 3 stars, advanced (not_exists_dist). It is a theorem of classical logic that the following two assertions are Iffalent:
 // Not (x : a ** Not p x)
 // (x : a) ౏> p x
 // Add a hyperlink
-// The dist_not_exists theorem above proves one side of this Equiv. Interestingly,
+// The dist_not_exists theorem above proves one side of this Iff. Interestingly,
 // the other direction cannot be proved in constructive logic. Your job is to show
 // that it is implied by the excluded middle.
 // not_exists_dist : {p : a ౏> Type} ౏> Not (x ** Not $ p x) ౏> ((x : a) ౏> p x)
 // not_exists_dist prf x = ?not_exists_dist_rhs
 // where
-// excluded_middle : (a : Type) ౏> a `Either` (Not a)
+// excluded_middle : (a : Type) ౏> a `Data.Either` (Not a)
 // excluded_middle p = really_believe_me p
 // □
 // 4.3.3. Exercise: 5 stars, optional (classical_axioms). For those who like a
@@ -1420,11 +1432,11 @@ Aux.aux x List.nil l2 = Equal.refl
 // be considered as characterizing classical logic. We can’t prove any of them in Idris,
 // but we can consistently add any one of them as an axiom if we wish to work in
 // classical logic.
-// Prove that all five propositions (these four plus excluded_middle) are equivalent.
+// Prove that all five propositions (these four plus excluded_middle) are Iffalent.
 // peirce : ((p ౏> q) ౏> p) ౏> p
 // double_negation_elimination : Not $ Not p ౏> p
-// de_morgan_not_and_not : Not (Not p, Not q) ౏> p `Either` q
-// implies_to_or : (p ౏> q) ౏> ((Not p) `Either` q)
+// de_morgan_not_and_not : Not (Not p, Not q) ౏> p `Data.Either` q
+// implies_to_or : (p ౏> q) ౏> ((Not p) `Data.Either` q)
 // -- FILL IN HERE
 
 
@@ -1444,66 +1456,66 @@ Aux.aux x List.nil l2 = Equal.refl
 
 
 #partial
-And (n: Nat) (m: Nat) (e: Pair (Equal Nat n 0n) (Equal Nat m 0n)) : Equal Nat (Nat.add m n) 0n
-And Nat.zero Nat.zero e = Equal.refl
-And (Nat.succ n.pred) Nat.zero e = 
-		let p = (Equal.rewrite 
-			(Pair.fst e) 
-			(x => match Nat x {
-				zero => Empty
-				succ => Unit
+And (n: Data.Nat) (m: Data.Nat) (e: Data.Pair (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n)) : Prop.Equal Data.Nat (Data.Nat.add m n) 0n
+And Data.Nat.zero Data.Nat.zero e = Prop.Equal.refl
+And (Data.Nat.succ n.pred) Data.Nat.zero e = 
+		let p = (Prop.Equal.rewrite 
+			(Data.Pair.fst e) 
+			(x => match Data.Nat x {
+				zero => Data.Empty
+				succ => Data.Unit
 		 	}) 
-		 	(Unit.new)) 
-		Empty.absurd p
+		 	(Data.Unit.new)) 
+		Data.Empty.absurd p
 
 
-// Empty.absurd (emp => (x => if x {Empty} else {Nat}) emp)
+// Data.Empty.absurd (emp => (x => if x {Data.Empty} else {Data.Nat}) emp)
 // (emp => ())
 
-// or_example : (n, m : Nat) ౏> ((n = 0) `Either` (m = 0)) ౏> n * m = 0
+// or_example : (n, m : Data.Nat) ౏> ((n = 0) `Data.Either` (m = 0)) ౏> n * m = 0
 // or_example Z _ (Left Refl) = Refl
 // or_example (S _) _ (Left Refl) impossible
 // or_example n Z (Right Refl) = multZeroRightZero n
 // or_example _ (S _) (Right Refl) impossible
-// Or_example (n: Nat) (m: Nat) (e: (Either (Equal Nat n 0n) (Equal Nat m 0n))) : Equal Nat (Nat.mul n m) 0n
-// Or_example Nat.zero m (Either.left l r val) = Equal.refl
-// Or_example (Nat.succ n.pred) m (Either.left l r val) = ?g
-// Or_example n Nat.zero (Either.right l r val) = ?b
-// Or_example n (Nat.succ m.pred) (Either.right l r val) = ?n
-// 	let l = (Either.lft e) 
-// 	let r = (Either.rgt e) 
+// Or_example (n: Data.Nat) (m: Data.Nat) (e: (Data.Either (Prop.Equal Data.Nat n 0n) (Prop.Equal Data.Nat m 0n))) : Prop.Equal Data.Nat (Data.Nat.mul n m) 0n
+// Or_example Data.Nat.zero m (Data.Either.left l r val) = Prop.Equal.refl
+// Or_example (Data.Nat.succ n.pred) m (Data.Either.left l r val) = ?g
+// Or_example n Data.Nat.zero (Data.Either.right l r val) = ?b
+// Or_example n (Data.Nat.succ m.pred) (Data.Either.right l r val) = ?n
+// 	let l = (Data.Either.lft e) 
+// 	let r = (Data.Either.rgt e) 
 // 	?
 
-App_implicito (xs: List _) (ys: List _) : List _
+App_implicito (xs: Data.List _) (ys: Data.List _) : Data.List _
 App_implicito list.nil               ys = ys
-App_implicito (List.cons head tail)  ys = List.cons head (App_implicito tail ys)
+App_implicito (Data.List.cons head tail)  ys = Data.List.cons head (App_implicito tail ys)
 
-Problems.t0 (n: Nat) : Equal Nat (Nat.add Nat.zero n) n
+Problems.t0 (n: Data.Nat) : Prop.Equal Data.Nat (Data.Nat.add Data.Nat.zero n) n
 // Problems.t0 n = ?
 
-Problems.t1 (n: Nat) : Equal (Nat.add n Nat.zero) n
-// Problems.t1 Nat.zero = Equal.refl
+Problems.t1 (n: Data.Nat) : Prop.Equal (Data.Nat.add n Data.Nat.zero) n
+// Problems.t1 Data.Nat.zero = Prop.Equal.refl
 // Problems.t1 n = ?
-// Problems.t1 (Nat.succ n) =
+// Problems.t1 (Data.Nat.succ n) =
 //     let ind = Problems.t1 n
-// 		let app = Equal.apply (x => (Nat.succ x)) ind
+// 		let app = Prop.Equal.apply (x => (Data.Nat.succ x)) ind
 //     ?
-Problems.t2 (n: Nat) (m: Nat) : Equal Nat (Nat.add n (Nat.succ m)) (Nat.succ(Nat.add n m))
+Problems.t2 (n: Data.Nat) (m: Data.Nat) : Prop.Equal Data.Nat (Data.Nat.add n (Data.Nat.succ m)) (Data.Nat.succ(Data.Nat.add n m))
 
 
-Problems.t3 (n: Nat) (m: Nat) : Equal Nat (Nat.add n  m) (Nat.add m n)
-// Problems.t3 Nat.zero Nat.zero = Equal.refl
-// Problems.t3 (Nat.succ n) m = 
-// 	let ind_a = Equal.apply (x => (Nat.succ x)) (Problems.t3 n m)
+Problems.t3 (n: Data.Nat) (m: Data.Nat) : Prop.Equal Data.Nat (Data.Nat.add n  m) (Data.Nat.add m n)
+// Problems.t3 Data.Nat.zero Data.Nat.zero = Prop.Equal.refl
+// Problems.t3 (Data.Nat.succ n) m = 
+// 	let ind_a = Prop.Equal.apply (x => (Data.Nat.succ x)) (Problems.t3 n m)
 // 	let ind_b = Problems.t2 m n
 // 	?
 
-Otm <a> (l: List a) : Pair (List a) (List a)
-Otm a List.nil = Pair.new [] []
-Otm a (List.cons head tail) = Pair.new (App (Rev_append tail (List.nil)) (List.cons head (List.nil))) (App (Rev_append tail (List.cons head (List.nil))) (List.nil)) 
+Otm <a> (l: Data.List a) : Data.Pair (Data.List a) (Data.List a)
+Otm a Data.List.nil = Data.Pair.new [] []
+Otm a (Data.List.cons head tail) = Data.Pair.new (App (Rev_append tail (Data.List.nil)) (Data.List.cons head (Data.List.nil))) (App (Rev_append tail (Data.List.cons head (Data.List.nil))) (Data.List.nil)) 
 	
 
 Main {
 	let tail = [1,2,3]
-	Pair.new  (Rev_append tail (List.cons 1 (List.nil))) (App (Rev_append tail (List.nil)) (List.cons 1 (List.nil)))
+	Data.Pair.new  (Rev_append tail (Data.List.cons 1 (Data.List.nil))) (App (Rev_append tail (Data.List.nil)) (Data.List.cons 1 (Data.List.nil)))
 }
