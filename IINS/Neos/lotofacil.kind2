@@ -91,6 +91,8 @@ U60.interval (start: U60) (stop: U60) (step: U60) : List U60{
 		List.cons (+ start step) (U60.interval (+ start step) stop step)
 	)
 }
+
+
 U60.fac (n: U60) : U60
 U60.fac 0 = 1
 U60.fac n = (* n (U60.fac (- n 1)))

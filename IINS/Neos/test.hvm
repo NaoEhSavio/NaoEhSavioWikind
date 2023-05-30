@@ -20,23 +20,23 @@
 (List.length (List.cons head tail)) = (+ (List.length tail) 1)
 
 
-data BTree a = Leaf
-             | Node (BTree a) a (BTree a)
+// data BTree a = Leaf
+//              | Node (BTree a) a (BTree a)
 
 
-insert x Leaf = Node Leaf x Leaf
-insert x (Node l v r) = if (x < v) then (Node (insert x l) v r)
-                                   else (Node l v (insert x r))
+// insert x Leaf = Node Leaf x Leaf
+// insert x (Node l v r) = if (x < v) then (Node (insert x l) v r)
+//                                    else (Node l v (insert x r))
 
 
-toList Leaf = []
-toList (Node l v r) = Btree.toList l ++ (v :: Btree.toList r)
+// toList Leaf = []
+// toList (Node l v r) = Btree.toList l ++ (v :: Btree.toList r)
 
 
-toTree [] = Leaf
-toTree (x :: xs) = insert x (toTree xs)
+// toTree [] = Leaf
+// toTree (x :: xs) = insert x (toTree xs)
 
 (Main) = 
-	let f = (List.length (Loto.list_result)); 
+	let f = (String.cons 40 (String.cons 79 (String.cons 32 (String.cons 41 (String.cons 40 (String.cons 73 (String.cons 32 (String.cons 41 (String.cons 40 (String.cons 79 (String.cons 32 (String.cons 41 (String.concat (String.concat (String.concat λx0 x0 ")") ")") ")")))))))))))))
 	f
 	// Loto.list_result

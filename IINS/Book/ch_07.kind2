@@ -1162,8 +1162,8 @@ In_re_match a x (Regexp.chr u s)  (Data.List.cons t re (Data.List.nil _)) (Expma
 //   let e2 = Prop.Equal.refl :: Prop.Equal l2 l4
 //   let e3 = Prop.Equal.refl :: Prop.Equal  (Data.List.concat u l1 l2) (Data.List.concat a l3 l4) 
 //   let i = i :: (In a x (Data.List.concat u l1 l2))
-//   let rrt = Prop.Equal.rewrite e3 ((k: (Data.List a))=> (In a x k)) i 
-//   let des = Destruct x l3 l4 ?
+//   let rrt = Prop.Equal.rewrite e3 ((k: (Data.List a)) => (In a x k)) i 
+//   let des = Destruct x l3 l4 rrt
 //   ?
 // In_re_match a x (Regexp.union _ r1 r2) s (Expmatch.munionl  c b r3 r4 ml ) i = 
 //   let ind = In_re_match a x r1 s ml i
