@@ -1,0 +1,89 @@
+// S_Lte_Lte (n: Data.Nat) (m: Data.Nat) (l:Le (Data.Nat.succ n) (Data.Nat.succ m)) : (Le n m) 
+// S_Lte_Lte Data.Nat.zero Data.Nat.zero (Le.S x) = Le.n
+// S_Lte_Lte Data.Nat.zero Data.Nat.zero Le.n = Le.n
+// S_Lte_Lte (Data.Nat.succ n.pred) Data.Nat.zero (Le.n) = Data.Empty.absurd _
+// S_Lte_Lte Data.Nat.zero (Data.Nat.succ m.pred) e = O_le_n (Data.Nat.succ m.pred)
+// S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e = S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e
+
+type Data.Nat.Le ~ (n: Data.Nat) (m: Data.Nat) {
+  zero <n: Data.Nat>
+    : Data.Nat.Le 0n n
+  succ <n: Data.Nat> <m: Data.Nat> (pred: Data.Nat.Le n m)
+    : Data.Nat.Le (Data.Nat.succ n) (Data.Nat.succ m)
+}
+
+Data.Nat.Le.succ_nle_zero <n: Data.Nat> (le: Data.Nat.Le (Data.Nat.succ n) 0n) : Data.Empty
+Data.Nat.Le.succ_nle_zero n le = 
+	let bool = Le_Bool (Data.Nat.succ n) 0n le
+	Data.Empty.absurd (Data.Bool.true_not_false bool)
+
+Le_Bool <n: Data.Nat> <m: Data.Nat> (le: Data.Nat.Le n m) : Prop.Equal (Data.Nat.to_bool n) (Data.Nat.to_bool m)
+Le_Bool Data.Nat.zero Data.Nat.zero le = Prop.Equal.refl
+Le_Bool Data.Nat.zero (Data.Nat.succ m) le = 	
+	let ind = Le_Bool Data.Nat.zero (Data.Nat.succ m) le
+	Data.Empty.absurd (Data.Bool.false_not_true ind)
+Le_Bool (Data.Nat.succ n) Data.Nat.zero le = 
+	let aux = Le_Bool (Data.Nat.succ n) Data.Nat.zero  le
+	Data.Empty.absurd (Data.Bool.true_not_false aux)
+Le_Bool (Data.Nat.succ n) (Data.Nat.succ m) le = Prop.Equal.refl
+
+Lte_correct (n: Data.Nat) (m: Data.Nat) (le: Data.Nat.Le n m) : Prop.Equal Data.Bool (Data.Nat.lte n m) Data.Bool.true
+Lte_correct Data.Nat.zero Data.Nat.zero le = Prop.Equal.refl
+Lte_correct (Data.Nat.succ n.pred) Data.Nat.zero e = 	
+	let ind = Lte_correct (Data.Nat.succ n.pred) Data.Nat.zero e
+	Data.Empty.absurd (Data.Bool.false_not_true ind)
+Lte_correct Data.Nat.zero (Data.Nat.succ m.pred) le = Prop.Equal.refl
+Lte_correct (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e = Lte_correct n.pred m.pred (S_Lte_Lte n.pred m.pred e)
+
+S_Lte_Lte (n: Data.Nat) (m: Data.Nat) (l: Data.Nat.Le (Data.Nat.succ n) (Data.Nat.succ m)) : (Data.Nat.Le n m) 
+S_Lte_Lte Data.Nat.zero Data.Nat.zero (Data.Nat.Le.succ n m k) = Data.Nat.Le.zero
+S_Lte_Lte Data.Nat.zero Data.Nat.zero le = 	
+	let ind = S_Lte_Lte Data.Nat.zero Data.Nat.zero le
+	ind
+S_Lte_Lte (Data.Nat.succ n.pred) Data.Nat.zero le = 
+	let aux = O_le_n (Data.Nat.succ n.pred)
+	let auy = Le_Bool  0n (Data.Nat.succ n.pred) aux 
+	Data.Empty.absurd (Data.Bool.false_not_true auy)
+S_Lte_Lte Data.Nat.zero (Data.Nat.succ m.pred) le = O_le_n (Data.Nat.succ m.pred)
+S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) le = 
+  let ind = S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) le
+  ind
+
+O_le_n (n: Data.Nat) : Data.Nat.Le Data.Nat.zero n
+O_le_n Data.Nat.zero = Data.Nat.Le.zero 
+O_le_n (Data.Nat.succ n) = 
+	let ind = O_le_n n
+	Lte_S Data.Nat.zero n ind
+
+Lte_S (n: Data.Nat) (m: Data.Nat) (l: Data.Nat.Le n m) : (Data.Nat.Le n (Data.Nat.succ m))
+Lte_S Data.Nat.zero m l = Data.Nat.Le.zero
+Lte_S (Data.Nat.succ n) m (Data.Nat.Le.succ d c k) = 
+	let ind = Lte_S d c k
+	Data.Nat.Le.succ ind
+// 	let ind = Lte_S n m ?
+// 	Data.Nat.Le.succ ?
+
+Data.Bool.true_not_false (e: (Prop.Equal Data.Bool Data.Bool.true Data.Bool.false)) : Data.Empty
+Data.Bool.true_not_false e = 
+  // How this works: Prop.Equal.rewrite takes a predicate that changes a value into a
+  // type. It returns the result of applying the predicate on the RHS but takes
+  // in a value of the type of applying the predicate on the LHS This works on
+  // the type-level because both types are meant to be equal, but when the
+  // values are different (such as Data.Bool.true and Data.Bool.false) Prop.Equal.rewrite
+  // returns inconstructible types at the type level, which we chose to be Data.Empty
+  // in this case.
+	Prop.Equal.rewrite e (x => Data.Bool.if Type x Data.Unit Data.Empty) Data.Unit.new
+
+Data.Nat.to_bool (m: Data.Nat) : Data.Bool
+Data.Nat.to_bool Data.Nat.zero = Data.Bool.false
+Data.Nat.to_bool _ = Data.Bool.true
+
+
+// let p = (Data.Nat.Le.rewrite 
+// 	x
+// 	(x => match Data.Nat x {
+// 		zero => Data.Empty
+// 		succ => Data.Unit
+// 	 }) 
+// 	 (Data.Unit.new)) 
+// Data.Empty.absurd p

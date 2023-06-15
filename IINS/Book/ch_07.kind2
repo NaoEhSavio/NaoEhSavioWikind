@@ -447,9 +447,10 @@ S_Lte_Lte Data.Nat.zero Data.Nat.zero (Le.S x) = Le.n
 S_Lte_Lte Data.Nat.zero Data.Nat.zero Le.n = Le.n
 S_Lte_Lte (Data.Nat.succ n.pred) Data.Nat.zero (Le.n) = Data.Empty.absurd _
 S_Lte_Lte Data.Nat.zero (Data.Nat.succ m.pred) e = O_le_n (Data.Nat.succ m.pred)
-S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e = S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e
-
-// Lte_correct  Data.Nat.zero m Le.n = ?//////////////Nao reduz
+S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e = 
+  let ind = S_Lte_Lte (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) e
+  ind
+  // Lte_correct  Data.Nat.zero m Le.n = ?//////////////Nao reduz
 // Lte_correct (Data.Nat.succ n.pred) m (Le.S z) = ?
 	// let ind = Lte_correct n.pred m z
 	// ? 

@@ -10547,3 +10547,67 @@
      [1;42m STATS [0m Rewrites: 18674
    [1;42m CHECKED [0m All terms checked. took 0.14s
 
+Executando arquivo: ./Prop/Isomorphic/_.kind2
+Executando arquivo: ./Prop/Decidable/_.kind2
+Executando arquivo: ./Prop/Equal/_.kind2
+Executando arquivo: ./Prop/Equal/and.kind2
+Executando arquivo: ./Prop/Equal/chain.kind2
+Executando arquivo: ./Prop/Equal/rewrite.kind2
+Executando arquivo: ./Prop/Equal/apply.kind2
+Executando arquivo: ./Prop/Equal/right.kind2
+Executando arquivo: ./Prop/Equal/mirror.kind2
+
+  [1;42m CHECKING [0m The file './Prop/Isomorphic/_.kind2'
+     [1;42m STATS [0m Rewrites: 40655
+   [1;42m CHECKED [0m All terms checked. took 0.21s
+
+
+  [1;42m CHECKING [0m The file './Prop/Decidable/_.kind2'
+     [1;42m STATS [0m Rewrites: 15168
+   [1;42m CHECKED [0m All terms checked. took 0.14s
+
+
+  [1;42m CHECKING [0m The file './Prop/Equal/_.kind2'
+     [1;42m STATS [0m Rewrites: 13360
+   [1;42m CHECKED [0m All terms checked. took 0.14s
+
+
+  [1;42m CHECKING [0m The file './Prop/Equal/and.kind2'
+     [1;42m STATS [0m Rewrites: 52861
+   [1;42m CHECKED [0m All terms checked. took 0.14s
+
+
+  [1;42m CHECKING [0m The file './Prop/Equal/chain.kind2'
+     [1;42m STATS [0m Rewrites: 20545
+   [1;42m CHECKED [0m All terms checked. took 0.14s
+
+
+  [1;42m CHECKING [0m The file './Prop/Equal/rewrite.kind2'
+     [1;42m STATS [0m Rewrites: 19771
+   [1;42m CHECKED [0m All terms checked. took 0.14s
+
+
+  [1;42m CHECKING [0m The file './Prop/Equal/apply.kind2'
+     [1;42m STATS [0m Rewrites: 21653
+   [1;42m CHECKED [0m All terms checked. took 0.14s
+
+
+  [1;42m CHECKING [0m The file './Prop/Equal/right.kind2'
+     [1;42m STATS [0m Rewrites: 34401
+   [1;42m CHECKED [0m All terms checked. took 0.14s
+
+
+  [1;42m CHECKING [0m The file './Prop/Equal/mirror.kind2'
+     [1;42m STATS [0m Rewrites: 18970
+   [1;42m CHECKED [0m All terms checked. took 0.14s
+
+
+  [1;42m CHECKING [0m The file './Prop/Not/_.kind2'
+     [1;42m STATS [0m Rewrites: 1386
+   [1;42m CHECKED [0m All terms checked. took 0.13s
+
+
+  [1;42m CHECKING [0m The file './Prop/Not/contradict.kind2'
+     [1;42m STATS [0m Rewrites: 3617
+   [1;42m CHECKED [0m All terms checked. took 0.14s
+

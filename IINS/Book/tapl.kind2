@@ -1,0 +1,887 @@
+// t ::= terms:
+// true constant true
+// false constant false
+// if t then t else t conditional
+// 0 constant zero
+// succ t successor
+// pred t predecessor
+// iszero t zero test
+// type Term { // metavariable
+// 	true // constant true
+// 	false // constant false
+// 	if (cond: Term) (then: Term) (else: Term) // conditional
+// 	z // constant zero
+// 	s (pred: Term) // successor
+// 	p (succ: Term) // predecessor
+// 	isz (zt: Term) // zero test
+// }
+
+// Definition: The set of constants appearing in a term t, written Consts(t), is
+// defined as follows:
+// Consts(true) = {true}
+// Consts(false) = {false}
+// Consts(0) = {0}
+// Consts(succ t1) = Consts(t1)
+// Consts(pred t1) = Consts(t1)
+// Consts(iszero t1) = Consts(t1)
+// Consts(if t1 then t2 else t3) = Consts(t1) ∪ Consts(t2) ∪ Consts(t3) 
+
+type List (t) {
+  nil  
+  cons (head: t) (tail: List t) 
+}
+// Data.List.length.U60 <a> (xs: Data.List a) : Data.Nat
+// Data.List.length.U60 a (Data.List.nil t)            = 0
+// Data.List.length.U60 a (Data.List.cons t head tail) = (+ 1 (Data.List.length.U60 a tail))
+
+Const (t: Term) : Data.List Term
+Const (Term.z) = [Term.z]
+Const (Term.s pred) = Const pred
+Const (Term.p succ) = Const succ
+Const (Term.isz zt) = Const zt
+Const (Term.true) = [Term.true]
+Const (Term.false) = [Term.false]
+Const (Term.ifs cond then else) = (Data.List.concat (Const cond) (Data.List.concat (Const then) (Const else)))
+
+Const_num (t: Term) : Data.Nat
+Const_num (Term.z) = 1n
+Const_num (Term.s pred) = Const_num pred
+Const_num (Term.p succ) = Const_num succ
+Const_num (Term.isz zt) = Const_num zt
+Const_num (Term.true) = 1n
+Const_num (Term.false) = 1n
+Const_num (Term.ifs cond then else) = (Data.Nat.add (Const_num cond) (Data.Nat.add (Const_num then) (Const_num else)))
+
+App_length <x> (l1: Data.List x) (l2: Data.List x) : (Prop.Equal Data.Nat (Data.List.length (Data.List.concat l1 l2)) (Data.Nat.add (Data.List.length l1) (Data.List.length l2)))
+
+// Length_const
+Length_const (t: Term) : Prop.Equal (Data.List.length (Const t)) (Const_num t)
+Length_const (Term.z) = Prop.Equal.refl
+Length_const (Term.true) = Prop.Equal.refl
+Length_const (Term.false) = Prop.Equal.refl
+Length_const (Term.s pred) = Length_const pred 
+Length_const (Term.p succ) = Length_const succ 
+Length_const (Term.isz zt) = Length_const zt
+Length_const (Term.ifs cond then else) = 	
+	let ind1 = Length_const cond 
+	let ind2 = Length_const then 
+	let ind3 = Length_const else
+	let aux = App_length (Const cond) (Data.List.concat (Const then) (Const else))
+	let auy = App_length (Const then) (Const else)
+	let rrt = Prop.Equal.rewrite auy (x => (Prop.Equal Data.Nat (Data.List.length  (Data.List.concat (Const cond) (Data.List.concat Term (Const then) (Const else)))) (Data.Nat.add (Data.List.length (Const cond)) (x)))) aux
+	let rru = Prop.Equal.rewrite ind1 (x => (Prop.Equal Data.Nat (Data.List.length  (Data.List.concat (Const cond) (Data.List.concat Term (Const then) (Const else)))) ((Data.Nat.add (x) (Data.Nat.add (Data.List.length Term (Const then)) (Data.List.length Term (Const else))))))) rrt
+	let rrv = Prop.Equal.rewrite ind2 (x => (Prop.Equal Data.Nat (Data.List.length  (Data.List.concat (Const cond) (Data.List.concat Term (Const then) (Const else)))) (Data.Nat.add (Const_num cond) (Data.Nat.add (x) (Data.List.length Term (Const else)))))) rru
+	let rrw = Prop.Equal.rewrite ind3 (x => (Prop.Equal Data.Nat (Data.List.length  (Data.List.concat (Const cond) (Data.List.concat Term (Const then) (Const else)))) (Data.Nat.add (Const_num cond) (Data.Nat.add (Const_num then) (x))))) rrv
+	rrw
+
+
+// Definition: The size of a term t, written size(t), is defined as follows:
+// size(true) = 1
+// size(false) = 1
+// size(0) = 1
+// size(succ t1) = size(t1) + 1
+// size(pred t1) = size(t1) + 1
+// size(iszero t1) = size(t1) + 1
+// size(if t1 then t2 else t3) = size(t1) + size(t2) + size(t3) + 1
+
+Size (t: Term) : Data.Nat
+Size (Term.z) = 1n
+Size (Term.s pred) = (Data.Nat.succ (Size pred))
+Size (Term.p succ) = (Data.Nat.succ (Size succ))
+Size (Term.isz zt) = (Data.Nat.succ (Size zt))
+Size (Term.true) = 1n
+Size (Term.false) = 1n
+Size (Term.ifs cond then else) = (Data.Nat.succ (Data.Nat.add (Size cond) (Data.Nat.add (Size then) (Size else)))) 
+
+// (+ (+ (Size cond) (+ (Size then) (Size else))) 1)
+
+// 3.3.3 Lemma: The number of distinct constants in a term t is no greater than the
+// size of t (i.e., |Consts(t)| ≤ size(t)). 
+
+type Le (n: Data.Nat) ~ (m: Data.Nat) {
+	n : Le n n
+	s <m: Data.Nat> (pred: (Le n m)) : (Le n (Data.Nat.succ m)) 
+}
+
+Lemma (t: Term) : Type
+Lemma t =  (Le (Const_num t) (Size t))
+
+Lemma333 (t: Term) : Lemma t
+Lemma333 (Term.z) = Le.n
+Lemma333 (Term.true) = Le.n
+Lemma333 (Term.false) = Le.n
+Lemma333 (Term.s pred) = 
+	let ind = Lemma333 pred 
+  let aux = Le.s ind 
+	aux
+Lemma333 (Term.p succ) = 
+	let ind = Lemma333 succ 
+  let aux = Le.s ind 
+	aux
+Lemma333 (Term.isz zt) = 
+	let ind = Lemma333 zt
+  let aux = Le.s ind 
+	aux
+Lemma333 (Term.ifs cond then else) = 
+	let ind1 = Lemma333 cond
+	let ind2 = Lemma333 then
+	let ind3 = Lemma333 else
+	let auxa = Lte_ben (Data.Nat.add (Const_num cond) (Data.Nat.add (Const_num then) (Const_num else)))
+	let rrt = Le.rewrite ind1 (x => (Le _ (Data.Nat.add x _))) auxa
+	let rru = Le.rewrite ind2 (x => (Le _ (Data.Nat.add _ (Data.Nat.add x _)))) rrt
+	let rrv = Le.rewrite ind3 (x => (Le _ (Data.Nat.add _ (Data.Nat.add _ x)))) rru
+	Le.s rrv
+
+
+Prop.Equal.rewrite <t> <a: t> <b: t> (e: Prop.Equal t a b) -(p: t -> Type) (x: p a) : p b
+Prop.Equal.rewrite _ _ _ (Prop.Equal.refl _ k) p x = x :: p k
+
+Le.rewrite <a: Data.Nat> <b: Data.Nat> (e: Le a b) -(p: Data.Nat -> Type) (x: p a) : p b
+Le.rewrite a b (Le.n k) p x = x :: p k
+Le.rewrite n b (Le.s c d k) p x = 
+	let e0 = Prop.Equal.refl :: Prop.Equal b (Data.Nat.succ d)
+	let s = Le.s k
+	let ind = Le.rewrite c b s p x 
+	ind
+	
+Le.chain <n: Data.Nat> <m: Data.Nat> <o: Data.Nat> (l: Le m n) (r: Le n o) : Le m o 
+Le.chain n m o l (Le.n x) = l :: Le m x
+Le.chain n m (Data.Nat.succ o) l (Le.s x) = Le.s (Le.chain n m o l x)
+
+O_le_n (n: Data.Nat) : Le Data.Nat.zero n
+O_le_n Data.Nat.zero = Le.n 
+O_le_n (Data.Nat.succ n) = (Le.s (O_le_n n))
+
+Le_one_succ_n (n: Data.Nat) : Le 1n (Data.Nat.succ n)
+Le_one_succ_n Data.Nat.zero = Le.n
+Le_one_succ_n (Data.Nat.succ n) = Le.s (Le_one_succ_n n)
+
+N_le_m_sn_le_sm (n: Data.Nat) (m: Data.Nat) (l: Le n m) : Le (Data.Nat.succ n) (Data.Nat.succ m)
+N_le_m_sn_le_sm Data.Nat.zero Data.Nat.zero (Le.n) = Le.n
+N_le_m_sn_le_sm (Data.Nat.succ n.pred) Data.Nat.zero (Le.n) = Data.Empty.absurd _
+N_le_m_sn_le_sm Data.Nat.zero (Data.Nat.succ m.pred) l = Le.s (Le_one_succ_n m.pred)
+N_le_m_sn_le_sm (Data.Nat.succ n.pred) (Data.Nat.succ m.pred) (Le.s p) = Le.s (N_le_m_sn_le_sm (Data.Nat.succ n.pred) m.pred p)
+
+Lte_ben (n: Data.Nat) : (Le n n)
+Lte_ben n = Le.n
+
+Lte_size (n: Data.Nat) (m: Data.Nat) (e: Prop.Equal n m) : (Le n m)
+Lte_size Data.Nat.zero Data.Nat.zero e = Le.n
+Lte_size (Data.Nat.succ n) Data.Nat.zero e = Data.Empty.absurd _
+Lte_size Data.Nat.zero (Data.Nat.succ m) e = Le.s (O_le_n m)
+Lte_size (Data.Nat.succ n) (Data.Nat.succ m) e = 
+	let prd = Prop.Equal.apply (x => Data.Nat.pred x) e
+	let ind = Lte_size n m prd
+	let aux = N_le_m_sn_le_sm n m ind
+	aux
+
+Lte_S (n: Data.Nat) (m: Data.Nat) (l: Le n m) : (Le n (Data.Nat.succ m))
+Lte_S n m l = Le.s l
+
+// That is, the size of t is the number of nodes in its abstract syntax tree. Simi-
+// larly, the depth of a term t, written depth(t), is defined as follows:
+// depth(true) = 1
+// depth(false) = 1
+// depth(0) = 1
+// depth(succ t1) = depth(t1) + 1
+// depth(pred t1) = depth(t1) + 1
+// depth(iszero t1) = depth(t1) + 1
+// depth(if t1 then t2 else t3) = max(depth(t1), depth(t2), depth(t3)) + 1
+// Equivalently, depth(t) is the smallest i such that t ∈ Si according to Definition 3.2.3.
+
+Depth (t: Term) : Data.Nat
+Depth (Term.z) = 1n
+Depth (Term.s pred) = (Data.Nat.succ (Depth pred))
+Depth (Term.p succ) = (Data.Nat.succ (Depth succ))
+Depth (Term.isz zt) = (Data.Nat.succ (Depth zt))
+Depth (Term.true) = 1n
+Depth (Term.false) = 1n
+Depth (Term.ifs cond then else) = (Data.Nat.succ (Data.Nat.max (Depth cond) (Data.Nat.max (Depth then) (Depth else))))
+
+// B (untyped)
+// Syntax
+// t ::= terms:
+// true constant true
+// false constant false
+// if t then t else t conditional
+// v ::= values:
+// true true value
+// false false value
+// Syntax 
+// type Termb { // Terms
+// 	true
+// 	false
+// 	if (cond: Termb) (then: Termb) (else: Termb)
+// }
+
+// // Values
+// type Value ~ (t: Termb) {
+// 	true : Value Termb.true
+// 	false : Value Termb.false
+// } 
+
+
+// evalStep : Term -> Term
+// evalStep (If True t2 _) = t2 -- E-IfTrue
+// evalStep (If False _ t3) = t3 -- E-IfFalse
+// evalStep (If t1 t2 t3) = If (evalStep t1) t2 t3 -- E-If
+// evalStep t = t -- caso base, não há mais reduções possíveis
+
+Evaluationb (t: Termb) : Termb
+Evaluationb (Termb.ifs Termb.true t2 t3) = t2 // E-iftrue
+Evaluationb (Termb.ifs  Termb.false t2 t3) = t3 // E-ifflase
+Evaluationb (Termb.ifs t1 t2 t3) = Evaluationb (Termb.ifs (Evaluationb t1) t2 t3) // E-if
+Evaluationb t = t
+
+// Evaluation t -→ t′
+// if true then t2 else t3 -→ t2 (E-IfTrue)
+// if false then t2 else t3 -→ t3 (E-IfFalse)
+
+// t1 -→ t′1 
+
+// if t1 then t2 else t3 -→ if t′1 then t2 else t3 (E-If)
+
+// t2 -→ t′2 
+
+// if t1 then t2 else t3 -→ if t1 then t′2 else t3 (E-Funny2)
+
+// 3.5.4 Theorem [Determinacy of one-step evaluation]: If t -→ t′ and t -→ t′′, then t′ = t′′
+//One-step evaluation relation
+#derive[match]
+type Step ~(from: Term) (to: Term) {
+	E_IfTrue <from: Term> <to: Term> : Step (Term.ifs Term.true from to) from
+	E_IfFalse <from: Term> <to: Term> : Step (Term.ifs Term.false from to) to
+	E_If <cond1: Term> <cond2: Term> <from: Term> <to: Term> (s: Step cond1 cond2) : Step (Term.ifs cond1 from to) (Term.ifs cond2 from to)
+}
+//theorem: Determinacy of one-step evaluation
+Theorem_doose (t1: Term) (t2: Term) (t3: Term) (s1: Step t1 t2) (s2: Step t1 t3) : Prop.Equal t2 t3
+Theorem_doose t1 t2 t3 (Step.E_IfTrue t4 t5) (Step.E_IfTrue t6 t7) = 
+	let e0 = Prop.Equal.refl :: Prop.Equal t4 t2
+	let e1 = Prop.Equal.refl :: Prop.Equal t6 t3
+	let e2 = Prop.Equal.refl :: Prop.Equal t1 (Term.ifs Term.true t6 t7)
+	let e3 = Prop.Equal.refl :: Prop.Equal t1 (Term.ifs Term.true t4 t5)
+	let chn = Prop.Equal.chain (Prop.Equal.mirror e2) e3
+	let app = Prop.Equal.apply (x => Evaluation x) chn
+	let rrt = Prop.Equal.rewrite e0 (x => (Prop.Equal Term t6 x)) app
+	let rru = Prop.Equal.rewrite e1 (x => (Prop.Equal Term x t2)) rrt
+	let mir = (Prop.Equal.mirror rru)
+	mir
+Theorem_doose t1 t2 t3 (Step.E_IfFalse t4 t5) (Step.E_IfFalse t6 t7) = 
+	let e0 = Prop.Equal.refl :: Prop.Equal t5 t2
+	let e1 = Prop.Equal.refl :: Prop.Equal t7 t3
+	let e2 = Prop.Equal.refl :: Prop.Equal t1 (Term.ifs Term.false t6 t7)
+	let e3 = Prop.Equal.refl :: Prop.Equal t1 (Term.ifs Term.false t4 t5)
+	let chn = Prop.Equal.chain (Prop.Equal.mirror e2) e3
+	let app = Prop.Equal.apply (x => Evaluation x) chn
+	let rrt = Prop.Equal.rewrite e0 (x => (Prop.Equal Term t7 x)) app
+	let rru = Prop.Equal.rewrite e1 (x => (Prop.Equal Term x t2)) rrt
+	let mir = (Prop.Equal.mirror rru)
+	mir
+Theorem_doose (Term.ifs t1 t21 t31) t2 t3 (Step.E_If t12 t2_ t4_ t6_ step1) (Step.E_If t13 t3_ t5_ t7_ step2) =
+	let e0 = Prop.Equal.refl :: Prop.Equal Term t2 (Term.ifs t2_ t4_ t6_) 
+	let e1 = Prop.Equal.refl :: Prop.Equal Term t3 (Term.ifs t3_ t5_ t7_)  
+	let e3 = Prop.Equal.refl :: Prop.Equal Term t4_ t21 
+	let e4 = Prop.Equal.refl :: Prop.Equal Term t6_ t31 
+	let e6 = Prop.Equal.refl :: Prop.Equal Term t5_ t21 
+	let e7 = Prop.Equal.refl :: Prop.Equal Term t7_ t31  
+	let ch1 = Prop.Equal.chain e6 (Prop.Equal.mirror e3) 
+	let ch2 = Prop.Equal.chain e7 (Prop.Equal.mirror e4)
+	let mir = (Prop.Equal.mirror e1) 
+	let rrt = Prop.Equal.rewrite ch1 (x => (Prop.Equal (Term.ifs t3_ x t7_) t3)) mir
+	let rru = Prop.Equal.rewrite ch2 (x => (Prop.Equal (Term.ifs t3_ t4_ x) t3)) rrt
+	let ind = Theorem_doose t12 t2_ t3_ step1 step2
+	let rrv = Prop.Equal.rewrite (Prop.Equal.mirror ind) (x => (Prop.Equal (Term.ifs x t4_ t6_) t3)) rru
+	let ch2 = Prop.Equal.chain e0 rrv
+	ch2
+// Theorem_doose (Term.ifs t1 t21 t31) t2 t3 (Step.E_IfTrue t4 t5) (Step.E_IfFalse t6 t7) = ?
+
+
+// Theorem 3.5.7: Every value is in normal form. 
+// Defining the term type
+#derive[match]
+type Termb { // Terms
+	true
+	false
+	ifs (cond: Termb) (then: Termb) (else: Termb)
+}
+
+// // Normal form predicate
+// type Valueb {
+//  	true 
+// 	false
+// } 
+
+type Valueb ~(t: Termb) {
+	true : Valueb Termb.true
+	false : Valueb Termb.false
+}
+
+#derive[match]
+type NormalFormb~(t: Termb) {
+	true : NormalFormb Termb.true
+	false : NormalFormb Termb.false
+}
+
+NormalForm (t: Termb) : Type
+NormalForm t          = (u: Termb) -> Prop.Not (Stepb t u)
+
+Is_Value (t: Termb) : Data.Bool
+Is_Value Termb.true = Data.Bool.true
+Is_Value Termb.false = Data.Bool.true
+Is_Value t = Data.Bool.false
+
+// // Defining normal form
+Is_NormalForm (t: Termb) : Data.Bool
+Is_NormalForm Termb.true = Data.Bool.true
+Is_NormalForm Termb.false = Data.Bool.true
+Is_NormalForm t = Data.Bool.false
+
+type Stepb ~(from: Termb) (to: Termb) {
+	E_IfTrue <then: Termb> <else: Termb> : Stepb (Termb.ifs Termb.true then else) then
+	E_IfFalse <then: Termb> <else: Termb> : Stepb (Termb.ifs Termb.false then else) else
+	E_If <cond1: Termb> <cond2: Termb> <then: Termb> <else: Termb> (s: Stepb cond1 cond2) : Stepb (Termb.ifs cond1 then else) (Termb.ifs cond2 then else)
+}
+
+// Lenma_true <t: Termb> (s: Stepb Termb.true t) : Data.Empty
+// Lenma_true t s = ?
+
+// Is_NormalForm (t: Termb) : Type
+// Is_NormalForm t = (x: Termb) -> Prop.Not (Stepb t x)
+// 357 equal (is-Nonal t) bool.true
+// Theorem: Every value is in normal form
+// Theorem_esiinf (t: Termb) (v: Prop.Equal Data.Bool.true (Is_Value t)) : Prop.Equal Data.Bool.true (Is_NormalForm t)
+// Theorem_esiinf Termb.true Prop.Equal.refl = Prop.Equal.refl
+// Theorem_esiinf Termb.false Prop.Equal.refl = Prop.Equal.refl
+// Theorem_esiinf (Termb.ifs cond then else) v = Data.Empty.absurd (Data.Bool.true_not_false v)
+// Theorem_esiinf (t: Termb) (v: Valueb t) : NormalFormb t
+// Theorem_esiinf Termb.true v = ?
+// Theorem_esiinf Termb.false v = ?
+// Theorem_esiinf (Termb.ifs cond then else) v = ?
+
+// Theorem: If t is in normal form, then t is a value.
+Theorem_iinftiav (t: Termb) (n: Prop.Equal Data.Bool.true (Is_NormalForm t)) : Prop.Equal Data.Bool.true (Is_Value t)
+Theorem_iinftiav Termb.true Prop.Equal.refl = Prop.Equal.refl
+Theorem_iinftiav Termb.true Prop.Equal.refl = Prop.Equal.refl
+Theorem_iinftiav (Termb.ifs cond then else) v = Data.Empty.absurd (Data.Bool.true_not_false v)
+// Theorem_iinftiav (t: Termb) (n: NormalFormb t) : Valueb t
+// Theorem_iinftiav Termb.true v = ?
+// Theorem_iinftiav Termb.false v = ?
+// Theorem_iinftiav (Termb.ifs cond then else) v = ?
+
+// Extract_t1 (t1: Termb) (t2: Termb) (t3: Termb) (s: Value (Termb.ifs t1 t2 t3)) : Value t1
+
+// extractT1 : (t1 : Termb) -> (t2 : Term) -> (t3 : Term) -> Value (If t1 t2 t3) -> Value t1
+// extractT1 t1 t2 t3 (TrueValue {t = If _ _ _}) = TrueValue
+// extractT1 t1 t2 t3 (FalseValue {t = If _ _ _}) = FalseValue
+
+// theoremValueNormalForm  (t : Term)  -> Value t -> isNormalForm t 
+// theoremValueNormalForm True = NF_Value
+// theoremValueNormalForm False = NF_Value
+// theoremValueNormalForm (If t1 t2 t3) =
+//   let nft1 : NormalForm t1
+//       nft1 = theoremValueNormalForm t1
+//       nft2 : NormalForm t2
+//       nft2 = theoremValueNormalForm t2
+//       nft3 : NormalForm t3
+//       nft3 = theoremValueNormalForm t3
+//   in theoremValueNormalForm t1
+
+
+
+// Theorem: Every value is in normal form
+// theorem : (t : Term) -> isNormalForm t
+// theorem True = True
+// theorem False = True
+// theorem (If t1 t2 t3) = theorem t1
+
+
+// Corollary: Every normal form is a value
+// corollaryNormalFormValue : (t : Term) -> NormalForm t -> t = True \/ t = False
+// corollaryNormalFormValue True NF_Value = Left Refl
+// corollaryNormalFormValue False NF_Value = Right Refl
+// corollaryNormalFormValue (If t1 t2 t3) _ = absurd
+
+// Corollary: Every normal form is a value
+// corollary : (t : Term) -> isNormalForm t -> t = True \/ t = False
+// corollary True _ = Left Refl
+// corollary False _ = Right Refl
+// corollary (If t1 t2 t3) pf = absurd (theorem t1) pf
+
+
+
+
+
+// theoremTermination : (t : Term) -> exists (t' : Term), t -→∗ t' /\ isNormalForm t'
+type Evalstep ~(t1: Termb) (t2: Termb) {
+	refl <t1: Termb> : Evalstep t1 t1 // t -→∗ t for all t
+	trans <t1: Termb> <t2: Termb> <t3: Termb> (es1: Evalstep t1 t2) (es2: Evalstep t2 t3) : Evalstep t1 t3 //if t -→∗ t′ and t′ -→∗ t′′, then t -→∗ t′′.
+	uni <t1: Termb> <t2: Termb> (es1: Stepb t1 t2) : Evalstep t1 t2 //if t -→ t′ then t -→∗ t
+}
+// -- Reflexividade
+// Refl : Term -> Term -> Type
+// Refl t = t -→∗ t
+
+// -- Transitividade
+// Trans : Term -> Term -> Term -> Type
+// Trans t t' t'' = t -→∗ t' -> t' -→∗ t'' -> t -→∗ t''
+
+// -- Unidirecionalidade
+// Uni : Term -> Term -> Type
+// Uni t t' = t -→ t' -> t -→∗ t'
+
+// data EvalStep : Term -> Term -> Type where
+//   ERefl : EvalStep t t
+//   ETrans : EvalStep t1 t2 -> EvalStep t2 t3 -> EvalStep t1 t3
+//   EUni : Eval t t' -> EvalStep t t'
+
+// data EvalStar : Term -> Term -> Type where
+//   EStep : Eval t t' -> EvalStar t' t'' -> EvalStar t t''
+//   EReflStar : EvalStar t t
+
+// evalTrans : Eval t t' -> EvalStar t' t'' -> EvalStar t t''
+// evalTrans EReflStar et = et
+// evalTrans (EStep et1 et2) et = EStep et1 (evalTrans et2 et)
+
+// evalComb : EvalStep t t' -> EvalStar t' t'' -> EvalStar t t''
+// evalComb ERefl et = et
+// evalComb (ETrans es1 es2) et = evalComb es1 (evalTrans es2 et)
+// evalComb (EUni et) et' = EStep et et'
+
+// Theorem [Termination of Evaluation]: For every term t there is some normal form t′ such that t -→∗ t′. 
+
+// TheoremTermination (t : Termb) : [u: (Is_NormalForm t)] -> (Evalstep t u) 
+
+
+
+// TheoremTermination (t: Termb) : [u: Termb] -> Data.Pair (Evalstep t u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))
+// TheoremTermination Termb.false = $ Termb.false (Data.Pair.new (Evalstep.refl) Prop.Equal.refl)
+// TheoremTermination Termb.true = $ Termb.true (Data.Pair.new (Evalstep.refl) Prop.Equal.refl)
+// TheoremTermination (Termb.ifs cond then else) = A
+TheoremTermination (t: Termb) : [u: Termb] -> Data.Pair (Evalstep t u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))
+TheoremTermination Termb.false = $ Termb.false (Data.Pair.new (Evalstep.refl) Prop.Equal.refl)
+TheoremTermination Termb.true = $ Termb.true (Data.Pair.new (Evalstep.refl) Prop.Equal.refl)
+TheoremTermination (Termb.ifs Termb.true Termb.true else) = 
+	let trt = (Evalstep.uni (Stepb.E_IfTrue Termb.true else))
+	$ Termb.true (Data.Pair.new trt Prop.Equal.refl)
+TheoremTermination (Termb.ifs Termb.true Termb.false else) = 
+	let trt = (Evalstep.uni (Stepb.E_IfTrue Termb.false else))
+	$ Termb.false (Data.Pair.new trt Prop.Equal.refl)
+TheoremTermination (Termb.ifs Termb.false then Termb.true) = 
+	let trt = (Evalstep.uni (Stepb.E_IfFalse then Termb.true))
+	$ Termb.true (Data.Pair.new trt Prop.Equal.refl)
+TheoremTermination (Termb.ifs Termb.false then Termb.false) = 
+	let trt = (Evalstep.uni (Stepb.E_IfFalse then Termb.false))
+	$ Termb.false (Data.Pair.new trt Prop.Equal.refl)
+TheoremTermination (Termb.ifs cond then else) = 
+	let than = then
+	let e = Prop.Equal.refl :: Prop.Equal than then
+	let ind = TheoremTermination cond
+	let ine = TheoremTermination than 
+	let inf = TheoremTermination else
+	match Termb cond with (ind: (Data.Sigma Termb (u => (Data.Pair (Evalstep cond u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u)))))) {
+		true => _
+			// match Termb then with (ine: (Data.Sigma Termb (u => (Data.Pair (Evalstep then u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u)))))){
+			// 	true => 
+			// 		match Data.Sigma ind  {
+			// 			new fst snd => 
+			// 				match Termb fst with (snd  : (Data.Pair (Evalstep Termb.true fst) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm fst))) ){
+			// 					true => 
+			// 						let trt = (Evalstep.uni (Stepb.E_IfTrue Termb.true else))
+			// 						$ Termb.true (Data.Pair.new trt Prop.Equal.refl)
+			// 					false => 
+			// 						let trt = (Evalstep.uni (Stepb.E_IfTrue Termb.true else))
+			// 						$ Termb.true (Data.Pair.new trt Prop.Equal.refl)
+			// 					ifs cond then else =>
+			// 						let Data.Pair.new fst snd = snd 
+			// 						Data.Empty.absurd (Data.Bool.true_not_false snd)
+			// 				}
+			// 		}
+			// 	false => 	
+			// 		match Data.Sigma ind  {
+			// 			new fst snd => 
+			// 				match Termb fst {
+			// 					true => _
+			// 					false => _
+			// 					ifs cond then else => _
+			// 				}
+			// 	}
+			// 	ifs cond then else => 
+			// 		match Data.Sigma ind  {
+			// 			new fst snd => 
+			// 				match Termb fst {
+			// 					true => _
+			// 					false => _	
+			// 					ifs cond then else => _
+			// 				}
+			// 		}
+			// }: (Data.Sigma Termb (u => (Data.Pair (Evalstep (Termb.ifs Termb.true then else) u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))))) 
+		false => _
+			// match Termb else {
+			// 	true => 
+			// 	match Data.Sigma ind  {
+			// 		new fst snd => 
+			// 			match Termb fst {
+			// 				true => _
+			// 				false => _	
+			// 				ifs cond then else => _
+			// 			}
+			// 	}
+			// 	false => 
+			// 		match Data.Sigma ind  {
+			// 			new fst snd => 
+			// 				match Termb fst {
+			// 					true => _
+			// 					false => _
+			// 					ifs cond then else => _
+			// 				}
+			// 		}	
+			// 	ifs cond then else =>
+			// 		match Data.Sigma ind  {
+			// 			new fst snd => 
+			// 				match Termb fst {
+			// 					true => _
+			// 					false => _
+			// 					ifs cond then else => _
+			// 				}
+			// 		}
+			// }: (Data.Sigma Termb (u => (Data.Pair (Evalstep (Termb.ifs Termb.false then else) u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))))) 
+		ifs cond then else => 
+			match Data.Sigma ind with (ine: (Data.Sigma Termb (u => (Data.Pair (Evalstep than u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u)))))){
+				new fst snd => 
+					// let cond = cond.cond
+					// let then = cond.then
+					// let else = cond.else
+					match Termb fst with (snd: (Data.Pair (Evalstep (Termb.ifs cond then else) fst) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm fst)))){
+						true => 
+							let Data.Pair.new (fst = vtd ) (snd = dns)= snd 
+							// let trt = (Evalstep.uni (Stepb.E_IfTrue (Termb.ifs cond then else) else)) //	(Evalstep (Termb.ifs Termb.true (Termb.ifs cond then else) else) (Termb.ifs cond then else)) 
+							// let ttt = (Evalstep.uni (Stepb.E_IfTrue (Termb.ifs Termb.true then else) else)) //	(Evalstep (Termb.ifs Termb.true (Termb.ifs cond then else) else) (Termb.ifs cond then else)) 
+							// let tvt = (Evalstep.uni (Stepb.E_IfTrue  then else)) //	(Evalstep (Termb.ifs Termb.true (Termb.ifs cond then else) else) (Termb.ifs cond then else)) 
+							// let rrt = Evalstep.refl (Termb.ifs (Termb.ifs cond then else) then else)
+							// let rvt = (Evalstep.uni (Stepb.E_If (Termb.ifs cond then else) Termb.true then else _))
+							// let rvw = (Evalstep.uni (Stepb.E_If (Termb.ifs Termb.true then else) then then else tvt))
+							// let rut = (Evalstep.trans trt  fts )
+							match Data.Sigma ine {
+								new fst (snd = erro) => 
+									match Termb fst with ( erro : (Data.Pair (Evalstep than fst) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm fst)))) vtd {
+										true => 
+											let then = than 
+											let es = Prop.Equal.refl :: Prop.Equal than then
+											let Data.Pair.new (fst = fts ) (snd = dns)= erro
+											let rrt = Prop.Equal.rewrite es (x => (Evalstep x Termb.true)) fts
+											let tvt = (Evalstep.uni (Stepb.E_IfTrue  then else))
+											let rvt = (Evalstep.uni (Stepb.E_If (Termb.ifs cond then else) Termb.true then else _))
+
+											let rvw = (Evalstep.trans rvt tvt )
+											let chn = (Evalstep.trans rvw rrt )
+											$ Termb.true (Data.Pair.new chn Prop.Equal.refl)
+										false => 
+											$ Termb.false (Data.Pair.new _ Prop.Equal.refl)
+										ifs cond then else => _
+
+									}
+							}
+
+							// // (Termb.ifs Termb.true (Termb.ifs cond then else) else) 
+							// // (Termb.ifs Termb.true then                       else)
+							// }
+						false => _
+						ifs cond then else => 
+							let Data.Pair.new fst snd = snd 
+							Data.Empty.absurd (Data.Bool.true_not_false snd)
+					}
+			}
+	}: [u: Termb] -> Data.Pair (Evalstep (Termb.ifs cond then else) u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))
+
+
+
+	// match Termb cond with (ind: (Data.Sigma Termb (u => (Data.Pair (Evalstep cond u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u)))))) {
+	// 	true => 
+	// 		match Data.Sigma ind  {
+	// 			new fst snd => 
+	// 				match Termb fst with (snd: (Data.Pair (Evalstep Termb.true fst) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm fst)))){
+	// 					true => 
+	// 						match Termb then {
+	// 							true => 	
+	// 								let trt = (Evalstep.uni (Stepb.E_IfTrue Termb.true else))
+	// 								$ Termb.true (Data.Pair.new trt Prop.Equal.refl)
+	// 					 		false => 	
+	// 								let trt = (Evalstep.uni (Stepb.E_IfTrue Termb.false else))
+	// 								$ Termb.false (Data.Pair.new trt Prop.Equal.refl)
+	// 						 	ifs cond then else => 
+	// 							 	let trt = (Evalstep.uni (Stepb.E_IfTrue (Termb.ifs cond then else) else))
+	// 								let Data.Pair.new fst snd = snd 
+	// 								let rrt = Evalstep.uni (Stepb.E_IfTrue Termb.true else )
+	// 								let aux = Aux Termb.true (Termb.ifs Termb.true Termb.true else) Termb.true Termb.true rrt fst
+	// 							 	$ Termb.true ?
+	// 				 		}: (Data.Sigma Termb (u => (Data.Pair (Evalstep (Termb.ifs Termb.true then else) u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))))) 
+	// 					false => _
+							
+	// 					ifs cond then else => 
+	// 						let Data.Pair.new fst snd = snd 
+	// 						Data.Empty.absurd (Data.Bool.true_not_false snd)
+	// 				}:(Data.Sigma Termb (u => (Data.Pair (Evalstep (Termb.ifs Termb.true then else) u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))))) 
+	// 				// ?
+	// 		}: (Data.Sigma Termb (u => (Data.Pair (Evalstep (Termb.ifs Termb.true then else) u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))))) 
+	// 	 false => _
+	// 	ifs cond then else => _
+// }: [u: Termb] -> Data.Pair (Evalstep (Termb.ifs cond then else) u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))
+
+// match Termb cond with (ind: (Data.Sigma Termb (u => (Data.Pair (Evalstep cond u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u)))))) {
+// 	true => 
+// 		let Data.Sigma.new fst snd = ind 
+// 		match Termb fst with (snd : (Data.Pair (Evalstep Termb.true fst) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm fst)))) (ind: (Data.Sigma Termb (u => (Data.Pair (Evalstep Termb.true u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u)))))){
+// 					true => ?
+// 					false => ?
+// 					ifs cond then else => ?
+// 				}: (Data.Sigma Termb (u => (Data.Pair (Evalstep (Termb.ifs Termb.true then else) u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u)))))
+// 	 false => _
+// 	ifs cond then else => _
+// }: [u: Termb] -> Data.Pair (Evalstep (Termb.ifs cond then else) u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))
+// let Data.Sigma.new fst snd = ind 
+	// 	match Termb fst with (snd : (Data.Pair (Evalstep cond fst) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm fst)))) {
+	// 		true => ?
+	// 		false => ?
+	// 		ifs cond then else => _
+	// 	}
+	// $ Termb.true (Data.Pair.new ? ?)
+// TheoremTerminattrion (Termb.ifs Termb.false Termb.false else) = 
+// 	let trt = (Evalstep.uni (Stepb.E_IfFalse else Termb.false ))
+// 	$ Termb.false (Data.Pair.new trt Prop.Equal.refl)
+	// let ind = TheoremTermination cond
+	// let Data.Sigma.new fst snd = ind
+	// let Data.Pair.new (fst = if) snd = snd
+
+// 	// let aux = Prop.Equal.apply (x => Data.U60.to_nat (Data.Bool.to_u60 x)) snd 
+// 	// let aux = TheoremTermination.go 
+// 	?
+	// TheoremTermination t = 
+	// 	match Termb t {
+	// 		true => $ Termb.true (Data.Pair.new (Evalstep.refl) Prop.Equal.refl)
+	// 		false => $ Termb.false (Data.Pair.new (Evalstep.refl) Prop.Equal.refl)
+	// 		ifs cond then else => 
+				// let ind = TheoremTermination cond
+				// let ine = TheoremTermination then
+				// let inf = TheoremTermination else
+				// match Data.Sigma ind with (else: Termb) (cond: Termb) (cond: Termb) {
+				// 	new fst snd =>  	
+				// 		match Termb fst with (snd : (Data.Pair (Evalstep cond fst) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm fst)))) {
+				// 			true => ?
+				// 			false => ?
+				// 			ifs cond then else => ?
+				// 		}
+				// }
+				// match Termb cond with (else: Termb) (then: Termb) (ind : (Data.Sigma Termb (u => (Data.Pair (Evalstep cond u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))))) ){
+				// 	true => $ Termb.true (Data.Pair.new ? Prop.Equal.refl)
+				// 	false => 
+				// 		?
+				// 	ifs cond then else => 
+				// 		ind
+				// }
+				
+				
+				// let ind = TheoremTermination cond
+				// let x = match Data.Sigma ind with (else: Termb) (cond: Termb) (cond: Termb) (t: Termb){
+					// new fst snd => 	
+					// match Termb fst with (snd: (Data.Pair (Evalstep cond fst) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm fst)))) {
+					// 	true => ?
+					// 	false => ?
+					// 	ifs cond then else => _
+					// }: 
+				// }:(Data.Sigma Termb (u => (Data.Pair (Evalstep cond u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))))) 
+
+		// }:(Data.Sigma Termb (u => (Data.Pair (Evalstep t u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))))) 
+
+// Data.Bool.is_Bool (a: Data.Bool) : Data.Bool 
+// Data.Bool.is_Bool Data.Bool.true = Data.Bool.true
+// Data.Bool.is_Bool Data.Bool.false = Data.Bool.true
+// Data.Bool.is_Bool _ = Data.Bool.true
+	
+Aux (t: Termb) (t1: Termb) (t2: Termb) (u: Termb) (s:Evalstep t1 u) (e:Evalstep t2 u) : (Evalstep (Termb.ifs t t1 t2) u)
+// Aux t t1 t2 u s s1 = 
+// 	let trt = (Evalstep.uni (Stepb.E_IfTrue (Termb.ifs t t1 t2) u))
+// 	let rrt = (Stepb.E_If )
+// 	?
+
+
+TheoremTermination.go (t: Termb) (u: Termb) (p: Data.Pair (Evalstep t u) (Prop.Equal Data.Bool.true (Is_NormalForm u))) : [u: Termb] -> (Data.Pair (Evalstep t u) (Prop.Equal Data.Bool Data.Bool.true (Is_NormalForm u))) 
+TheoremTermination.go Termb.true u p = $ Termb.true (Data.Pair.new (Evalstep.refl) Prop.Equal.refl)
+TheoremTermination.go Termb.false u p = $ Termb.false (Data.Pair.new (Evalstep.refl) Prop.Equal.refl)
+TheoremTermination.go (Termb.ifs Termb.true then else) Termb.true (Data.Pair.new fst (Prop.Equal.refl)) = $ Termb.true (Data.Pair.new fst Prop.Equal.refl)
+TheoremTermination.go (Termb.ifs Termb.false then else) Termb.false (Data.Pair.new fst (Prop.Equal.refl)) = $ Termb.false (Data.Pair.new fst Prop.Equal.refl)
+TheoremTermination.go (Termb.ifs Termb.true then else) Termb.false (Data.Pair.new fst (Prop.Equal.refl)) = $ Termb.false (Data.Pair.new fst Prop.Equal.refl)
+TheoremTermination.go (Termb.ifs Termb.false then else) Termb.true (Data.Pair.new fst (Prop.Equal.refl)) = $ Termb.true (Data.Pair.new fst Prop.Equal.refl)
+TheoremTermination.go (Termb.ifs cond then else) Termb.false (Data.Pair.new fst (Prop.Equal.refl)) = $ Termb.false (Data.Pair.new fst Prop.Equal.refl)
+TheoremTermination.go (Termb.ifs cond then else) Termb.true (Data.Pair.new fst (Prop.Equal.refl)) = $ Termb.true (Data.Pair.new fst Prop.Equal.refl)
+TheoremTermination.go (Termb.ifs cond then else) (Termb.ifs condi theni elsei) (Data.Pair.new fst snd) = Data.Empty.absurd (Data.Bool.true_not_false snd)
+// TheoremTermination.go (Termb.ifs Termb.false then else) u p = ?
+// TheoremTermination (Termb.ifs Termb.true then else) = 
+// TheoremTermination (Termb.ifs cond then else) = 
+
+// 	let t = Evalstep.refl (Termb.ifs cond then else)
+// 	let ind = TheoremTermination cond
+// 	let Data.Sigma.new fst snd = ind 
+// 	let Data.Pair.new fst snd = snd
+	// ?
+
+// Aux (then: Termb) (else: Termb) (s: (Evalstep (Termb.ifs Termb.false then else) Termb.false)) : Prop.Equal else Termb.false
+// Aux t Termb.false s = Prop.Equal.refl
+// Aux t Termb.true s = _
+// Aux t  (Termb.ifs _ _ _) s = _
+
+
+
+
+	// -- Função auxiliar para realizar uma única etapa de avaliação
+	// evalStep : (t : Term) -> (exists t' : Term => Step t t')
+	// evalStep (If True t2 t3) = (t2, E_IfTrue)
+	// evalStep (If False t2 t3) = (t3, E_IfFalse)
+	// evalStep (If t1 t2 t3) = case evalStep t1 of
+	// 	(t1', step) => (If t1' t2 t3, E_If step)
+
+
+	/////////////////////////// gravidade me chama
+
+	// (Evalstep (Termb.ifs cond then else) x) - (Evalstep x Termb.true) = (Evalstep (Termb.ifs cond then else) Termb.true)
+	// if t -→∗ t′ and t′ -→∗ t′′, then t -→∗ t′′.
+
+
+
+// Termination (cond: Termb) (then: Termb)	(else: Termb) : (Evalstep (Termb.ifs cond then else) Termb.true)
+// Termination cond 
+// TheoremTermination (t : Termb) : [u: Termb] -> Data.Pair (Evalstep t u) (NormalFormb u)
+// TheoremTermination Termb.false = $ Termb.false (Data.Pair.new (Evalstep.refl) NormalFormb.false)
+// TheoremTermination Termb.true = $ Termb.true (Data.Pair.new (Evalstep.refl) NormalFormb.true)
+
+// (if true cond else) true
+// TheoremTermination (Termb.ifs cond then else) = 
+// 	let ind = TheoremTermination cond
+// 	let ine = TheoremTermination then
+// 	let inf = TheoremTermination then
+// 	let rfl = Evalstep.refl (Termb.ifs cond then else)
+// 	let Data.Sigma.new (fst = v) snd = ind
+// 	let Data.Pair.new fst snd = snd
+// 	let trs = Evalstep.trans (Evalstep.uni Stepb.E_IfTrue) fst
+// 	let trs = Evalstep.trans (Evalstep.uni Stepb.E_IfFalse) fst
+// 	// let max = match NormalFormb snd {
+// 	// 			true => ?
+// 	// 			false => ?
+// 	// 		}
+// 		// let sig  = match Data.Sigma ind {
+// 		// 	new => match Termb ind.fst {
+// 		// 		true => ?
+// 		// 		false => ?
+// 		// 		ifs => ?
+// 		// 	}
+// 		// }
+// ?
+// TheoremTerminationStep (t : Termb) : [u: Termb] -> Data.Pair (Stepb t u) (NormalFormb u)
+// TheoremTerminationStep t = 
+// 	match Termb t {
+// 		true => ?
+// 		false => ?
+// 		ifs cond then else => 	
+// 			// let ind = TheoremTerminationStep cond
+// 			// let Data.Sigma.new fst snd = ind
+// 			// let Data.Pair.new fst snd = snd
+// 			$ (Termb.ifs cond then else) ?
+// 	}: (Data.Sigma Termb (u => (Data.Pair (Stepb t u) (NormalFormb u)))) 
+
+// let terminationStep : (t : Term) -> (exists t' : Term => (Step t t' ** isNormalForm t'))
+// terminationStep t =
+// 	case t of
+// 		True => (True, (E_IfTrue, true))
+// 		False => (False, (E_IfFalse, false))
+// 		If t1 t2 t3 =>
+// 			let (t1', (step, value)) = terminationStep t1 in
+// 			(If t1' t2 t3, (E_If step, value))
+// in terminationStep t
+
+// TheoremTermination.aux (t : Termb) (sig: (Data.Sigma Termb (u => (Data.Pair (Evalstep t u) (NormalFormb u))))) : [u: Termb] -> Data.Pair (Evalstep t u) (NormalFormb u)
+// TheoremTermination.aux Termb.true  (Data.Sigma.new a b fst snd) = $ Termb.true (Data.Pair.new (Evalstep.refl) NormalFormb.true)
+// TheoremTermination.aux Termb.false (Data.Sigma.new a b fst snd) = $ Termb.false (Data.Pair.new (Evalstep.refl) NormalFormb.false)
+// TheoremTermination.aux (Termb.ifs cond then else) (Data.Sigma.new a b fst snd) = 	
+// 	let spx = (specialize b into #0 in snd)
+// 	let trs = Evalstep.trans  (Evalstep.uni Stepb.E_IfTrue) (Data.Pair.fst spx)
+// 	?
+
+ 
+// TheoremTermination Termb.true = ?
+// TheoremTermination Termb.false = ?
+// TheoremTermination (Termb.ifs cond then else) = ?
+
+// 3.5.13 Exercise [Recommended, ««]:
+// 1. Suppose we add a new rule
+// if true then t2 else t3 -→ t3 (E-Funny1)
+// to the ones in Figure 3-1. Which of the above theorems (3.5.4, 3.5.7, 3.5.8,3.5.11, and 3.5.12) remain valid? yes
+
+Evaluation1 (t: Termb) : Termb
+// Evaluationb (Termb.ifs Termb.true t2 t3) = t2 // E-iftrue
+Evaluation1 (Termb.ifs Termb.true t2 t3) = t3 // E-Funny1
+Evaluation1 (Termb.ifs Termb.false t2 t3) = t3 // E-ifflase
+Evaluation1 (Termb.ifs t1 t2 t3) = Evaluation1 (Termb.ifs (Evaluation1 t1) t2 t3) // E-if
+Evaluation1 t = t
+
+
+// 2. Suppose instead that we add this rule:
+// t2 -→ t′2
+// if t1 then t2 else t3 -→ if t1 then t′2 else t3 (E-Funny2)
+// Now which of the above theorems remain valid? yes
+// Do any of the proofs need to change? no
+Evaluation2 (t: Termb) : Termb
+Evaluation2 (Termb.ifs Termb.true t2 t3) = t2 // E-iftrue
+Evaluation2 (Termb.ifs Termb.false t2 t3) = t3 // E-ifflase
+// Evaluationb (Termb.ifs t1 t2 t3) = Evaluationb (Termb.ifs (Evaluationb t1) t2 t3) // E-if
+Evaluation2 (Termb.ifs t1 t2 t3) = Evaluation2 (Termb.ifs t1 (Evaluation2 t2) t3) // (E-Funny2)
+Evaluation2 t = t
+
+
+type Value { // Values
+  true 
+  false 
+	nvalue (nv: Nvalue) // numeric value
+}
+
+type Nvalue { // numeric values
+  z //zero value
+  s (pred: Nvalue) // successor value
+}
+
+
+type Term { // metavariable
+		true // constant true
+		false // constant false
+		ifs (cond: Term) (then: Term) (else: Term) // conditional
+		z // constant zero
+		s (pred: Term) // successor
+		p (succ: Term) // predecessor
+		isz (zt: Term) // zero test
+		wrong 
+	}
+
+Evaluation (t: Term) : Term
+Evaluation (Term.ifs Term.true then else) = then // E-iftrue
+Evaluation (Term.ifs Term.false then else) = else // E-ifflase
+Evaluation (Term.ifs cond then else) = Term.ifs (Evaluation cond) then else // E-if
+Evaluation (Term.s pred) = Term.s (Evaluation pred) // E-Succ
+Evaluation (Term.p z) = z // (E-PredZero)
+Evaluation (Term.p (Term.s succpred)) = succpred // E-PredSucc
+Evaluation (Term.p succ) = Term.p (Evaluation succ) // E-Pred
+Evaluation (Term.isz z) = Term.true // (E-IszeroZero)
+Evaluation (Term.isz (Term.s ztpred)) = Term.false // E-IszeroSucc
+Evaluation (Term.isz zt) = Term.isz (Evaluation zt) // E-IsZero)
+// Evaluation (Term.s Badnat) = Term.wrong // E-Succ-Wrong
+// Evaluation (Term.p Badnat) = Term.wrong // E-Pred-Wrong
+// Evaluation (Term.isz Badnat) = Term.wrong // E-IsZero-Wrong
+// Evaluation (Term.ifs Badbool then else) = Term.wrong // E-If-Wrong
+Evaluation t =  t // z, true, false
+
+Main {
+	let ex1 = Termb.ifs Termb.true (Termb.ifs Termb.false Termb.false Termb.false) Termb.true
+	let tb = (Termb.ifs Termb.true Termb.true Termb.false) 
+
+	let tb = (Termb.ifs tb Termb.false Termb.true)
+	Evaluationb ex1
+	// Lemma333 (Term.ifs Term.false Term.false Term.false)
+	// Length_const (Term.ifs Term.false Term.true Term.false)
+}

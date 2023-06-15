@@ -563,12 +563,9 @@ Matrix a rows columns = Data.Vector (Data.Vector a columns) rows
 // Matrix.mul a (Data.Vector.cons t row (Data.Vector.cons u col head_ tail_) tail) m2 = ?
 
 
-
-
 type Graph {
   new (edge: Data.List (Data.Pair Data.U60 (Data.List Data.U60)))
 }
-
 // (Data.Pair Data.U60 (Data.Pair Data.U60 Data.U60))
 // Function to add an edge to graph
 
@@ -578,7 +575,6 @@ Graph.addedge (Graph.new e) p = Graph.new (Graph.updategraph e p)
 Graph.updategraph (edge: Data.List (Data.Pair Data.U60 (Data.List Data.U60)))  (p: Data.Pair Data.U60 Data.U60) : (Data.List (Data.Pair Data.U60 (Data.List Data.U60)))
 Graph.updategraph Data.List.nil (Data.Pair.new fst snd) = [(Data.Pair.new fst [snd])]
 Graph.updategraph (Data.List.cons (Data.Pair t (Data.List c)) ((Data.Pair.new head tail)) tail.tail) (Data.Pair.new fst snd) = 
-
 // if (Data.U60.to_bool (== head fst)) {
 //   Data.List.cons (Data.Pair.new head (Data.List.cons snd tail)) tail.tail
 // } else {
@@ -597,17 +593,24 @@ BFS g init = BFS.visit g [init] []
 BFS.visit (g: Graph) (init: Data.List Data.U60) (visit: Data.List Data.U60)  : Data.List Data.U60
 BFS.visit g Data.List.nil visit  = Data.List.reverse visit
 BFS.visit g (Data.List.cons head tail) visit = 
-
-// BFS.visit.godown (Data.List.any visit (x => (Data.U60.to_bool (== x head)))) g (Data.List.cons head tail) visit
-
-let neighbours = (Data.List.filter (Get.adjacent head g) (x => NotElem x (Data.List.cons head visit)))
-// let newVisited = Data.List.concat newVisited neighbours
+  BFS.visit.godown (Data.List.any visit (x => (Data.U60.to_bool (== x head)))) g (Data.List.cons head tail) visit
+// let newVisited = if (Data.List.any visit (x => (Data.U60.to_bool (== x head)))) {visit} else {(Data.List.cons head visit)} // ruim
+// let neighbours = (Data.List.filter (Get.adjacent head g) (x => NotElem x newVisited))
+// // let newVisited = Data.List.concat newVisited neighbours
+// let neighbours = (Data.List.concat tail neighbours)
+// // newVisited
+// // neighbours
+// ((BFS.visit g neighbours newVisited))
+BFS.visit.godown (cond: Data.Bool) (g: Graph) (init: Data.List Data.U60) (visit: Data.List Data.U60)  : Data.List Data.U60
+BFS.visit.godown Data.Bool.true g (Data.List.cons head tail) visit = BFS.visit g tail visit
+BFS.visit.godown Data.Bool.false g (Data.List.cons head tail) visit = 
+let newVisited = (Data.List.cons head visit) 
+let neighbours = (Data.List.filter (Get.adjacent head g) (x => NotElem x newVisited))
 let neighbours = (Data.List.concat tail neighbours)
 // newVisited
 // neighbours
-((BFS.visit g neighbours (Data.List.cons head visit)))
-
-
+(BFS.visit g neighbours newVisited)
+BFS.visit.godown b g u visit = Data.List.reverse visit
 //   where
 //   bfs-traverse' :
 //     ∀ {n : ℕ}
@@ -628,10 +631,6 @@ NotElem t (Data.List.cons xs.h xs.t) = if (Data.U60.to_bool (== t xs.h)) {
 // Data.List.has a (Data.List.cons t head tail) cond = Data.Bool.if (cond head) Data.Bool.true (Data.List.any a tail cond)
 
 
-BFS.visit.godown (cond: Data.Bool) (g: Graph) (init: Data.List Data.U60) (visit: Data.List Data.U60)  : Data.List Data.U60
-BFS.visit.godown Data.Bool.true g (Data.List.cons head tail) visit = BFS.visit g [] visit
-BFS.visit.godown Data.Bool.false g (Data.List.cons head tail) visit = (BFS.visit g (Data.List.filter (Get.adjacent head g) (y => Data.Bool.not (Data.List.any visit (x => (Data.U60.to_bool (== x head)))))) visit) 
-BFS.visit.godown b g (Data.List.nil) visit = []
   // bfs : Int -> Graph -> List Int
   // bfs s (MkGraph edges) = go [s] [s]
   //   where
@@ -713,9 +712,12 @@ Data.List.update (Data.List.cons t head tail) Data.Nat.zero newVal = Data.List.c
 Data.List.update (Data.List.cons t head tail) (Data.Nat.succ pred) newVal = Data.List.cons head (Data.List.update tail pred newVal)
 
 Data.Vector.update_at <a> <n: Data.Nat> (l: Data.Vector a n) (idx: Data.Nat) (val: a) : Data.Vector a n
+
 Data.Vector.update_at a n Data.Vector.nil idx newVal = Data.Vector.nil
 Data.Vector.update_at a n (Data.Vector.cons t len head tail) Data.Nat.zero newVal = Data.Vector.cons len newVal tail
 Data.Vector.update_at a n (Data.Vector.cons t len head tail) (Data.Nat.succ pred) newVal = Data.Vector.cons len head (Data.Vector.update_at a len tail pred newVal)
+
+
 // -- Replicate a value n times
 // replicate : {a : Type} -> Nat -> a -> List a
 // replicate Z _ = []
@@ -723,6 +725,12 @@ Data.Vector.update_at a n (Data.Vector.cons t len head tail) (Data.Nat.succ pred
 Data.Vector.repeat <a> (times: Data.Nat) (val: a) : Data.Vector a times
 Data.Vector.repeat a Data.Nat.zero        val = Data.Vector.nil
 Data.Vector.repeat a (Data.Nat.succ pred) val = Data.Vector.cons pred val (Data.Vector.repeat pred val)
+
+#partial
+Data.Vector.tail <a> <n: Data.Nat> (l: Data.Vector a n) : Data.Vector a (Data.Nat.pred n)
+Data.Vector.tail a (Data.Nat.succ n) (Data.Vector.cons t len head tail) = tail
+// Data.Vector.tail a (Data.Nat.succ n) (Data.Vector.nil) = 
+Data.Vector.tail a Data.Nat.zero v = v
 
 Data.Vector.at_else <a> <n: Data.Nat> (xs: Data.Vector a n) (idx: Data.Nat) (x: a) : a
 Data.Vector.at_else a n (Data.Vector.nil t)            idx             x = x
@@ -817,7 +825,9 @@ Graphs.adjacent.vertices n v (Data.Vector.cons (Data.List t) len head tail) =
 // type DAG <a> {
 //   new (edge: Data.List (Data.Pair a (Data.List (Data.Pair Data.U60 Data.U60))))
 // }
-
+// type Graph {
+//   new (edge: Data.List (Data.Pair Data.U60 (Data.List Data.U60)))
+// }
 type DAG {
   new (edge: Data.List (Data.Pair Data.U60 (Data.List (Data.Pair Data.U60 Data.U60))))
 }
@@ -854,7 +864,7 @@ DAG.adjacent.vertices (n: Data.U60) (edge: Data.List (Data.Pair Data.U60 (Data.L
 DAG.adjacent.vertices n (Data.List.nil)  = []
 DAG.adjacent.vertices n (Data.List.cons (Data.Pair t (Data.List c)) ((Data.Pair.new head tail)) tail.tail) = 
  if (Data.U60.to_bool (== n head)) {
-  tail
+  Data.List.reverse tail
  } else {
   DAG.adjacent.vertices n tail.tail
  }
@@ -869,6 +879,59 @@ DAG.adjacent.vertices n (Data.List.cons (Data.Pair t (Data.List c)) ((Data.Pair.
 //         then adj
 //         else getAdjacent u xs
 
+DAG.BFS (g: DAG) (init: Data.U60) : Data.List Data.U60
+DAG.BFS g init = DAG.BFS.visit g [init] []
+
+DAG.BFS.visit (g: DAG) (init: Data.List Data.U60) (visit: Data.List Data.U60)  : Data.List Data.U60
+DAG.BFS.visit g Data.List.nil visit = Data.List.reverse visit
+DAG.BFS.visit g (Data.List.cons head tail) visit = 
+
+// let newVisited = if (Data.List.any visit (x => (Data.U60.to_bool (== x head)))) {visit} else {(Data.List.cons head visit)} // ruim
+// let neighbours = Data.List.map (DAG.adjacent head g) (x => (Data.Pair.fst x)) 
+// let neighbours = (Data.List.filter neighbours (x => NotElem x newVisited)) 
+// let neighbours = (Data.List.concat tail neighbours)
+// // newVisited
+// // neighbours
+// (DAG.BFS.visit g neighbours newVisited)
+
+  DAG.BFS.visit.godown (Data.List.any visit (x => (Data.U60.to_bool (== x head)))) g (Data.List.cons head tail) visit
+#partial
+DAG.BFS.visit.godown (cond: Data.Bool) (g: DAG) (init: Data.List Data.U60) (visit: Data.List Data.U60) : Data.List Data.U60
+DAG.BFS.visit.godown b g  Data.List.nil visit = Data.List.reverse visit
+DAG.BFS.visit.godown Data.Bool.true g (Data.List.cons head tail) visit = (DAG.BFS.visit g tail visit)
+DAG.BFS.visit.godown Data.Bool.false g (Data.List.cons head tail) visit =
+  let newVisited = (Data.List.cons head visit) 
+  let neighbours = Data.List.map (DAG.adjacent head g) (x => (Data.Pair.fst x))
+  let neighbours = (Data.List.filter neighbours (x => NotElem x newVisited)) 
+  let neighbours = (Data.List.concat tail neighbours)
+  // newVisited
+  // neighbours
+  (DAG.BFS.visit g neighbours newVisited)
+
+
+
+
+// DAG.to_list (g: DAG) : (Data.List (Data.Pair Data.U60 Data.U60))
+// DAG.to_list (DAG.new edge) = Data.List.map edge (x => (Data.Pair.new (Data.Pair.fst x) (Data.Pair.snd (Data.Pair.fst _))))
+
+
+// BFS (g: Graph) (init: Data.U60) : Data.List Data.U60
+// BFS g init = BFS.visit g [init] []
+
+// BFS.visit (g: Graph) (init: Data.List Data.U60) (visit: Data.List Data.U60)  : Data.List Data.U60
+// BFS.visit g Data.List.nil visit  = Data.List.reverse visit
+// BFS.visit g (Data.List.cons head tail) visit = 
+
+// // BFS.visit.godown (Data.List.any visit (x => (Data.U60.to_bool (== x head)))) g (Data.List.cons head tail) visit
+
+// let neighbours = (Data.List.filter (Get.adjacent head g) (x => NotElem x (Data.List.cons head visit)))
+// // let newVisited = Data.List.concat newVisited neighbours
+// let neighbours = (Data.List.concat tail neighbours)
+// // newVisited
+// // neighbours
+// ((BFS.visit g neighbours (Data.List.cons head visit)))
+
+
 // -- Function to find the minimum distance node from the set of nodes not yet visited
 DAG.mindistance (l: Data.List (Data.Pair Data.U60 Data.U60)) (visited: Data.List Data.U60) : Data.Maybe Data.U60 
 DAG.mindistance Data.List.nil visited = Data.Maybe.none 
@@ -877,22 +940,52 @@ DAG.mindistance (Data.List.cons (Data.Pair t u) (Data.Pair.new fst snd) tail) vi
   let rail = DAG.mindistance tail visited
   match Data.Maybe rail {
     none => Data.Maybe.some fst
-    some value => 
-      // let Data.Pair.new fst (snd = mindist) = minimumBy (x => y => compare (Data.Pair.snd x) (Data.Pair.snd y)) [(Data.Pair.new value snd),(Data.Pair.new fst snd)] 
-      let Data.Pair.new fst (snd = mindist) = (Data.List.map  [(Data.Pair.new value snd),(Data.Pair.new fst snd)] (x => (Data.Pair.new (Data.Pair.fst x) (Data.Maybe.default (Data.Pair.snd x) 9999))))
-      let mim = DAG.minimum mindist
-    if (Data.U60.to_bool (< snd mim)) {(Data.Maybe.some fst)} else {Data.Maybe.some value}
-    
+    some value =>    
+      let mim = DAG.lookup.distancep value tail
+      if (Data.U60.to_bool (< snd mim)) {(Data.Maybe.some fst)} else {Data.Maybe.some value}
   }
-  DAG.minimum (visited: Data.List Data.U60) : Data.Maybe Data.U60
-  DAG.minimum Data.List.nil = Data.Maybe.none
-  DAG.minimum (Data.List.cons head Data.List.nil) = Data.Maybe.some head
-  DAG.minimum (Data.List.cons head tail) = 
-    Data.Maybe.some (DAG.minimum.min head (DAG.minimum tail))
+  // minDistance : List (Int, Int) -> List Int -> Maybe Int
+  // minDistance [] _ = Nothing
+  // minDistance ((v, dist) :: xs) visited =
+  //   if notElem v visited
+  //     then case minDistance xs visited of
+  //            Nothing => Just v
+  //            Just u ->
+  //              let minDist = lookupDistance u xs
+  //              in if dist < minDist then Just v else Just u
+  //     else minDistance xs visited
 
-    DAG.minimum.min (a: Data.U60) (u: Data.Maybe Data.U60) : Data.U60
-    DAG.minimum.min a Data.Maybe.none = a
-    DAG.minimum.min a (Data.Maybe.some value) = if (Data.U60.to_bool (< a value)) {a} else {value}
+DAG.lookup.distancep (a: Data.U60) (xs: Data.List (Data.Pair Data.U60 Data.U60)) : Data.U60
+DAG.lookup.distancep n Data.List.nil = 9999999 // arbitrário
+DAG.lookup.distancep n (Data.List.cons (Data.Pair t u) (Data.Pair.new fst snd) tail) = 
+  if (Data.U60.to_bool (== n fst)) {(snd)} else {(DAG.lookup.distancep n tail)}
+
+  //     lookupDistance : Int -> List (Int, Int) -> Int
+  //     lookupDistance _ [] = maxBound
+  //     lookupDistance u ((v, d) :: xs) =
+  //       if u == v
+  //         then d
+  //         else lookupDistance u xs
+
+DAG.lookup.distance (a: Data.U60) (xs: Data.List Data.U60) : Data.U60
+DAG.lookup.distance n Data.List.nil = 9999999 // arbitrário
+DAG.lookup.distance n (Data.List.cons head tail) = 
+  if (Data.U60.to_bool (== n (Data.Nat.to_u60 (Data.List.length tail)))) {(head)} else {(DAG.lookup.distance n tail)} 
+  // lookupDistance : Int -> List Int -> Int
+  // lookupDistance _ [] = maxBound
+  // lookupDistance u (d :: ds) =
+  //   if u == length ds
+  //     then d
+  //     else lookupDistance u ds
+DAG.minimum (visited: Data.List Data.U60) : Data.Maybe Data.U60
+DAG.minimum Data.List.nil = Data.Maybe.none
+DAG.minimum (Data.List.cons head Data.List.nil) = Data.Maybe.some head
+DAG.minimum (Data.List.cons head tail) = 
+  Data.Maybe.some (DAG.minimum.min head (DAG.minimum tail))
+
+  DAG.minimum.min (a: Data.U60) (u: Data.Maybe Data.U60) : Data.U60
+  DAG.minimum.min a Data.Maybe.none = a
+  DAG.minimum.min a (Data.Maybe.some value) = if (Data.U60.to_bool (< a value)) {a} else {value}
 
   // minimum : Ord a => List a -> Maybe a
   // minimum [] = Nothing
@@ -901,6 +994,25 @@ DAG.mindistance (Data.List.cons (Data.Pair t u) (Data.Pair.new fst snd) tail) vi
   //   where
   //     min' : Ord a => a -> a -> a
   //     min' a b = if a < b then a else b
+DAG.adjacent.distances (dist: Data.List Data.U60) (visited: Data.List Data.U60) (g: DAG) : Data.List (Data.Pair Data.U60 Data.U60)
+DAG.adjacent.distances dist visited (DAG.new e) = DAG.adjacent.distances.go dist visited e
+
+DAG.adjacent.distances.go (dist: Data.List Data.U60) (visited: Data.List Data.U60) (edge: Data.List (Data.Pair Data.U60 (Data.List (Data.Pair Data.U60 Data.U60)))) : Data.List (Data.Pair Data.U60 Data.U60)
+DAG.adjacent.distances.go dist visited (Data.List.nil) = []
+DAG.adjacent.distances.go dist visited (Data.List.cons (Data.Pair t (Data.List c)) ((Data.Pair.new head tail)) tail.tail) = 
+  if (NotElem head visited) {
+    Data.List.map (Data.List.concat tail (DAG.adjacent.distances.go dist visited tail.tail)) (x => (Data.Pair.new (Data.Pair.fst x) (+ (Data.Pair.snd x) (DAG.lookup.distance (Data.Pair.fst x) dist))))
+  } else {
+    DAG.adjacent.distances.go dist visited tail.tail
+  }
+
+//     getAdjacentDistances : List Int -> List (Int, List (Int, Int)) -> List (Int, Int)
+//     getAdjacentDistances visited [] = []
+//     getAdjacentDistances visited ((u, adj) :: xs) =
+//       if elem u visited
+//         then getAdjacentDistances visited xs
+//         else map (\(v, w) => (v, w + lookupDistance v dist)) adj ++ getAdjacentDistances visited xs
+
 // minDistance : List (Int, Int) -> List Int -> Maybe Int
 // minDistance [] _ = Nothing
 // minDistance ((v, dist) :: xs) visited =
@@ -911,6 +1023,77 @@ DAG.mindistance (Data.List.cons (Data.Pair t u) (Data.Pair.new fst snd) tail) vi
 //              let (_, minDist) = minimumBy (\(_, d1) (_, d2) => compare d1 d2) [(u, dist), (v, dist)]
 //              in if dist < minDist then Just v else Just u
 //     else minDistance xs visited
+// DAG.lookup (a: Data.U60) (edge: Data.List (Data.Pair Data.U60 (Data.List (Data.Pair Data.U60 Data.U60)))) :  Data.List (Data.Pair Data.U60 Data.U60)
+// DAG.lookup n Data.List.nil = Data.List.nil // arbitrário
+// DAG.lookup n (Data.List.cons (Data.Pair t u) (Data.Pair.new fst snd) tail) = 
+//   if (Data.U60.to_bool (== n fst)) {(snd)} else {(DAG.lookup n tail)}
+
+// lookup : Eq a => a -> List (a, b) -> Maybe b
+// lookup _ [] = Nothing
+// lookup x ((key, value) :: xs) =
+//   if x == key
+//     then Just value
+//     else lookup x xs
+
+  //     lookupDistance : Int -> List (Int, Int) -> Int
+  //     lookupDistance _ [] = maxBound
+  //     lookupDistance u ((v, d) :: xs) =
+  //       if u == v
+  //         then d
+  //         else lookupDistance u xs
+
+DAG.update.distances (init: Data.U60) (edge: Data.List (Data.Pair Data.U60 (Data.List (Data.Pair Data.U60 Data.U60)))) (dist: Data.List Data.U60) : Data.List Data.U60
+DAG.update.distances u edge dist = 
+  let adj = (DAG.lookup u edge)
+  let dst = Data.List.map adj (x => (if (Data.U60.to_bool (== (Data.Pair.fst x) u)) {(Data.Pair.snd x)} else {(DAG.lookup.distance (Data.Pair.fst x) dist)}))
+  dst //DAG.update.at_index u dst dist
+  
+// updateDistances : Int -> List (Int, List (Int, Int)) -> List Int -> List Int
+// updateDistances u edges dist =
+//   let adj = fromJust (lookup u edges)
+//       updatedDist = map (\(v, w) => if v == u then w else lookupDistance v dist) adj
+
+// 2 3 4 1 /// 2 -> 1 = 2 , 3 = 5 
+           /// 3 -> 4 = (5+5) 10 
+           /// 4 -> 1 = 2 // não mudar 
+
+// node adj dist
+//   2   1   2
+//   2   3   4
+//   3   4   5
+//   4   1   2
+//   4   1   2
+
+
+//   in updateAtIndex u updatedDist dist
+DAG.dijkstra (init: Data.U60) (d: DAG) : Data.List Data.U60 
+DAG.dijkstra init (DAG.new edge) = DAG.dijkstra.go edge (Data.List.repeat ((Data.List.length edge)) 999999) [init]
+
+  DAG.dijkstra.go (edge: Data.List (Data.Pair Data.U60 (Data.List (Data.Pair Data.U60 Data.U60))))  (dist: Data.List Data.U60) (visited: Data.List Data.U60) : Data.List Data.U60
+  DAG.dijkstra.go edge  dist visited = 
+    let nin = DAG.mindistance (DAG.adjacent.distances dist visited (DAG.new edge)) visited
+    match Data.Maybe nin {
+      none => dist
+      some value => 
+        // [1,2,3]
+        // let adj = (DAG.lookup value edge)
+        let up = DAG.update.distances value edge dist 
+        up// DAG.dijkstra.go edge up (Data.List.cons value visited)
+    }
+  
+// dijkstra : Int -> Graph -> List Int
+// dijkstra source (MkGraph edges) = go (replicate (length edges) 999999) [source]
+//   where
+//     go : List Int -> List Int -> List Int
+//     go dist visited =
+//       case minDistance (getAdjacentDistances visited edges) visited of
+//         Nothing => dist
+//         Just u =>
+//           let updatedDist = updateDistances u (fromJust (lookup u edges)) dist
+//           in go updatedDist (u :: visited)
+
+
+
 
 // -- Function to perform Dijkstra's algorithm to find the shortest path from source to all other vertices
 // dijkstra : Int -> Graph -> List Int
@@ -929,6 +1112,29 @@ DAG.mindistance (Data.List.cons (Data.Pair t u) (Data.Pair.new fst snd) tail) vi
 //       let index = fromJust (elemIndex v visited)
 //       in indexAt index dist
 
+// updateDistances : Int -> List (Int, List (Int, Int)) -> List Int -> List Int
+// updateDistances u edges dist =
+//   let adj = fromJust (lookup u edges)
+//       updatedDist = map (\(v, w) => if v == u then w else lookupDistance v dist) adj
+//   in updateAtIndex u updatedDist dist
+DAG.update.at_index (idx: Data.U60) (l: Data.List Data.U60) (val: Data.List Data.U60) : Data.List Data.U60
+DAG.update.at_index n Data.List.nil newVal = newVal
+DAG.update.at_index n (Data.List.cons t head tail) newVal = DAG.update.at_index (- n 1) tail (DAG.replace.at_index n head newVal) 
+
+DAG.replace.at_index <a> (idx: Data.U60) (x: a) (xs: Data.List a) : Data.List a
+DAG.replace.at_index a idx x Data.List.nil = []
+DAG.replace.at_index a 0 x (Data.List.cons head tail) = (Data.List.cons x tail)  
+DAG.replace.at_index a inx x (Data.List.cons head tail) = (Data.List.cons head (DAG.replace.at_index inx x tail))
+// updateAtIndex : Int -> List Int -> List Int -> List Int
+// updateAtIndex _ [] dist = dist
+// updateAtIndex index (x :: xs) dist =
+//   updateAtIndex (index - 1) xs (replaceAtIndex index x dist)
+
+// replaceAtIndex : Int -> a -> List a -> List a
+// replaceAtIndex _ _ [] = []
+// replaceAtIndex 0 newVal (x :: xs) = newVal :: xs
+// replaceAtIndex index newVal (x :: xs) = x :: replaceAtIndex (index - 1) newVal xs
+
 // -- Entry point
 // main : IO ()
 // main = do
@@ -945,6 +1151,103 @@ DAG.mindistance (Data.List.cons (Data.Pair t u) (Data.Pair.new fst snd) tail) vi
 
 // Example: (Data.List.any Data.Nat [1,2,3,4,5] (Data.Nat.equal 4)) -> Data.Bool.true
 
+// nub : Eq a => List a -> List a
+// nub [] = []
+// nub (x :: xs) = x :: nub (filter (\y => not (x == y)) xs)
+Nub <a> (cmp: a -> a -> Data.Bool) (la: Data.List a) : Data.List a
+Nub a cmp Data.List.nil = []
+Nub a cmp (Data.List.cons head tail) = Data.List.cons head (Nub a cmp (Data.List.filter tail (x => Data.Bool.not (cmp head x))))
+
+// lookup : Eq a => a -> List (a, b) -> Maybe b
+// lookup _ [] = Nothing
+// lookup key ((k, v) :: xs) = if key == k then Just v else lookup key xs
+
+DAG.lookup (a: Data.U60) (edge: Data.List (Data.Pair Data.U60 (Data.List (Data.Pair Data.U60 Data.U60)))) :  Data.List (Data.Pair Data.U60 Data.U60)
+DAG.lookup n Data.List.nil = Data.List.nil // arbitrário
+DAG.lookup n (Data.List.cons (Data.Pair t u) (Data.Pair.new fst snd) tail) = 
+  if (Data.U60.to_bool (== n fst)) {(snd)} else {(DAG.lookup n tail)}
+// map : (a -> b) -> List a -> List b
+// map _ [] = []
+// map f (x :: xs) = f x :: map f xs
+
+// concatMap : (a -> List b) -> List a -> List b
+// concatMap _ [] = []
+// concatMap f (x :: xs) = f x ++ concatMap f xs
+ConcatMap <a> <b> (f: a -> (Data.List b )) (la: Data.List a) : Data.List b
+ConcatMap a b f Data.List.nil = []
+ConcatMap a b f (Data.List.cons t head tail) = Data.List.concat (f head) (ConcatMap f tail)
+
+// filter : (a -> Bool) -> List a -> List a
+// filter _ [] = []
+// filter p (x :: xs) = if p x then x :: filter p xs else filter p xs
+
+// notElem : Eq a => a -> List a -> Bool
+// notElem _ [] = True
+// notElem x (y :: ys) = if x == y then False else notElem x ys
+
+// - Função auxiliar para encontrar o vértice com a menor distância
+Maxbound : Data.U60
+Maxbound = 999999
+
+DAG.minimum.distance (lp: Data.List (Data.Pair Data.U60 Data.U60)) : (Data.Pair Data.U60 Data.U60)
+DAG.minimum.distance Data.List.nil = Data.Pair.new 0 Maxbound
+DAG.minimum.distance (Data.List.cons (Data.Pair t c) (Data.Pair.new head tail) tail.tail) = 
+    let Data.Pair.new (fst = minv) (snd = mind) = DAG.minimum.distance tail.tail
+    if (Data.U60.to_bool (< tail mind)) {Data.Pair.new head tail} else {Data.Pair.new minv mind}
+// minimumDistance : List (Int, Int) -> (Int, Int)
+// minimumDistance [] = (0, maxBound)
+// minimumDistance ((v, d) :: xs) =
+//   let (minV, minD) = minimumDistance xs
+//   in if d < minD then (v, d) else (minV, minD)
+
+// -- Função auxiliar para atualizar as distâncias dos vizinhos
+
+DAG.update.distance (lpf: Data.List (Data.Pair Data.U60 Data.U60)) (lps: Data.List (Data.Pair Data.U60 Data.U60)) (i: Data.U60) : Data.List (Data.Pair Data.U60 Data.U60) 
+DAG.update.distance Data.List.nil acc i = Data.List.reverse acc
+DAG.update.distance (Data.List.cons (Data.Pair t c) (Data.Pair.new head tail) tail.tail) acc i = 
+    let mind = if (Data.U60.to_bool (< (+ tail i) Maxbound)) {(+ tail i)} else {Maxbound}
+    DAG.update.distance tail.tail ((Data.List.cons (Data.Pair.new head mind) acc)) i
+// updateDistances : List (Int, Int) -> List (Int, Int) -> Int -> List (Int, Int)
+// updateDistances [] acc _ = reverse acc
+// updateDistances ((v, d) :: xs) acc dist =
+//   let newDist = if d + dist < maxBound then d + dist else maxBound
+//   in updateDistances xs ((v, newDist) :: acc) dist
+
+// -- Algoritmo de Dijkstra
+DAG.Dijkstra (dag: DAG) (i: Data.U60) : Data.List (Data.Pair Data.U60 Data.U60)
+DAG.Dijkstra (DAG.new edges) start = 
+    let vertices = Nub (x => y => (Data.U60.to_bool (== x y))) (ConcatMap (x => (Data.List.cons (Data.Pair.fst x) (Data.List.map (Data.Pair.snd x) ((y => Data.Pair.fst y))))) edges)
+    let distances = Data.List.map vertices (x => (if (Data.U60.to_bool (== x start)) {(Data.Pair.new x 0)} else {((Data.Pair.new x Maxbound))}))
+    (DAG.Dijkstra.go edges [] distances)
+// dijkstra : Graph -> Int -> List (Int, Int)
+// dijkstra (MkGraph edges) start =
+//   let vertices = nub (concatMap (\(v, adj) => v :: map (\(v', _) => v') adj) edges)
+//       distances = map (\v => if v == start then (v, 0) else (v, maxBound)) vertices
+//       visited = []
+//       unvisited = distances
+//   in dijkstraHelper edges visited unvisited
+DAG.Dijkstra.go (edge: Data.List (Data.Pair Data.U60 (Data.List (Data.Pair Data.U60 Data.U60)))) (visit: Data.List Data.U60) (dist: Data.List (Data.Pair Data.U60 Data.U60)) : Data.List (Data.Pair Data.U60 Data.U60)
+DAG.Dijkstra.go edge visit Data.List.nil = []
+DAG.Dijkstra.go edge visit dist = 
+    let Data.Pair.new fst snd = DAG.minimum.distance dist
+    let neighbors = DAG.adjacent.vertices fst edge
+    let update = DAG.update.distance neighbors dist snd
+    let newvisit = Data.List.cons fst visit
+    let newdist = Data.List.filter update (x => NotElem (Data.Pair.fst x) newvisit)
+    Data.List.cons (Data.Pair.new fst snd) (DAG.Dijkstra.go edge newvisit newdist)
+//     dijkstraHelper : List (Int, List (Int, Int)) -> List Int -> List (Int, Int) -> List (Int, Int)
+//     dijkstraHelper _ _ [] = []
+//     dijkstraHelper edges visited unvisited =
+//       let (u, minDist) = minimumDistance unvisited
+//           neighbors = case lookup u edges of
+//                         Just adj -> adj
+//                         Nothing  -> []
+//           updatedNeighbors = updateDistances neighbors unvisited minDist
+//           newVisited = u :: visited
+//           newUnvisited = filter (\(v, _) => notElem v newVisited) updatedNeighbors
+//       in (u, minDist) :: dijkstraHelper edges newVisited newUnvisited
+
+
 Main {
   // BinaryTree.key (BinaryTree.set (Data.Nat.to_bits 10n) 1 BinaryTree.Leaf)
   // Binary.isBST (Data.List.to_BinaryTree [1,2,3,4,5,6,888,85,9,10,11,12,13,14,15,16])
@@ -957,19 +1260,19 @@ Main {
   let g= Graph.new [] 
   let g = Graph.addedge g (Data.Pair.new 0 1)
   let g = Graph.addedge g (Data.Pair.new 0 2) 
-  let g = Graph.addedge g (Data.Pair.new 1 2)
-  let g = Graph.addedge g (Data.Pair.new 2 0)
+  let g = Graph.addedge g (Data.Pair.new 1 3)
   let g = Graph.addedge g (Data.Pair.new 2 3)
-  let g = Graph.addedge g (Data.Pair.new 4 0)
-  let h = Get.adjacent 2 g
+  let g = Graph.addedge g (Data.Pair.new 2 1)
+  let g = Graph.addedge g (Data.Pair.new 3 4) 
+  // let h = Get.adjacent 2 g
   // let h = Bfs_traverse g 2
-  // let h = BFS g 2
+  let h = BFS g 2 
   // let h = BFS g 3
   // let h = BFS g 0
   // let h = BFS g 1
   // let g = Graphs.new 0n Data.Vector.nil 
   // let g = Graphs.new 1n (Data.Vector.cons 0n [1,2] Data.Vector.nil)
-  // let g = Graphs.new 2n (Data.Vector.cons 1n [2] (Data.Vector.cons 0n [1,2] Data.Vector.nil))
+  // let g = Graphs.new 2n (Data.Vector.cons 1n [2] (Data.Vector.cons 0n [1,2] Data.Vector.nil))    2n
   let g = Graphs.new 3n (Data.Vector.cons 2n [1,2,3] (Data.Vector.cons 1n [2] (Data.Vector.cons 0n [1,2] Data.Vector.nil)))
   let v = Data.Vector.repeat 3n Data.Bool.false
   let v = Data.Vector.update_at v 0n Data.Bool.true
@@ -978,17 +1281,22 @@ Main {
         // (Data.Vector.cons [2] (Data.Nat.succ (Data.Nat.zero))  
         // (Data.Vector.cons [1, 2] (Data.Nat.zero)  
         // (Data.Vector.nil)))))
-  let h = BFS.of.graph g
+  // let h = BFS.of.graph g
 
   let d = DAG.new [] 
   let d = DAG.add d 0 1 4
   let d = DAG.add d 0 2 1
   let d = DAG.add d 1 3 1
+  let d = DAG.add d 4 1 1
+  let d = DAG.add d 2 4 2
   let d = DAG.add d 2 1 2
   let d = DAG.add d 2 3 5
   let d = DAG.add d 3 4 3
   let e = DAG.adjacent 2 d
-  d 
+  let e = DAG.Dijkstra d 3
+  // let e = DAG.BFS d 2 
+  // let f = Data.Vector.update_at Data.Bool 1n (Data.Vector.nil) 1n Data.Bool.false
+  e
   // Data.Vector.create 1n (x => Data.Nat.add 1n x)
   // let m = 2n
   // let n = 1n

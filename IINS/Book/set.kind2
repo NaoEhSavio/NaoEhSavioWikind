@@ -1,0 +1,59 @@
+Data.Set (t) : Type
+Data.Set t = Data.List t
+
+Data.Set.empty <t> : Data.Set t 
+Data.Set.empty = []
+
+Data.Set.singleton <t> (x: t) : Data.Set t 
+Data.Set.singleton x = [x]
+
+Data.Set.union <t> (a: Data.Set t) (b: Data.Set t) : Data.Set t  {
+  Data.List.concat a b
+}
+Data.List.zip <a> <b> (as: Data.List a) (bs: Data.List b) : Data.List (Data.Pair a b)
+Data.List.zip a b (Data.List.cons a_ ah at) (Data.List.cons b_ bh bt) =
+  let head = Data.Pair.new ah bh
+  let tail = Data.List.zip at bt
+  Data.List.cons head tail
+
+Data.List.zip a b as bs = Data.List.nil
+
+Data.Set.product <t> (a: Data.Set t) (b: Data.Set t) : Data.Set (Data.Pair t t) {
+  _
+}
+
+record Edge (t) {
+  weight: Data.U60
+  from: t
+  to: t
+}
+
+// [a, b, c]
+// [x, y]
+
+// [(a, x), (a, y), (b, x) (b, y), (c, x), (c, y)]
+
+// Empty constructs the empty graph (∅, ∅).
+// Vertex x constructs a graph containing a single vertex, i.e. ({x}, ∅).
+// Overlay x y overlays graphs (Vx, Ex) and (Vy, Ey) constructing (Vx ∪ Vy, Ex ∪ Ey).
+// Connect x y connects graphs (Vx, Ex) and (Vy, Ey) constructing (Vx ∪ Vy, Ex ∪ Ey ∪ Vx × Vy).
+
+type Graph (t) ~ (vertices: Data.Set t) (edges: Data.Set (Edge t)) {
+  empty :
+    Graph t Data.Set.empty Data.Set.empty
+  vertex (x: t) :
+    Graph t (Data.Set.singleton x) Data.Set.empty
+  overlay <v1: Data.Set t> <v2: Data.Set t>
+    <e1: Data.Set (Edge t)> <e2: Data.Set (Edge t)>
+    (g1: Graph t v1 e1) (g2: Graph t v2 e2) :
+    Graph t (Data.Set.union v1 v2) (Data.Set.union e1 e2)
+  // connect (g1: Graph t v1 e1) (g2: Graph t v2 e2) :
+  //   Graph t (Data.Set.union v1 v2) (Data.Set.union (Data.Set.union e1 e2) (Data.Set.empty))
+}
+Main {
+  let g = Graph.empty
+  let g = Graph.vertex "a" 
+  let h = Graph.vertex "b"
+  let g = Graph.overlay g h
+  g
+}

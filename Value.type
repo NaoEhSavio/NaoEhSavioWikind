@@ -1,0 +1,3 @@
+Value (t: Term) 
+Value.true : Value Term.true
+Value.false : Value Term.false
