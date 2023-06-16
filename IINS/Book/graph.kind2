@@ -120,6 +120,7 @@ Graph.bfs.visit.godown Data.Bool.false g (Data.List.cons head tail) visit =
 Graph.bfs.visit.godown b g u visit = Data.List.reverse visit
 
 
+
 NotElem (t: Data.U60) (l: Data.List Data.U60) : Data.Bool
 NotElem t Data.List.nil = Data.Bool.true
 NotElem t (Data.List.cons xs.h xs.t) = if (Data.U60.to_bool (== t xs.h)) {
@@ -145,23 +146,61 @@ Graph.update.distance (Data.List.cons (Edge t) (Edge.new head tail) tail.tail) a
     let mind = if (Data.U60.to_bool (< (+ head i) Maxbound)) {(+ head i)} else {Maxbound}
     Graph.update.distance tail.tail ((Data.List.cons (Data.Pair.new tail mind) acc)) i
 
+
+
 // Algoritmo de Dijkstra
+// Graph.Dijkstra (g: Graph Node) (node: Node) : Data.List (Data.Pair Data.U60 Data.U60)
+// Graph.Dijkstra edges start = 
+//     let vertices = Graph.bfs edges start 
+//     let distances = Data.List.map vertices (x => (if (Data.U60.to_bool (== x start)) {(Data.Pair.new x 0)} else {((Data.Pair.new x Maxbound))}))
+//     (Graph.Dijkstra.go edges [] distances)
+
+// Graph.Dijkstra.go (edge: Graph) (visit: Data.List Data.U60) (dist: Data.List (Data.Pair Data.U60 Data.U60)) : Data.List (Data.Pair Data.U60 Data.U60)
+// Graph.Dijkstra.go edge visit Data.List.nil = []
+// Graph.Dijkstra.go edge visit (Data.List.cons head tail) = 
+// 		let dist = (Data.List.cons head tail)
+//     let Data.Pair.new fst snd = Graph.minimum.distance dist
+//     let neighbors = Graph.adjacent edge fst
+//     let update = Graph.update.distance neighbors dist snd
+//     let newvisit = Data.List.cons fst visit
+// 		// let notelem =  Data.Bool.not (Data.List.any visit (x => (Data.U60.to_bool (== (Data.Pair.fst head) x))))
+//     let newdist = Data.List.filter update (x => NotElem (Data.Pair.fst x) newvisit)
+//     Data.List.cons (Data.Pair.new fst snd) (Graph.Dijkstra.go edge newvisit newdist)
+
+
+
+
 Graph.Dijkstra (g: Graph Node) (node: Node) : Data.List (Data.Pair Data.U60 Data.U60)
 Graph.Dijkstra edges start = 
-    let vertices = Graph.bfs edges start 
-    let distances = Data.List.map vertices (x => (if (Data.U60.to_bool (== x start)) {(Data.Pair.new x 0)} else {((Data.Pair.new x Maxbound))}))
-    (Graph.Dijkstra.go edges [] distances)
+		let vertices = Graph.bfs edges start 
+		let distances = Data.List.map vertices (x => (if (Data.U60.to_bool (== x start)) {(Data.Pair.new x 0)} else {((Data.Pair.new x Maybe.none))}))
+		(Graph.Dijkstra.go edges [] distances)
 
-Graph.Dijkstra.go (edge: Graph) (visit: Data.List Data.U60) (dist: Data.List (Data.Pair Data.U60 Data.U60)) : Data.List (Data.Pair Data.U60 Data.U60)
+Graph.Dijkstra.go (edge: Graph) (visit: Data.List Data.U60) (dist: Data.List (Data.Pair Data.U60 (Data.Maybe Data.U60))) : Data.List (Data.Pair (Data.Maybe Data.U60) Data.U60)
 Graph.Dijkstra.go edge visit Data.List.nil = []
-Graph.Dijkstra.go edge visit dist = 
-    let Data.Pair.new fst snd = Graph.minimum.distance dist
-    let neighbors = Graph.adjacent edge fst
-    let update = Graph.update.distance neighbors dist snd
-    let newvisit = Data.List.cons fst visit
-		// let notelem =  Data.List.any visit (x => (Data.U60.to_bool (== (Data.Pair.fst head) x)))
-    let newdist = Data.List.filter update (x => NotElem (Data.Pair.fst x) newvisit)
-    Data.List.cons (Data.Pair.new fst snd) (Graph.Dijkstra.go edge newvisit newdist)
+Graph.Dijkstra.go edge visit (Data.List.cons head tail) = 
+		let dist = (Data.List.cons head tail)
+		let Data.Pair.new fst snd = Graph.minimum.distance dist
+		let neighbors = Graph.adjacent edge fst
+		let update = Graph.update.distance neighbors dist snd
+		let newvisit = Data.List.cons fst visit
+		// let notelem =  Data.Bool.not (Data.List.any visit (x => (Data.U60.to_bool (== (Data.Pair.fst head) x))))
+		let newdist = Data.List.filter update (x => NotElem (Data.Pair.fst x) newvisit)
+		Data.List.cons (Data.Pair.new fst snd) (Graph.Dijkstra.go edge newvisit newdist)		
+// Graph.Dijkstra.godown (Data.List.any visit (x => (Data.U60.to_bool (== x head)))) g (Data.List.cons head tail) visit
+
+Graph.Dijkstra.godown (cond: Data.Bool) (edge: Graph) (visit: Data.List Data.U60) (dist: Data.List (Data.Pair Data.U60 Data.U60)) : Data.List (Data.Pair Data.U60 Data.U60)
+// Graph.Dijkstra.godown b edge visit Data.List.nil = [] 
+// Graph.Dijkstra.godown Data.Bool.true edge visit dist = [] 
+// Graph.Dijkstra.godown Data.Bool.false g (Data.List.cons head tail) visit = 
+// let newVisited = (Data.List.cons head visit) 
+// let neighbours = Data.List.map (Graph.adjacent g head) (x => (Edge.node x))
+// let neighbours = (Data.List.concat tail neighbours)
+// (Graph.bfs.visit g neighbours newVisited)
+// Graph.Dijkstra.godown b g u visit = Data.List.reverse visit
+
+
+
 
 Main {
 	let g = []
@@ -213,6 +252,8 @@ Main {
 	// [4, 6, 3]
 	// [5, 4, 6, 3]
 	
+	let notelem =  Data.Bool.not (Data.List.any visit (x => (Data.U60.to_bool (== 5 x))))
+	let not = NotElem 5 newvisit
 
 	// let notelem =  Data.List.any visit (x => (Data.U60.to_bool (== (Data.Pair.fst x) head)))
 	let newdist = Data.List.filter update (x => NotElem (Data.Pair.fst x) newvisit)
@@ -226,5 +267,5 @@ Main {
 	// [(Data.Pair.new 6 1)]
 	// [(Data.Pair.new 4 2)]
 	// [(Data.Pair.new 5 3)]
-	Graph.Dijkstra edges start
+	salve
 }

@@ -1,0 +1,21 @@
+type Term { // metavariable
+		true // constant true
+		false // constant false
+		ifts (cond: Term) (then: Term) (else: Term) // conditional
+		zero // constant zero
+		succ (pred: Term) // successor
+		pred (succ: Term) // predecessor
+		iszr (zrts: Term) // zero test
+	}
+
+	type Value { // Values
+		true 
+		false 
+		nvalue (nv: Nvalue) // numeric value
+	}
+	
+	type Nvalue { // numeric values
+		zero //zero value
+		succ (pred: Nvalue) // successor value
+	}
+	
