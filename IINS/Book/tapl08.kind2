@@ -1,21 +1,121 @@
 type Term { // metavariable
-		true // constant true
-		false // constant false
-		ifts (cond: Term) (then: Term) (else: Term) // conditional
-		zero // constant zero
-		succ (pred: Term) // successor
-		pred (succ: Term) // predecessor
-		iszr (zrts: Term) // zero test
-	}
+	true              // constant true
+	false             // constant false
+	zero              // constant zero
+	succ (pred: Term) // successor
+	pred (succ: Term) // predecessor
+	iszr (zrts: Term) // zero test
+	ifte (cond: Term) (then: Term) (else: Term) // conditional
+}
 
-	type Value { // Values
-		true 
-		false 
-		nvalue (nv: Nvalue) // numeric value
+
+Const (t: Term) : Data.List Term
+Const (Term.zero) = [Term.zero]
+Const (Term.succ pred) = Const pred
+Const (Term.pred succ) = Const succ
+Const (Term.iszr zt) = Const zt
+Const (Term.true) = [Term.true]
+Const (Term.false) = [Term.false]
+Const (Term.ifte cond then else) = (Data.List.concat (Const cond) (Data.List.concat (Const then) (Const else)))
+
+Size (t: Term) : Data.Nat
+Size (Term.zero) = 1n
+Size (Term.succ pred) = (Data.Nat.succ (Size pred))
+Size (Term.pred succ) = (Data.Nat.succ (Size succ))
+Size (Term.iszr zt) = (Data.Nat.succ (Size zt))
+Size (Term.true) = 1n
+Size (Term.false) = 1n
+Size (Term.ifte cond then else) = (Data.Nat.succ (Data.Nat.add (Size cond) (Data.Nat.add (Size then) (Size else)))) 
+
+Depth (t: Term) : Data.Nat
+Depth (Term.zero) = 1n
+Depth (Term.succ pred) = (Data.Nat.succ (Depth pred))
+Depth (Term.pred succ) = (Data.Nat.succ (Depth succ))
+Depth (Term.iszr zt) = (Data.Nat.succ (Depth zt))
+Depth (Term.true) = 1n
+Depth (Term.false) = 1n
+Depth (Term.ifte cond then else) = (Data.Nat.succ (Data.Nat.max (Depth cond) (Data.Nat.max (Depth then) (Depth else))))
+
+type Value { // Values
+	true                // True Value
+	false               // False Value
+	nvalue (nv: Nvalue) // numeric value
 	}
 	
-	type Nvalue { // numeric values
-		zero //zero value
-		succ (pred: Nvalue) // successor value
-	}
-	
+type Nvalue { // numeric values
+	zero 								// zero value
+	succ (pred: Nvalue) // successor value
+}
+
+type Ers ~(from: Term) (to: Term) { //Evaluation relation specification
+	E_IfTrue <from: Term> <to: Term> : Ers (Term.ifte Term.true from to) from // (E-IfTrue) if true then t2 else t3 → t2
+	E_IfFalse <from: Term> <to: Term> : Ers (Term.ifte Term.false from to) to // (E-IfFalse) if false then t2 else t3 → t3
+	E_PredZero : Ers (Term.pred Term.zero) (Term.zero) // (E-PredZero) pred 0 → 0
+	E_IsZeroZero : Ers (Term.iszr Term.zero) (Term.true) // (E-IsZeroZero) iszero 0 → true
+	E_PredSucc <from: Term> : Ers (Term.pred (Term.succ from)) (from) // (E-PredSucc) pred ( succ nv1) → nv1
+	E_IsZeroSucc <from: Term> : Ers (Term.iszr (Term.succ from)) (Term.false) // (E-IsZeroSucc) iszero ( succ nv1) → false
+	E_Succ <from: Term> <to: Term> (s: Ers from to) : Ers (Term.succ from) (Term.succ to) // (E-Succ) t1 → t′1 //  succ t1 → succ t′1
+	E_Pred <from: Term> <to: Term> (s: Ers from to) : Ers (Term.pred from) (Term.pred to) // (E-Pred) t1 → t′1 //pred t1 → pred t′1
+	E_IsZero <from: Term> <to: Term> (s: Ers from to) : Ers (Term.iszr from) (Term.iszr to) // (E-IsZero) t1 → t′1 // iszero t1 → iszero t′1
+	E_If <cond1: Term> <cond2: Term> <from: Term> <to: Term> (s: Ers cond1 cond2) : Ers (Term.ifte cond1 from to) (Term.ifte cond2 from to) // (E-If ) t1 → t′1 // if t1 then t2 else t3 → if t′1 then t2 else t3
+}
+
+type Types {
+	Bool //type of booleans
+	Nat  //type of booleans
+}	
+
+type Typed ~(t: Term) (tp: Types) {
+	TTrue  : Typed Term.true  Types.Bool
+	TFlase : Typed Term.false Types.Bool
+	TZero  : Typed Term.zero  Types.Nat
+	TSucc <pred: Term> (succ: Typed pred Types.Nat) : Typed (Term.succ pred) Types.Nat
+	TPred <succ: Term> (pred: Typed succ Types.Nat) : Typed (Term.pred succ) Types.Nat
+	TIsZero <test: Term> (zero: Typed test Types.Nat) : Typed (Term.iszr test) Types.Bool
+	TIf <u: Types> <c: Term> <t: Term> <e: Term> (cond: Typed c Types.Bool) (then: Typed t u) (else: Typed e u) : Typed (Term.ifte c t e) u
+}
+
+// Evaluation (t: Term) : Term 
+// Evaluation (Term.ifte Term.true then else) = then // E-iftrue
+// Evaluation (Term.ifte Term.false then else) = else // E-ifflase
+// Evaluation (Term.ifte cond then else) = Term.ifte (Evaluation cond) then else // E-if
+// Evaluation (Term.succ pred) = Term.succ (Evaluation pred) // E-Succ
+// Evaluation (Term.pred Term.zero) = Term.zero // (E-PredZero)
+// Evaluation (Term.pred (Term.succ succpred)) = succpred // E-PredSucc
+// Evaluation (Term.pred succ) = Term.pred (Evaluation succ) // E-Pred
+// Evaluation (Term.iszr Term.zero) = Term.true // (E-IszeroZero)
+// Evaluation (Term.iszr (Term.succ ztpred)) = Term.false // E-IszeroSucc
+// Evaluation (Term.iszr zt) = Term.iszr (Evaluation zt) // E-IsZero)
+// Evaluation t = t // zero, true, false
+
+Evaluation (t: Term) : Data.Maybe Term 
+Evaluation (Term.ifte Term.true then else) = Data.Maybe.some then // E-iftrue
+Evaluation (Term.ifte Term.false then else) = Data.Maybe.some else // E-ifflase
+Evaluation (Term.ifte cond then else) = Data.Maybe.some (Term.ifte (Evaluation cond) then else) // E-if
+Evaluation (Term.succ pred) = Data.Maybe.some (Term.succ (Evaluation pred)) // E-Succ
+Evaluation (Term.pred Term.zero) = Data.Maybe.some (Term.zero) // (E-PredZero)
+Evaluation (Term.pred (Term.succ succpred)) = Data.Maybe.some (succpred) // E-PredSucc
+Evaluation (Term.pred succ) = Data.Maybe.some (Term.pred (Evaluation succ)) // E-Pred
+Evaluation (Term.iszr Term.zero) = Data.Maybe.some (Term.true) // (E-IszeroZero)
+Evaluation (Term.iszr (Term.succ ztpred)) = Data.Maybe.some (Term.false) // E-IszeroSucc
+Evaluation (Term.iszr zt) = Data.Maybe.some (Term.iszr (Evaluation zt)) // E-IsZero)
+Evaluation Term.zero = Data.Maybe.some Term.zero // zero
+Evaluation Term.true = Data.Maybe.some Term.true // true
+Evaluation Term.false = Data.Maybe.some Term.false // flase
+Evaluation t = Data.Maybe.none // Not Value
+
+// Evaluation <t: Types> (term: Term) (tp: Typed term t) : Term 
+// Evaluation t (Term.ifte Term.true then else) tp = then // E-iftrue
+// Evaluation t (Term.ifte Term.false then else) tp = else // E-ifflase
+// Evaluation t (Term.ifte cond then else) (Typed.TIf cond1 then2 else3) = Term.ifte (Evaluation cond cond1) then else // E-if
+// Evaluation t (Term.succ pred) (Typed.TSucc pred1)= Term.succ (Evaluation pred pred1) // E-Succ
+// Evaluation t (Term.pred Term.zero) tp = Term.zero // (E-PredZero)
+// Evaluation t (Term.pred (Term.succ succpred)) (Typed.TPred (Typed.TSucc succpred1)) = succpred // E-PredSucc
+// Evaluation t (Term.pred succ) (Typed.TPred succ1) = Term.pred (Evaluation succ succ1) // E-Pred
+// Evaluation t (Term.iszr Term.zero) tp = Term.true // (E-IszeroZero)
+// Evaluation t (Term.iszr (Term.succ zeropred)) (Typed.TIsZero (Typed.TSucc zeropred1)) = Term.false // E-IszeroSucc
+// Evaluation t (Term.iszr zero) (Typed.TIsZero zero1)= Term.iszr (Evaluation zero zero1) // E-IsZero)
+// Evaluation t Term.true tp = Term.true // true
+// Evaluation t Term.false tp = Term.false // false
+// Evaluation t Term.zero tp = Term.zero // zero
+// Evaluation t (Term.iszr Term.true) tp = ? // Not Value
